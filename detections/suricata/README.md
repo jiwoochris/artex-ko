@@ -9,7 +9,7 @@ English · [한국어](README.ko.md)
 > **[README.ko.md](README.ko.md)** 를 보십시오.
 
 The network-layer companion to the [Sigma rules](../sigma/). These [Suricata](https://suricata.io)
-signatures cover the one ARTEX artifact that is observable on the wire, and every indicator is grounded in a
+signatures cover the two ARTEX artifacts that are observable on the wire, and every indicator is grounded in a
 string or behaviour verified in this repository's source, not inferred. The host, log, and SIEM layers live
 under [`../sigma/`](../sigma/); the defense guide ([Korean](../../docs/defense-ko.md) ·
 [English](../../docs/defense-en.md)) explains the full picture.
@@ -22,13 +22,21 @@ under [`../sigma/`](../sigma/); the defense guide ([Korean](../../docs/defense-k
 - **sid 1000002** — `ARTEX enrichment prober high-rate enumeration`. The same User-Agent crossing a
   `detection_filter` rate of **30 requests in 300 s per source** — the machine-speed velocity a single-hit
   rule misses. Mirrors the Sigma correlation `artex_enrich_scan_velocity`. `classtype: attempted-recon`.
+- **sid 1000003** — `ARTEX worker WebFetch User-Agent`. An inbound HTTP request whose User-Agent starts with
+  `norma/` — the norma SDK's WebFetch tool (`tool/webfetch.go:188`). This UA is hardcoded across all norma
+  versions (v0.1.0–v0.4.3, verified) and reaches the target through the recording proxy, which does not
+  modify request headers (`traffic/traffic.go`). Unlike the enrich prober, this fires during the **attack
+  phase** (active vulnerability probing). `classtype: attempted-recon`.
 
 ## Scope and honesty — read before deploying
 
-- **Only the enrich prober is network-observable.** ARTEX's actual attack traffic carries **no**
-  ARTEX-specific fingerprint: the worker routes the tools it runs through a local recording proxy
-  (`127.0.0.1:8788`) and those tools keep their own default User-Agents. Detect that traffic with generic
-  scanner signatures and the behavioural SIEM rules under [`../sigma/`](../sigma/), not here.
+- **Two ARTEX User-Agents are network-observable.** The enrich prober sends `artex-enrich/1.0`
+  (`enrich/enrich.go:233`) during the reconnaissance phase, and the norma SDK's WebFetch tool sends
+  `norma/0.4` (`tool/webfetch.go:188`) during the attack phase. The recording proxy
+  (`127.0.0.1:8788`, `traffic/traffic.go`) forwards request headers unchanged, so the norma UA reaches
+  the target on the wire. Other worker tools (Bash subprocesses like `curl`, `nmap`) use their own
+  User-Agents, which are not ARTEX-specific — detect those with generic scanner signatures and the
+  behavioural SIEM rules under [`../sigma/`](../sigma/).
 - **The User-Agent is only visible in plaintext.** It appears where traffic is plaintext HTTP or inspected at
   a TLS-terminating proxy / WAF. End-to-end TLS encrypts it, so deploy these where you actually see the HTTP
   request buffer.
