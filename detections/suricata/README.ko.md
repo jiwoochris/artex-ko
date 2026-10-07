@@ -3,7 +3,7 @@
 한국어 · [English](README.md)
 
 [Sigma 규칙](../sigma/)의 네트워크 계층 짝입니다. 이 [Suricata](https://suricata.io) 시그니처는
-네트워크 선에서 관측되는 유일한 ARTEX 산출물을 다루며, 모든 지표는 추정이 아니라 이 저장소
+네트워크 선에서 관측되는 두 가지 ARTEX 산출물을 다루며, 모든 지표는 추정이 아니라 이 저장소
 소스에서 확인한 문자열이나 행동에 근거합니다. 호스트·로그·SIEM 계층은 [`../sigma/`](../sigma/)에
 있고, 전체 그림은 방어 가이드([한국어](../../docs/defense-ko.md) · [English](../../docs/defense-en.md))가
 설명합니다.
@@ -17,13 +17,20 @@
   `detection_filter` 임계인 **출처당 300초에 30요청** 을 넘는 경우입니다 — 단건 규칙이 놓치는, 기계
   속도로 쏟아내는 빈도입니다. Sigma 상관 규칙 `artex_enrich_scan_velocity` 를 반영합니다.
   `classtype: attempted-recon`.
+- **sid 1000003** — `ARTEX worker WebFetch User-Agent`. User-Agent 가 `norma/` 로 시작하는 인바운드
+  HTTP 요청입니다 — norma SDK 의 WebFetch 도구(`tool/webfetch.go:188`). 이 UA 는 norma 전 버전
+  (v0.1.0–v0.4.3, 검증 완료)에 걸쳐 하드코딩되어 있으며, 기록 프록시가 요청 헤더를 수정하지
+  않으므로(`traffic/traffic.go`) 대상 호스트 와이어에 그대로 도달합니다. 보강 프로버와 달리
+  **공격 단계**(능동적 취약점 프로빙) 에서 발화합니다. `classtype: attempted-recon`.
 
 ## 범위와 정직함 — 배포 전에 읽으십시오
 
-- **보강 프로버만 네트워크에서 관측됩니다.** ARTEX 의 실제 공격 트래픽은 ARTEX 고유 지문을 **싣지
-  않습니다**: worker 는 자신이 돌리는 도구를 로컬 기록 프록시(`127.0.0.1:8788`)로 흘려보내고, 그
-  도구들은 각자의 기본 User-Agent 를 그대로 씁니다. 그 트래픽은 여기가 아니라 일반 스캐너
-  시그니처와 [`../sigma/`](../sigma/)의 행동 기반 SIEM 규칙으로 탐지하십시오.
+- **두 가지 ARTEX User-Agent 가 네트워크에서 관측됩니다.** 보강 프로버는 정찰 단계에서
+  `artex-enrich/1.0`(`enrich/enrich.go:233`)을, norma SDK 의 WebFetch 도구는 공격 단계에서
+  `norma/0.4`(`tool/webfetch.go:188`)를 보냅니다. 기록 프록시(`traffic/traffic.go`)는 요청 헤더를
+  변경하지 않으므로 두 UA 모두 대상 와이어에 도달합니다. 그 외 worker 도구(Bash 하위 프로세스인
+  `curl`, `nmap` 등)는 자체 User-Agent 를 사용하며 — 일반 스캐너 시그니처와
+  [`../sigma/`](../sigma/)의 행동 기반 SIEM 규칙으로 탐지하십시오.
 - **User-Agent 는 평문에서만 보입니다.** 트래픽이 평문 HTTP 이거나 TLS 를 종단하는 프록시·WAF 에서
   검사될 때 나타납니다. 종단 간 TLS 는 이것을 암호화하므로, 실제로 HTTP 요청 버퍼를 볼 수 있는
   자리에 배포하십시오.
