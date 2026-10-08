@@ -99,7 +99,7 @@ func TestReportFindingAtomicContract(t *testing.T) {
 	if err != nil || f == nil || f.NodeID == nil || *f.NodeID != out.NodeID {
 		t.Fatalf("wrong finding/node mapping: %+v %v", f, err)
 	}
-	if got = call(`{"vulnclass":"TEST","summary":"no storage","severity":"low","traffic_refs":[{"traffic_id":"x"}]}`); !strings.Contains(got, "未登记") {
+	if got = call(`{"vulnclass":"TEST","summary":"no storage","severity":"low","traffic_refs":[{"traffic_id":"x"}]}`); !strings.Contains(got, "등록되지 않") {
 		t.Fatal(got)
 	}
 	if notices != 1 {

@@ -32,13 +32,13 @@ func TestRenderSystemOverrideAndFallback(t *testing.T) {
 	}
 
 	// full plannerSystem path: DB body [A] is honored, then the code-owned tail
-	// [C] (中间产物输出规约) is ALWAYS appended — editing the body can't drop it.
+	// [C] (중간 산출물 출력 규약) is ALWAYS appended — editing the body can't drop it.
 	PromptOverride = func(k string) (string, bool) { return "PLANNER {{.Goal}}", true }
 	got := plannerSystem("拿下X", "/data", "/data")
 	if !strings.HasPrefix(got, "PLANNER 拿下X") {
 		t.Fatalf("plannerSystem body not honored: %q", got)
 	}
-	if !strings.Contains(got, "中间产物输出规约") || !strings.Contains(got, "/data") {
+	if !strings.Contains(got, "중간 산출물 출력 규약") || !strings.Contains(got, "/data") {
 		t.Fatalf("plannerSystem missing code-owned artifact tail: %q", got)
 	}
 
@@ -60,7 +60,7 @@ func TestRenderSystemOverrideAndFallback(t *testing.T) {
 	if strings.Contains(recording, "traffic_refs") {
 		t.Fatalf("worker bypassed shared optional evidence policy: %q", recording)
 	}
-	if !strings.Contains(recording, "中间产物输出规约") {
+	if !strings.Contains(recording, "중간 산출물 출력 규약") {
 		t.Fatalf("worker missing artifact tail: %q", recording)
 	}
 	// Egress proxy set but capture OFF (no CA): the ProxyAddr template branch still
@@ -93,7 +93,7 @@ func TestLangDirectiveAppendedToUserFacingRoles(t *testing.T) {
 	if !strings.Contains(dir, "한국어") {
 		t.Fatalf("langDirective must force Korean output, got %q", dir)
 	}
-	if !strings.Contains(dir, "payload") || !strings.Contains(dir, "原样逐字保留") {
+	if !strings.Contains(dir, "payload") || !strings.Contains(dir, "원문 그대로") {
 		t.Fatalf("langDirective must keep commands/payloads verbatim, got %q", dir)
 	}
 	// L1 anti-drift hardening: the directive must (1) forbid leaking the Chinese
@@ -101,13 +101,13 @@ func TestLangDirectiveAppendedToUserFacingRoles(t *testing.T) {
 	// drift), and (2) forbid mirroring the target/material language — e.g. an
 	// English target app — in the display fields (report_finding drift). Both
 	// clauses are locked here so a future edit can't silently drop them.
-	if !strings.Contains(dir, "也绝不能把中文输出给用户") {
+	if !strings.Contains(dir, "다른 언어 문장이 나오게 하지 마라") {
 		t.Fatalf("langDirective must forbid leaking Chinese to the user, got %q", dir)
 	}
-	if !strings.Contains(dir, "不要镜像或照抄目标") {
+	if !strings.Contains(dir, "미러링하거나 베끼지") {
 		t.Fatalf("langDirective must forbid mirroring the target/material language, got %q", dir)
 	}
-	if !strings.Contains(dir, "态势") {
+	if !strings.Contains(dir, "상황") {
 		t.Fatalf("langDirective must name the planner situation summary as user-facing, got %q", dir)
 	}
 
