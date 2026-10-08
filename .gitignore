@@ -72,3 +72,14 @@ agent/d2_models_live_test.go
 # API 키·비밀: 어디에 두든 커밋 금지
 *.env
 secrets.env
+
+# --- Windows 소스 빌드 로컬 산출물: 커밋 금지 ---
+# go build -o artex.exe 로 생기는 Windows 단일 바이너리(유닉스판 /artex 와 대응)
+/artex.exe
+# 로컬 설정에 쓴 비밀(예: PostgreSQL 비밀번호). 절대 커밋하지 않는다.
+/.secrets/
+# SWC_NATIVE_BINDING_CACHE 를 프로젝트 하위로 돌릴 때 생기는 네이티브 바인딩 캐시
+/.swc-cache/
+# artex.exe 를 포그라운드로 띄울 때 리다이렉트한 런타임 로그
+/artex.out.log
+/artex.err.log
