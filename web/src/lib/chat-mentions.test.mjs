@@ -1,6 +1,27 @@
-import { activeMention, mentionSearch, mentionToken, selectedMentions } from "./chat-mentions.ts";
+import { activeMention, mentionKinds, mentionSearch, mentionToken, selectedMentions } from "./chat-mentions.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
+
+test("Korean display labels and search keep Chinese wire tokens compatible", () => {
+  const labels = ["취약점", "자산", "기업", "엔드포인트", "IP", "앱", "도메인", "서브도메인", "서비스"];
+  const tokens = ["漏洞", "资产", "企业", "接口", "IP", "应用", "域名", "子域名", "服务"];
+  assert.deepEqual(
+    mentionKinds.map((item) => item.label),
+    labels,
+  );
+  for (const [index, item] of mentionKinds.entries()) {
+    for (const alias of [labels[index], tokens[index], item.alias]) {
+      assert.equal(mentionSearch(`${alias} example`).kind, item.kind);
+      assert.equal(mentionSearch(`${alias} example`).query, "example");
+    }
+    const token = mentionToken({ kind: item.kind, id: 42, label: "테스트", description: "" });
+    assert.equal(token, `@[${tokens[index]}#42 테스트]`);
+    assert.equal(selectedMentions(token)[0].kind, item.kind);
+  }
+  assert.equal(mentionSearch("취").categories[0].kind, "finding");
+  assert.equal(mentionSearch("취약점SQL").query, "SQL");
+  assert.equal(mentionToken({ kind: "unknown", id: 1, label: "테스트" }), "@[资产#1 테스트]");
+});
 
 test("mention trigger supports Chinese and cursor placement without hijacking email", () => {
   assert.equal(activeMention("user@example.com", 16), null);

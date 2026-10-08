@@ -556,7 +556,7 @@ type AgentDTO struct {
 }
 
 func agentDTO(a *db.Agent) AgentDTO {
-	return AgentDTO{
+	return agentPresentation(AgentDTO{
 		ID:                 i64s(a.ID),
 		Key:                a.Key,
 		Name:               a.Name,
@@ -572,7 +572,7 @@ func agentDTO(a *db.Agent) AgentDTO {
 		TriggerRunMode:     a.TriggerRunMode,
 		TriggerMergeMode:   a.TriggerMergeMode,
 		TriggerMaxParallel: a.TriggerMaxParallel,
-	}
+	})
 }
 
 func agentDTOs(in []*db.Agent) []AgentDTO {

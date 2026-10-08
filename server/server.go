@@ -3982,7 +3982,7 @@ func writeJSON(w http.ResponseWriter, code int, v any) {
 }
 
 func writeErr(w http.ResponseWriter, code int, msg string) {
-	writeJSON(w, code, map[string]any{"error": msg})
+	writeJSON(w, code, map[string]any{"error": httpErrorPresentation(msg)})
 }
 
 func atoiDefault(s string, d int) int {

@@ -1230,6 +1230,8 @@ export interface Tool {
   description: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema: Record<string, any>; // full JSON-Schema (object with properties)
+  // Display-only localized parameter help; never use as the saved/execution schema.
+  display_schema?: Tool["schema"];
   agents: string[]; // bound agent keys
   enabled: boolean;
   kind?: "builtin" | "shell" | "command" | "script" | "http"; // 自定义工具类型

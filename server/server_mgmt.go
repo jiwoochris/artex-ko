@@ -365,6 +365,9 @@ func (s *Server) pgUpdateAgent(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, errMgmtNameEmpty)
 		return
 	}
+	shown := agentDTO(a)
+	req.Name = presentationSubmission(a.Name, shown.Name, req.Name)
+	req.Description = presentationSubmission(a.Description, shown.Description, req.Description)
 	if err := pg.UpdateAgentMeta(a.Key, req.Name, req.Description); err != nil {
 		writeErr(w, 500, err.Error())
 		return
@@ -540,7 +543,7 @@ func (s *Server) pgGetAgent(w http.ResponseWriter, r *http.Request) {
 	}
 	cur, _ := pg.CurrentPrompt(a.ID)
 	vars, _ := pg.PromptVars(a.ID)
-	vars = withGlobalVars(vars)
+	vars = agentVariableDTOs(a.Key, withGlobalVars(vars))
 	vers, _ := pg.ListPromptVersions(a.ID)
 	if vers == nil {
 		vers = []db.PromptVersion{}
@@ -743,7 +746,7 @@ func (s *Server) pgPromptVars(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 500, err.Error())
 		return
 	}
-	writeJSON(w, 200, map[string]any{"variables": withGlobalVars(vars)})
+	writeJSON(w, 200, map[string]any{"variables": agentVariableDTOs(a.Key, withGlobalVars(vars))})
 }
 
 func (s *Server) pgPreviewPrompt(w http.ResponseWriter, r *http.Request) {
@@ -830,7 +833,7 @@ func (s *Server) pgListTools(w http.ResponseWriter, r *http.Request) {
 			tool.Calls = counts[tool.Key]
 		}
 	}
-	writeJSON(w, 200, map[string]any{"tools": ts})
+	writeJSON(w, 200, map[string]any{"tools": toolDTOs(ts)})
 }
 
 // pgUpdateTool saves the page-editable fields of a built-in tool: description,
@@ -863,6 +866,8 @@ func (s *Server) pgUpdateTool(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	agents, _ := json.Marshal(body.Agents)
+	shown := toolDTOs([]*db.Tool{cur})[0]
+	body.Description = presentationSubmission(cur.Description, shown.Description, body.Description)
 	if err := pg.UpdateTool(key, body.Description, body.Schema, agents, body.Enabled); err != nil {
 		writeErr(w, 500, err.Error())
 		return
