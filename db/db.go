@@ -264,10 +264,85 @@ ON CONFLICT (name) DO NOTHING`,
 	if err := d.seedDefaultInterceptRulesV3(); err != nil {
 		return fmt.Errorf("seed intercept rules v3: %w", err)
 	}
-	if err := d.seedDefaultAssetInterceptRules(); err != nil {
-		return fmt.Errorf("seed asset intercept rules: %w", err)
+	if err := d.seedDefaultInterceptRulesV4(); err != nil {
+		return fmt.Errorf("seed intercept rules v4: %w", err)
+	}
+	if err := d.seedDefaultAssetInterceptRulesV2(); err != nil {
+		return fmt.Errorf("seed asset intercept rules v2: %w", err)
 	}
 	return nil
+}
+
+// Korean text for the built-in intercept rules seeded by v1-v3, keyed by the
+// rule's stable regex pattern. Names and numeric ids are not reliable keys:
+// ids differ per install and a name may be reworded between versions, while the
+// pattern is what actually distinguishes one rule from another.
+var builtinInterceptRuleTextKo = []struct {
+	pattern string
+	name    string
+	message string
+}{
+	{pattern: `(?i)\brm\b.{0,80}(?:-[a-z]*r[a-z]*f[a-z]*|-[a-z]*f[a-z]*r[a-z]*|--recursive|--no-preserve-root)`, name: "[내장] 재귀 강제 삭제 rm -rf", message: "재귀 강제 삭제 실행 금지 (rm -rf / rm --recursive) — 시스템이나 대상 환경을 영구적으로 손상시킬 수 있습니다"},
+	{pattern: `\brm\b[^"'\n]{0,60}["'\s](/|/etc|/bin|/usr|/boot|/var|/lib|/sys|/proc|/dev|/sbin|/root)`, name: "[내장] 시스템 핵심 디렉터리 삭제", message: "시스템 핵심 경로 삭제 금지"},
+	{pattern: `\bmkfs\b`, name: "[내장] 디스크 포맷 mkfs", message: "디스크 포맷 금지 (mkfs)"},
+	{pattern: `\bdd\b[^|\n]{0,100}\bof=\s*/dev/[a-zA-Z]`, name: "[내장] 디스크 장치 덮어쓰기 dd", message: "dd 로 디스크 장치 덮어쓰기 금지"},
+	{pattern: `:\(\)\s*\{[^}]*:\|:`, name: "[내장] 포크 폭탄", message: "포크 폭탄 실행 금지"},
+	{pattern: `\b(?:shutdown|reboot|halt|poweroff|init\s+[06])\b`, name: "[내장] 종료 / 재부팅", message: "종료 또는 재부팅 명령 실행 금지"},
+	{pattern: `\bkill\s+-9\s+-1\b|\bkillall\s+-9\b`, name: "[내장] 모든 프로세스 종료", message: "kill -9 -1 또는 killall -9 금지 (모든 프로세스 종료)"},
+	{pattern: `\b(?:shred|wipe)\b[^|\n]{0,80}/dev/[a-zA-Z]`, name: "[내장] 디스크 지우기 shred / wipe", message: "디스크 장치에 shred/wipe 지우기 실행 금지"},
+	{pattern: `\biptables\s+(?:-F|--flush)\b|\bnft\s+flush\s+ruleset\b`, name: "[내장] 방화벽 규칙 초기화", message: "방화벽 규칙 초기화 금지 (iptables -F / nft flush)"},
+	{pattern: `(?i)\bDROP\s+(?:DATABASE|TABLE|SCHEMA|INDEX|VIEW|TABLESPACE|USER|ROLE)\b`, name: "[내장] SQL DROP DATABASE / TABLE / SCHEMA", message: "DROP 작업 실행 금지 — 데이터베이스 객체를 되돌릴 수 없이 파괴할 수 있습니다"},
+	{pattern: `(?i)\bTRUNCATE\s+(?:TABLE\s+)?\w`, name: "[내장] SQL TRUNCATE", message: "TRUNCATE 실행 금지 — 데이터 테이블의 모든 데이터를 비울 수 있습니다"},
+	{pattern: `(?i)\.(?:dropDatabase|dropCollection|drop)\s*\(`, name: "[내장] MongoDB drop / dropDatabase", message: "MongoDB drop 작업 실행 금지"},
+	{pattern: `(?i)\b(?:FLUSHALL|FLUSHDB)\b`, name: "[내장] Redis FLUSHALL / FLUSHDB", message: "Redis FLUSHALL / FLUSHDB 실행 금지 — 전체 캐시 데이터를 비울 수 있습니다"},
+	{pattern: `(?i)\bcurl\b[^|\n&;"]{0,300}(?:-X\s*DELETE|--request\s+DELETE|-XDELETE)|\bwget\b[^|\n&;"]{0,300}--method[=\s]+DELETE`, name: "[내장] curl / wget 로 DELETE 요청 전송", message: "curl/wget 로 HTTP DELETE 요청 전송 금지 — 대상 시스템 데이터를 삭제할 수 있습니다"},
+	{pattern: `(?i)\b(?:requests|httpx|aiohttp|urllib\.request)\.delete\s*\(|session\.delete\s*\(|client\.delete\s*\(`, name: "[내장] Python HTTP 클라이언트 DELETE (requests/httpx/aiohttp)", message: "Python HTTP 클라이언트로 DELETE 요청 전송 금지"},
+	{pattern: `(?i)axios\.delete\s*\(|method\s*[:=]\s*['"]DELETE['"]`, name: "[내장] 스크립트 내 HTTP DELETE 메서드 선언 (JS/범용)", message: "스크립트에서 HTTP DELETE 요청을 선언·전송하는 것 금지"},
+	{pattern: `(?i)/(?:clear|wipe|flush|purge|truncate|drop|destroy|factory[-_]reset|reset[-_]all)(?:[/?#"'\s]|$)`, name: "[내장] 일괄 초기화 / 삭제 인터페이스 경로", message: "일괄 초기화·파괴류 인터페이스 호출 금지 (/clear /wipe /flush /purge 등)"},
+}
+
+// seedDefaultInterceptRulesV4 backfills Korean text for the built-in intercept
+// rules that earlier seeds inserted in Chinese. Those seeds use
+// `ON CONFLICT DO NOTHING` behind one-shot setting flags, so an install that
+// already ran them keeps the Chinese rows permanently — fixing the literals
+// only reaches fresh installs. This migration matches on `pattern` and rewrites
+// only the display columns, leaving user toggles (enabled, priority,
+// timeout_action) and user-created rules untouched.
+func (d *DB) seedDefaultInterceptRulesV4() error {
+	if v, _, _ := d.GetSetting("intercept_default_rules_v4"); v == "done" {
+		return nil
+	}
+	for _, r := range builtinInterceptRuleTextKo {
+		if _, err := d.Exec(`
+UPDATE intercept_rules SET name = $2, message = $3
+WHERE pattern = $1 AND (name LIKE '%[内置]%' OR message ~ '[一-龥]')`,
+			r.pattern, r.name, r.message); err != nil {
+			return fmt.Errorf("rule text %q: %w", r.name, err)
+		}
+	}
+	return d.SetSetting("intercept_default_rules_v4", "done")
+}
+
+// seedDefaultAssetInterceptRulesV2 backfills Korean text for the four built-in
+// asset blocklist entries seeded in Chinese by v1. Same one-shot-flag problem
+// as the intercept rules above.
+func (d *DB) seedDefaultAssetInterceptRulesV2() error {
+	if v, _, _ := d.GetSetting("asset_intercept_default_rules_v2"); v == "done" {
+		return nil
+	}
+	for _, r := range []struct{ pattern, note string }{
+		{".gov", "[내장] 정부 웹사이트 (.gov)"},
+		{".gov.cn", "[내장] 정부 웹사이트 (.gov.cn)"},
+		{".edu", "[내장] 교육 웹사이트 (.edu)"},
+		{".edu.cn", "[내장] 교육 웹사이트 (.edu.cn)"},
+	} {
+		if _, err := d.Exec(`
+UPDATE asset_intercept_rules SET note = $2
+WHERE pattern = $1 AND note ~ '[一-龥]'`, r.pattern, r.note); err != nil {
+			return fmt.Errorf("asset rule note %q: %w", r.note, err)
+		}
+	}
+	return d.SetSetting("asset_intercept_default_rules_v2", "done")
 }
 
 // seedDefaultAssetInterceptRules inserts the built-in asset blocklist (fuzzy
