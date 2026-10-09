@@ -1,5 +1,5 @@
 {
-  "note": "application/audit log timeline for the ARTEX Guard-Block Burst correlation (event_count >= 5 guard-control markers on one host within a 10-minute window). 'ts' is relative seconds. A single marker can be a quoted string; a burst on one host indicates an actively engaged ARTEX run.",
+  "note": "application/audit log timeline for the BODA Guard-Block Burst correlation (event_count >= 5 guard-control markers on one host within a 10-minute window). 'ts' is relative seconds. A single marker can be a quoted string; a burst on one host indicates an actively engaged BODA run.",
   "positive": [
     {
       "label": "5 guard-control markers on one host inside the 10-minute window",
@@ -7,27 +7,27 @@
         {
           "ts": 0,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 60,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 120,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 180,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 240,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         }
       ]
     }
@@ -39,22 +39,22 @@
         {
           "ts": 0,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 60,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 120,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 180,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         }
       ]
     },
@@ -64,27 +64,27 @@
         {
           "ts": 0,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 200,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 400,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 600,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 800,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         }
       ]
     },
@@ -94,27 +94,27 @@
         {
           "ts": 0,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 60,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 120,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 0,
           "host": "web02",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 60,
           "host": "web02",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         }
       ]
     },

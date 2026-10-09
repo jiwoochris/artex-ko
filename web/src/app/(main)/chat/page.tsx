@@ -95,7 +95,7 @@ const CONVERSATION_LIST_PAGE = 100;
 // Which agent groups the user has collapsed in the left rail. Persisted so the
 // rail looks the same after a reload; unknown keys are harmless (a deleted agent
 // simply never renders a group again).
-const COLLAPSED_AGENTS_KEY = "artex.chat.collapsed-agents";
+const COLLAPSED_AGENTS_KEY = "boda.chat.collapsed-agents";
 
 function conversationIsPinned(conversation: Conversation): boolean {
   return conversation.pinned ?? Boolean(conversation.pinned_at);

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# In-container half of the ARTEX Sigma backend-portability test. run.sh launches
+# In-container half of the BODA Sigma backend-portability test. run.sh launches
 # this inside a Python container with the Sigma rule tree mounted read-only at
 # /sigma. It installs a pinned sigma-cli (pySigma) plus four stable backends and
 # proves that the rules convert beyond the single Splunk example the README used
@@ -37,16 +37,16 @@ for plugin in splunk elasticsearch loki kusto; do
   sigma plugin install "$plugin" >/dev/null 2>&1
 done
 
-ENRICH='artex-enrich/1.0'
-ATOMICS='/sigma/artex_enrich_user_agent.yml /sigma/artex_selfupdate_egress.yml /sigma/artex_guard_audit_framing.yml /sigma/artex_recording_proxy_ca.yml /sigma/destructive_command_hunting.yml'
+ENRICH='boda-enrich/1.0'
+ATOMICS='/sigma/boda_enrich_user_agent.yml /sigma/boda_selfupdate_egress.yml /sigma/boda_guard_audit_framing.yml /sigma/boda_recording_proxy_ca.yml /sigma/destructive_command_hunting.yml'
 
 fail=0
 note() { printf '  %s\n' "$1"; }
 pass() { note "PASS  $1"; }
 bad()  { note "FAIL  $1"; fail=1; }
 
-# Backends escape regex metacharacters differently (lucene: artex\-enrich\/1.0,
-# loki: artex\-enrich/1\.0, splunk/eql/kusto: artex-enrich/1.0). Strip backslashes
+# Backends escape regex metacharacters differently (lucene: boda\-enrich\/1.0,
+# loki: boda\-enrich/1\.0, splunk/eql/kusto: boda-enrich/1.0). Strip backslashes
 # before matching so the indicator-survival check is robust across all of them
 # without asserting any one backend's escaping syntax.
 has_enrich() { printf '%s' "$1" | tr -d '\\' | grep -qF "$ENRICH"; }

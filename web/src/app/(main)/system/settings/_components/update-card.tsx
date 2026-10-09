@@ -80,7 +80,7 @@ export function UpdateCard() {
   // 轮询 /api/health 直到版本号变化。
   //
   // 判据必须是"版本变了"而不是"能连上了"：换装过程中旧版本会短暂地重新起来一次
-  // （那一次只负责把 artex.new 换上去然后立刻退出），只看连通性会误判成功。
+  // （那一次只负责把 boda.new 换上去然后立刻退出），只看连通性会误判成功。
   const waitForNewVersion = React.useCallback(
     async (fromVersion: string) => {
       setRestarting(true);

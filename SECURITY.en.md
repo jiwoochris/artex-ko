@@ -2,7 +2,7 @@
 
 [한국어](SECURITY.md) · English
 
-This document explains how to report security vulnerabilities in the **ARTEX Korean edition (`artex-ko`) code itself**. ARTEX is an offensive-security tool that performs penetration testing, but what this document covers is not the results of attacking something with the tool; it is **vulnerabilities that arise when you operate or deploy this software**.
+This document explains how to report security vulnerabilities in the **BODA Korean edition (`artex-ko`) code itself**. BODA is an offensive-security tool that performs penetration testing, but what this document covers is not the results of attacking something with the tool; it is **vulnerabilities that arise when you operate or deploy this software**.
 
 For example:
 
@@ -32,14 +32,14 @@ Including the following in your report speeds up triage:
 
 ## Supported scope
 
-This repository is a **Korean localization of the original ARTEX**, maintained by volunteers. Security fixes are provided against the **latest default branch**. We do not guarantee backports to earlier releases. If a vulnerability belongs to the upstream code regardless of localization, we recommend also reporting it to [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX).
+This repository is a **Korean localization of the original BODA**, maintained by volunteers. Security fixes are provided against the **latest default branch**. We do not guarantee backports to earlier releases. If a vulnerability belongs to the upstream code regardless of localization, we recommend also reporting it to [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX).
 
 ## Out of scope
 
 The following are **not** covered by this security policy.
 
-- A vulnerability in **an external system** that you discovered by attacking it with ARTEX. That is something to report to the owner of that system.
+- A vulnerability in **an external system** that you discovered by attacking it with BODA. That is something to report to the owner of that system.
 - Problems caused by running the tool against someone else's system without authorization. Such use itself violates the [usage scope](README.en.md#️-read-first--authorized-use-and-legal-notice) and domestic law.
-- The mere fact that ARTEX runs an offensive tool "by design." This tool is built to perform penetration testing within an authorized scope.
+- The mere fact that BODA runs an offensive tool "by design." This tool is built to perform penetration testing within an authorized scope.
 
 If you witness **misuse** of this tool (use beyond the authorized scope), do not report it through GitHub. Use the lawful reporting channels appropriate to the conduct (the owner of the affected system or the relevant authorities).

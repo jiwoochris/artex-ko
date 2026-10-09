@@ -1,11 +1,11 @@
-# references base rule: ../artex_enrich_user_agent.yml (ARTEX Asset Enrichment Probe User-Agent)
-title: ARTEX Enrichment Scan Velocity (Burst From One Source)
+# references base rule: ../boda_enrich_user_agent.yml (BODA Asset Enrichment Probe User-Agent)
+title: BODA Enrichment Scan Velocity (Burst From One Source)
 id: 1d07c5f1-e0ff-4a6a-8017-6008fa790889
 status: experimental
 description: |
-    Correlates a burst of ARTEX asset-enrichment probes from a single client within a short
-    window. The base rule matches the "artex-enrich/1.0" User-Agent; this correlation adds the
-    behaviour the single-request rule misses — velocity. ARTEX enriches assets with a default
+    Correlates a burst of BODA asset-enrichment probes from a single client within a short
+    window. The base rule matches the "boda-enrich/1.0" User-Agent; this correlation adds the
+    behaviour the single-request rule misses — velocity. BODA enriches assets with a default
     concurrency of 4 and ships no built-in rate limit (enrich/enrich.go), so an active run emits
     many enrichment requests in quick succession rather than one. An operator can change the
     User-Agent, so a quiet result is inconclusive, not proof of safety; see the behaviour-based

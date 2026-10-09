@@ -1,6 +1,6 @@
 # Vulnerability multi-traffic evidence
 
-> This document is an English translation of the upstream (original) ARTEX design doc. It records,
+> This document is an English translation of the upstream (original) BODA design doc. It records,
 > for contributors and maintainers, the design of the feature that links vulnerabilities to traffic
 > evidence. The original (Chinese) is preserved in
 > [`finding-traffic-evidence-zh.md`](finding-traffic-evidence-zh.md).
@@ -91,10 +91,10 @@ Archive v3 collects snapshots and bodies according to the vulnerability-binding 
 
 ## Verification and boundaries
 
-Each test package has its own freshly created PostgreSQL test database, specified via `ARTEX_PG_DSN`, so that leftover task/model fixtures do not trigger background execution. Run the full test suite of the relevant packages and confirm that no test was skipped because of missing configuration:
+Each test package has its own freshly created PostgreSQL test database, specified via `BODA_PG_DSN`, so that leftover task/model fixtures do not trigger background execution. Run the full test suite of the relevant packages and confirm that no test was skipped because of missing configuration:
 
 ```sh
-# Set ARTEX_PG_DSN to the relevant isolated test database before running each package. If the explicit setting fails, it must raise an error.
+# Set BODA_PG_DSN to the relevant isolated test database before running each package. If the explicit setting fails, it must raise an error.
 go test ./<package> -count=1
 go test -race -p 1 ./evidence ./db ./agent ./server -run 'TestEvidence|TestFindingTraffic|TestFindingEvidence|TestReportFindingAtomicContract|TestTaskArchive'
 ```

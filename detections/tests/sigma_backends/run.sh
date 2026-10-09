@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Reproducible backend-portability test for the ARTEX Sigma rules (../../sigma/).
+# Reproducible backend-portability test for the BODA Sigma rules (../../sigma/).
 # The rule README claims the rules "convert to your own SIEM or EDR query
 # language" and lists several supported targets. The base Sigma test (../sigma/)
 # only exercises Splunk; this test turns the cross-backend claim into something a

@@ -17,7 +17,7 @@ translation drift.
 
 ## 1. The localization structure at a glance
 
-This repository **forks** upstream ARTEX and stacks Korean localization commits on top of its
+This repository **forks** upstream BODA and stacks Korean localization commits on top of its
 history. Every commit on upstream `main` is contained in this repository's history, with the
 localization commits added above them. Bringing in an upstream change therefore becomes a matter of
 "inspecting the difference against upstream `main`, then separating what to preserve from what to
@@ -110,8 +110,8 @@ The classification criteria are as follows.
 - If **upstream indicators pinned by the detection rules** changed (the prober User-Agent in
   `enrich/enrich.go`, the self-update User-Agent in `selfupdate/`, the audit marker in
   `guard/guard.go`, the destructive-command deny list in `db/db.go`, the default listen and
-  recording-proxy ports in `cmd/artex/main.go`) → bring the Sigma/Suricata rules and the ATT&CK layer
-  in `detections/`, as well as the values in `detections/indicators/artex_indicators.csv`, in line
+  recording-proxy ports in `cmd/boda/main.go`) → bring the Sigma/Suricata rules and the ATT&CK layer
+  in `detections/`, as well as the values in `detections/indicators/boda_indicators.csv`, in line
   with the new values. These indicators are not translation targets but the **basis of detection**,
   so when upstream changes a value, the rules silently go stale. The indicator-match test in 5.4
   catches that mismatch automatically.
@@ -211,7 +211,7 @@ the last classification criterion of 4.2. This test also runs automatically in t
 the rule tree or the upstream source files above, catching re-sync drift at the merge gate.
 
 If you add a new indicator and in doing so **pin a new upstream source file** (as when adding the port
-indicator from `cmd/artex/main.go`, for example), you must also add that file to the `push` and
+indicator from `cmd/boda/main.go`, for example), you must also add that file to the `push` and
 `pull_request` `paths` filters of the workflow above. If you miss it, a PR that changes only that
 source will not trigger the indicator test, and the drift will silently pass the merge gate. The
 indicator test checks this synchronization itself (its fifth check, "CI triggers this test when any
@@ -240,7 +240,7 @@ If you do not have Go locally, you can run the same thing under Docker.
 
 ```bash
 docker run --rm -v "$PWD":/src -w /src \
-  -v artexko-gomod:/go/pkg/mod -v artexko-gocache:/root/.cache/go-build \
+  -v bodako-gomod:/go/pkg/mod -v bodako-gocache:/root/.cache/go-build \
   golang:1.26 sh -c 'go build ./... && go vet ./... && go test ./... -count=1'
 ```
 
@@ -278,7 +278,7 @@ reverts.
 
 ### 8.1 Check the repository's CI status by specifying the repository
 
-This repository is a fork of upstream ARTEX, so the local `git remote` has both `origin`
+This repository is a fork of upstream BODA, so the local `git remote` has both `origin`
 (jiwoochris/artex-ko) and `upstream` (Autumn-27/ARTEX) registered (see section 3). In this state, if
 you do not specify a repository in a `gh` command, `gh` **picks the upstream repository as the
 default** and shows you run results from upstream, which does not have our workflows. You can then see
@@ -374,7 +374,7 @@ The workflow is split into five jobs.
 - **frontend.** Statically exports the frontend once (`web/out`) and uploads that output as the
   `web-dist` artifact. The binaries job below downloads and reuses this output per target.
 - **binaries.** Cross-compiles five targets (linux amd64/arm64, darwin amd64/arm64, windows amd64) and
-  packages a zip per target. On the linux amd64 binary it runs an `artex -h` smoke test to confirm the
+  packages a zip per target. On the linux amd64 binary it runs an `boda -h` smoke test to confirm the
   binary actually runs.
 - **release.** Gathers all zips, generates a `SHA256SUMS` checksum file, and creates a GitHub Release
   with the zips and the checksum attached.
@@ -392,14 +392,14 @@ current repository structure by reproducing the binaries job locally.
 - **Frontend embed.** The binaries job receives the `web-dist` (the contents of `web/out`) uploaded by
   the frontend job into `server/webui/dist`, and `//go:embed all:webui/dist` in `server/webui_embed.go`
   embeds that location into the binary. The binaries job therefore does not rebuild the frontend; it
-  calls [`build.sh`](build.sh) with `ARTEX_SKIP_FRONTEND=1`.
-- **Binary and package paths.** `build.sh --target <os>/<arch>` produces the `dist/artex-<os>-<arch>/artex`
+  calls [`build.sh`](build.sh) with `BODA_SKIP_FRONTEND=1`.
+- **Binary and package paths.** `build.sh --target <os>/<arch>` produces the `dist/boda-<os>-<arch>/boda`
   binary and a zip package under `dist/`. The zip contains the binary together with a start script
   (`start.sh` on Linux/macOS, `start.bat` on Windows), `skills/`, `config.example.json`, and
   `README.md`.
 - **Copying the binary into the Docker image.** The binaries job uploads the linux binary separately as
-  the `bin-linux-<arch>` artifact, and the docker job receives it as `dist/<arch>/artex`. The
-  `COPY dist/${TARGETARCH}/artex` in [`Dockerfile`](Dockerfile) picks up that path via the `TARGETARCH`
+  the `bin-linux-<arch>` artifact, and the docker job receives it as `dist/<arch>/boda`. The
+  `COPY dist/${TARGETARCH}/boda` in [`Dockerfile`](Dockerfile) picks up that path via the `TARGETARCH`
   that buildx fills in per platform during a multi-architecture build. [`.dockerignore`](.dockerignore)
   does not exclude `dist/`, so the binary is included in the build context.
 
@@ -422,14 +422,14 @@ cd web && npm ci && npm run build:static && cd ..
 rm -rf server/webui/dist && mkdir -p server/webui/dist && cp -a web/out/. server/webui/dist/
 # 3) Build one target with the same environment as the binaries job
 docker run --rm -v "$PWD":/app -w /app \
-  -e ARTEX_SKIP_FRONTEND=1 -e ARTEX_SKIP_NPM_CI=1 \
-  -e ARTEX_COMPRESS=0 -e ARTEX_PACKAGE=1 -e ARTEX_PACKAGE_DIR=dist \
-  -e ARTEX_BUILD_VERSION=v0.0.0-local \
+  -e BODA_SKIP_FRONTEND=1 -e BODA_SKIP_NPM_CI=1 \
+  -e BODA_COMPRESS=0 -e BODA_PACKAGE=1 -e BODA_PACKAGE_DIR=dist \
+  -e BODA_BUILD_VERSION=v0.0.0-local \
   golang:1.26 bash -c 'apt-get update && apt-get install -y zip && ./build.sh --target linux/amd64'
-# 4) Confirm the outputs: dist/artex-linux-amd64/artex · dist/*.zip · dist/SHA256SUMS
+# 4) Confirm the outputs: dist/boda-linux-amd64/boda · dist/*.zip · dist/SHA256SUMS
 ```
 
-`dist/artex-linux-amd64/artex` is a statically linked ELF, and given `-h` it prints usage and exits
+`dist/boda-linux-amd64/boda` is a statically linked ELF, and given `-h` it prints usage and exits
 with code 0. This is the behavior the binaries job's smoke test confirms. Build outputs
 (`dist/`, `server/webui/dist/`) are not committed to the repository (they are excluded by
 `.gitignore`).

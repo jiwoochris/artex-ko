@@ -14,12 +14,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Autumn-27/artex/agent"
-	pgdb "github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/enrich"
-	"github.com/Autumn-27/artex/guard"
-	"github.com/Autumn-27/artex/intercept"
-	"github.com/Autumn-27/artex/traffic"
+	"github.com/quantum-decrypt-security/boda/agent"
+	pgdb "github.com/quantum-decrypt-security/boda/db"
+	"github.com/quantum-decrypt-security/boda/enrich"
+	"github.com/quantum-decrypt-security/boda/guard"
+	"github.com/quantum-decrypt-security/boda/intercept"
+	"github.com/quantum-decrypt-security/boda/traffic"
 	actool "github.com/Autumn-27/norma/tool"
 )
 

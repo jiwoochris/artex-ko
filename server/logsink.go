@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/quantum-decrypt-security/boda/db"
 )
 
 // LogLine is one captured backend log entry exposed by the /api/logs endpoints.

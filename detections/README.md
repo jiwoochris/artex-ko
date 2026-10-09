@@ -1,4 +1,4 @@
-# ARTEX detection rules
+# BODA detection rules
 
 English · [한국어](README.ko.md)
 
@@ -14,15 +14,15 @@ string or behaviour verified in this repository's source, not inferred.
 
 ## Atomic rules
 
-- **`sigma/artex_enrich_user_agent.yml`** — inbound `artex-enrich/1.0` User-Agent from ARTEX asset
+- **`sigma/boda_enrich_user_agent.yml`** — inbound `boda-enrich/1.0` User-Agent from BODA asset
   enrichment (`enrich/enrich.go`). Target-side, supporting indicator. `level: high`.
-- **`sigma/artex_selfupdate_egress.yml`** — outbound `artex-selfupdate` User-Agent from the self-update
+- **`sigma/boda_selfupdate_egress.yml`** — outbound `boda-selfupdate` User-Agent from the self-update
   routine (`selfupdate/github.go`). Host/forensic egress indicator. `level: medium`.
-- **`sigma/artex_guard_audit_framing.yml`** — the platform-guard control marker written to the audit log
+- **`sigma/boda_guard_audit_framing.yml`** — the platform-guard control marker written to the audit log
   on a blocked tool call (`guard/guard.go`). Host/forensic indicator. `level: high`.
-- **`sigma/destructive_command_hunting.yml`** — destructive shell/DB commands mirroring the ARTEX guard's
-  built-in deny list (`db/db.go` seed). Generic hunting lead, not an ARTEX signature. `level: medium`.
-- **`sigma/artex_recording_proxy_ca.yml`** — creation of the recording proxy's MITM CA file under the
+- **`sigma/destructive_command_hunting.yml`** — destructive shell/DB commands mirroring the BODA guard's
+  built-in deny list (`db/db.go` seed). Generic hunting lead, not an BODA signature. `level: medium`.
+- **`sigma/boda_recording_proxy_ca.yml`** — creation of the recording proxy's MITM CA file under the
   `_ca/mitmproxy-ca-cert.pem` layout (`traffic/traffic.go`). Host/forensic artifact; the bare filename is
   shared with standalone mitmproxy, so it is a hunting lead. `level: medium`.
 
@@ -33,44 +33,44 @@ Static strings can be changed; behaviour is harder to hide. These Sigma **correl
 (sections 4.1–4.2 and 4.4). Each references an atomic rule above by its `id`, so convert the whole
 `sigma/` tree — not a single correlation file — to resolve the reference (see below).
 
-- **`sigma/correlation/artex_enrich_scan_velocity.yml`** — a burst of `artex-enrich/1.0` probes from one
+- **`sigma/correlation/boda_enrich_scan_velocity.yml`** — a burst of `boda-enrich/1.0` probes from one
   source in a short window (enrichment runs at concurrency 4 with no rate limit). The velocity the
   single-request rule misses. `event_count`, `level: high`.
-- **`sigma/correlation/artex_enrich_fanout.yml`** — one source carrying the enrichment User-Agent to many
+- **`sigma/correlation/boda_enrich_fanout.yml`** — one source carrying the enrichment User-Agent to many
   *distinct* hosts: machine-speed fan-out across an asset list, where breadth (not just volume) is the
   tell. `value_count`, `level: high`.
-- **`sigma/correlation/artex_guard_block_burst.yml`** — repeated platform-guard control markers on one
-  host, i.e. an active ARTEX run tripping its guard rather than a document that merely quotes the marker.
+- **`sigma/correlation/boda_guard_block_burst.yml`** — repeated platform-guard control markers on one
+  host, i.e. an active BODA run tripping its guard rather than a document that merely quotes the marker.
   `event_count`, `level: high`.
-- **`sigma/correlation/artex_guard_marker_then_destructive.yml`** — the guard marker and a destructive
+- **`sigma/correlation/boda_guard_marker_then_destructive.yml`** — the guard marker and a destructive
   command co-occurring on one host within a window (defense guide §4.2, multi-stage). Combining an
-  ARTEX-specific marker with the otherwise-generic destructive-command signal raises specificity.
+  BODA-specific marker with the otherwise-generic destructive-command signal raises specificity.
   `temporal`, `level: high`.
 
 Thresholds and windows are conservative defaults — tune them to your baseline. The pure web multi-stage
 case in §4.2 (enumerate → probe → authenticate) still needs base rules specific to your environment,
-because that pattern does not reduce to a single ARTEX-unique User-Agent. A generic behavioral Sigma base
+because that pattern does not reduce to a single BODA-unique User-Agent. A generic behavioral Sigma base
 template to start from is provided in [defense guide §4.2](../docs/defense-en.md#42-siem-correlation-rules);
-it is kept out of this tested rule tree because it cannot be grounded in ARTEX source.
+it is kept out of this tested rule tree because it cannot be grounded in BODA source.
 
 ## Network rules (Suricata)
 
-Sigma covers host and log telemetry. The two ARTEX User-Agents observable on the wire both ship as
-[Suricata](https://suricata.io) rules in [`suricata/`](suricata/): the enrichment prober's `artex-enrich/1.0`
+Sigma covers host and log telemetry. The two BODA User-Agents observable on the wire both ship as
+[Suricata](https://suricata.io) rules in [`suricata/`](suricata/): the enrichment prober's `boda-enrich/1.0`
 (`enrich/enrich.go`) with a presence signature plus a high-rate enumeration variant (sid 1000001–1000002),
 and the norma SDK WebFetch tool's attack-phase `norma/0.4` (`github.com/Autumn-27/norma/tool/webfetch.go`) with a presence signature
 (sid 1000003). Other worker tools (Bash-run `curl`, `nmap`) use their own User-Agents and carry no
-ARTEX-unique fingerprint, so the network layer is intentionally narrow to these two UAs; see
+BODA-unique fingerprint, so the network layer is intentionally narrow to these two UAs; see
 [`suricata/README.md`](suricata/README.md) for the scope, the TLS caveat, and how to validate with
 `suricata -T` and a reference pcap.
 
 ## ATT&CK coverage
 
 The techniques these rules tag are collected into a [MITRE ATT&CK](https://attack.mitre.org/) Navigator
-layer in [`attack/artex_navigator_layer.json`](attack/) — eight techniques across six tactics
+layer in [`attack/boda_navigator_layer.json`](attack/) — eight techniques across six tactics
 (Reconnaissance, Command and Control, Execution, Impact, Credential Access, Collection), each grounded in a rule's `attack.*` tags and
-scored by detection strength (ARTEX-specific signature vs. generic hunting lead). Open it in the
-[ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/) to see which ARTEX behaviour each
+scored by detection strength (BODA-specific signature vs. generic hunting lead). Open it in the
+[ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/) to see which BODA behaviour each
 rule covers; see [`attack/README.md`](attack/README.md) for the scoring, the technique-to-rule map, and
 the honest scope (coverage is not completeness). A [consistency test](tests/attack/run.sh) keeps the layer
 from drifting away from the rule set.
@@ -78,17 +78,17 @@ from drifting away from the rule set.
 ## Indicator list (machine-readable)
 
 For defenders who want the atomic indicators rather than the detection logic,
-[`indicators/artex_indicators.csv`](indicators/) collects the unique fingerprints ARTEX emits into one
+[`indicators/boda_indicators.csv`](indicators/) collects the unique fingerprints BODA emits into one
 CSV to drop into a threat-intelligence platform, a SIEM lookup, or a host-triage checklist — the enrichment
 and self-update User-Agents, the guard audit marker, the server/proxy default endpoints, the recording-proxy
 CA certificate, and the PostgreSQL exploration-graph schema fingerprint — each row recording the source file
 it is grounded in and the rule (if any) built on it. The same indicators ship as a
 ready-to-import [MISP](https://www.misp-project.org/) event
-([`indicators/artex_indicators.misp.json`](indicators/)), so a defender running MISP (or exporting on to
+([`indicators/boda_indicators.misp.json`](indicators/)), so a defender running MISP (or exporting on to
 STIX from it) does not have to map the CSV columns by hand — the rule-backed fingerprints are flagged
 `to_ids`, the host-forensic ports and schema fingerprint are not. Generic hunting leads (the
 destructive commands) and the norma SDK's shared `norma/0.4` WebFetch User-Agent — a wire signature carried
-by Suricata sid 1000003, not an ARTEX-unique string — are deliberately kept out of the import-ready list to
+by Suricata sid 1000003, not an BODA-unique string — are deliberately kept out of the import-ready list to
 avoid false positives; see
 [`indicators/README.md`](indicators/README.md) for the columns, the MISP type mapping, the honest caveats,
 and the consistency test that keeps both the CSV and the MISP event from drifting.
@@ -96,8 +96,8 @@ and the consistency test that keeps both the CSV and the MISP event from driftin
 ## Host triage
 
 The rules above serve defenders with a SIEM, a network sensor, or a threat-intel platform. For the other
-responder — the one at a single suspected host's shell, with no SIEM — [`triage/artex_host_triage.py`](triage/)
-is a read-only script that answers "did ARTEX run here?" from local state. It operationalizes the same
+responder — the one at a single suspected host's shell, with no SIEM — [`triage/boda_host_triage.py`](triage/)
+is a read-only script that answers "did BODA run here?" from local state. It operationalizes the same
 fingerprints, **plus the three host/DB indicators the CSV deliberately carries without a Sigma rule**
 (the server listen port, the recording-proxy endpoint, and the PostgreSQL exploration schema),
 which are not log- or network-observable and can only be checked on the box. It also flags the recorder's
@@ -134,18 +134,18 @@ The rules ship with reproducible tests in [`tests/`](tests/), each needing only 
   rule set, and each technique must name a rule file that exists. Adding a rule without updating the layer
   (or vice versa) fails the test.
 - **Indicator source-of-truth** ([`tests/indicators/run.sh`](tests/indicators/run.sh)) checks that each rule's
-  pinned indicator is still the string the upstream source emits — `artex-enrich/1.0` in `enrich/enrich.go`,
-  `artex-selfupdate` in `selfupdate/`, the guard marker in `guard/guard.go`, the destructive tokens in
+  pinned indicator is still the string the upstream source emits — `boda-enrich/1.0` in `enrich/enrich.go`,
+  `boda-selfupdate` in `selfupdate/`, the guard marker in `guard/guard.go`, the destructive tokens in
   `db/db.go` — and is still pinned in the rule. It catches the drift the other three miss: an upstream re-sync
   that changes a User-Agent or marker while every rule still compiles and fires. The same test re-reads the
-  machine-readable [`indicators/artex_indicators.csv`](indicators/artex_indicators.csv) and asserts every
+  machine-readable [`indicators/boda_indicators.csv`](indicators/boda_indicators.csv) and asserts every
   published row is still grounded in its source and rule, so the artifact a defender imports cannot drift
   either. Finally it asserts that every upstream source it reads is listed in the CI workflow's `push` and
   `pull_request` paths filter, so a PR touching only a newly pinned source cannot skip the test and let that
   drift pass the merge gate. This makes "grounded in a string verified in this repository's source, not
   inferred" (above) a guard, not a promise.
 - **MISP export consistency** ([`tests/misp/run.sh`](tests/misp/run.sh)) proves the MISP event
-  ([`indicators/artex_indicators.misp.json`](indicators/artex_indicators.misp.json)) is a valid MISP document —
+  ([`indicators/boda_indicators.misp.json`](indicators/boda_indicators.misp.json)) is a valid MISP document —
   it loads under [pymisp](https://github.com/MISP/PyMISP), whose object model rejects any attribute type that
   is not a real MISP type, so the artifact really imports rather than merely looking like MISP — and that it
   stays row-for-row in sync with the CSV above: same values, the intended MISP type/category per indicator,
@@ -177,17 +177,17 @@ Each script exits non-zero on any failed assertion. See [`tests/README.md`](test
 ## How to read these honestly
 
 - **Static indicators can be changed.** An operator can set a different User-Agent, so the absence of
-  `artex-enrich/1.0` or `artex-selfupdate` does **not** mean safety. The durable signal is *behaviour* —
+  `boda-enrich/1.0` or `boda-selfupdate` does **not** mean safety. The durable signal is *behaviour* —
   a single source chaining recon → enumeration → probing → auth/injection attempts, adapting to responses,
   running without pause. That layer is described in the defense guide (sections 1, 2, and 4.1–4.2); the
   `sigma/correlation/` rules above ship it as deployable correlations (velocity, fan-out, guard-block
   burst, and a guard-marker-with-destructive-command multi-stage), and the pure web multi-stage case
   still needs base rules specific to your environment.
-- **The destructive-command rule is generic hunting.** It mirrors ARTEX's guard deny list, but the same
+- **The destructive-command rule is generic hunting.** It mirrors BODA's guard deny list, but the same
   commands are run by legitimate administrators. Treat a hit as a lead, allow-list your environment, and
-  do not attribute it to ARTEX on its own.
-- **Port indicators are host-forensic, not Sigma.** The ARTEX server default `:8787` and the recording
-  proxy `127.0.0.1:8788` (`cmd/artex/main.go`) are best checked on a suspected host with `ss`/`netstat`,
+  do not attribute it to BODA on its own.
+- **Port indicators are host-forensic, not Sigma.** The BODA server default `:8787` and the recording
+  proxy `127.0.0.1:8788` (`cmd/boda/main.go`) are best checked on a suspected host with `ss`/`netstat`,
   so they are documented in the defense guide and listed in the [indicator CSV](indicators/) for triage,
   rather than shipped as a noisy network rule. The [host-triage script](triage/) runs exactly those
   host-local checks (ports, recording-proxy artifacts, log markers, and the PostgreSQL schema) for a
@@ -211,7 +211,7 @@ sigma check --validation-config detections/tests/sigma_lint/validators.yml detec
 
 # compile to a target query language, e.g. Splunk
 sigma plugin install splunk
-sigma convert -t splunk --without-pipeline detections/sigma/artex_enrich_user_agent.yml
+sigma convert -t splunk --without-pipeline detections/sigma/boda_enrich_user_agent.yml
 
 # convert the whole tree so the correlation rules can resolve the atomic rules they reference by id
 sigma convert -t splunk --without-pipeline detections/sigma/
@@ -240,10 +240,10 @@ by [`tests/sigma_backends/run.sh`](tests/sigma_backends/run.sh):
 # atomic rules only, e.g. for Microsoft Sentinel / Defender (kusto backend)
 sigma plugin install kusto
 sigma convert -t kusto --without-pipeline \
-  detections/sigma/artex_enrich_user_agent.yml \
-  detections/sigma/artex_selfupdate_egress.yml \
-  detections/sigma/artex_guard_audit_framing.yml \
-  detections/sigma/artex_recording_proxy_ca.yml \
+  detections/sigma/boda_enrich_user_agent.yml \
+  detections/sigma/boda_selfupdate_egress.yml \
+  detections/sigma/boda_guard_audit_framing.yml \
+  detections/sigma/boda_recording_proxy_ca.yml \
   detections/sigma/destructive_command_hunting.yml
 ```
 

@@ -3,7 +3,7 @@
 web/.next
 web/out
 server/webui/dist
-/artex
+/boda
 data
 *.db
 transcripts

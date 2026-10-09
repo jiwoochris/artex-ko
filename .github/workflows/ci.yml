@@ -54,13 +54,13 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: artex
-          POSTGRES_PASSWORD: artex
-          POSTGRES_DB: artex
+          POSTGRES_USER: boda
+          POSTGRES_PASSWORD: boda
+          POSTGRES_DB: boda
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U artex -d artex"
+          --health-cmd "pg_isready -U boda -d boda"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -72,5 +72,5 @@ jobs:
           cache: true
       - name: go test (DB 통합 · ${{ matrix.pkg }} 패키지 격리)
         env:
-          ARTEX_PG_DSN: postgres://artex:artex@localhost:5432/artex?sslmode=disable
+          BODA_PG_DSN: postgres://boda:boda@localhost:5432/boda?sslmode=disable
         run: go test ./${{ matrix.pkg }}/ -count=1

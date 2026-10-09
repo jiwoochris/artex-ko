@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 #
-# Source-of-truth consistency test for the ARTEX detection indicators. run.sh
+# Source-of-truth consistency test for the BODA detection indicators. run.sh
 # launches this inside a Python container with the detection rules and the
 # upstream source packages they pin mounted read-only under /repo. It proves one
 # property the other three detection tests do not: that each rule's pinned
-# indicator is still the string ARTEX's own source actually emits.
+# indicator is still the string BODA's own source actually emits.
 #
 # The Sigma test proves an indicator survives rule->query *compilation*; the
 # ATT&CK test proves the layer matches the rules' tags; the Suricata test proves
 # the network rule *fires*. None of them look back at the source the indicator
 # claims to come from. So the realistic rot they miss is an upstream re-sync that
-# bumps the prober User-Agent to "artex-enrich/2.0" or rewrites the guard marker:
+# bumps the prober User-Agent to "boda-enrich/2.0" or rewrites the guard marker:
 # every rule still compiles, the layer still matches, the pcap test still fires on
 # the synthesized capture — and the deployed rule silently stops matching real
-# ARTEX traffic. This test turns detections/README's claim ("every indicator is
+# BODA traffic. This test turns detections/README's claim ("every indicator is
 # grounded in a string verified in this repository's source, not inferred") and
 # CONTRIBUTING's first contribution contract into a guard a reviewer can re-run.
 #
@@ -27,12 +27,12 @@
 # matches the User-Agent by `startswith` and so pins a prefix of the full value.
 #
 # The destructive-command tokens are handled separately and honestly: they are
-# generic hunting leads, not unique ARTEX fingerprints, so the test only asserts
-# the correspondence the rule actually claims — each token appears both in ARTEX's
+# generic hunting leads, not unique BODA fingerprints, so the test only asserts
+# the correspondence the rule actually claims — each token appears both in BODA's
 # guard deny-list (db/db.go) and in the hunting rule that mirrors it.
 #
 # It then validates the published, machine-readable indicator list
-# (detections/indicators/artex_indicators.csv): every row's value must still be
+# (detections/indicators/boda_indicators.csv): every row's value must still be
 # present in the source file(s) it cites and pinned in the rule(s) it cites, and
 # every fingerprint this test grounds must appear in the list — so the artifact a
 # defender imports cannot silently drift from the source it claims to come from.
@@ -41,7 +41,7 @@
 # (.github/workflows/detections.yml push/pull_request paths) and the local
 # pre-commit hook (.pre-commit-config.yaml files regex). Every upstream source file
 # this test reads must be covered by both, or a change touching only a newly pinned
-# source (as cmd/artex/main.go once was) would skip the test on one of them: on CI
+# source (as cmd/boda/main.go once was) would skip the test on one of them: on CI
 # the drift sails through the merge gate green, on the hook it is never caught
 # locally even though the hook's comment promises "the same source scope as CI".
 # The check derives the required set from the indicators it already asserts, so
@@ -57,37 +57,37 @@ import os
 import re
 import sys
 
-ROOT = os.environ.get("ARTEX_REPO_ROOT", "/repo")
+ROOT = os.environ.get("BODA_REPO_ROOT", "/repo")
 
-# --- exact ARTEX fingerprints ------------------------------------------------
-# Each value is an operational string ARTEX emits; a rule is built on it. If an
+# --- exact BODA fingerprints ------------------------------------------------
+# Each value is an operational string BODA emits; a rule is built on it. If an
 # upstream re-sync changes the source string, the rule must change with it.
 INDICATORS = [
     {
         "label": "enrichment prober User-Agent",
-        "value": "artex-enrich/1.0",
+        "value": "boda-enrich/1.0",
         "sources": ["enrich/enrich.go"],
-        "rules": ["detections/sigma/artex_enrich_user_agent.yml"],
+        "rules": ["detections/sigma/boda_enrich_user_agent.yml"],
         # Suricata matches the UA by `startswith`, so it pins a prefix of the
         # full value rather than the whole string. (file, prefix)
-        "prefix_rules": [("detections/suricata/artex.rules", "artex-enrich/")],
+        "prefix_rules": [("detections/suricata/boda.rules", "boda-enrich/")],
     },
     {
         "label": "self-update egress User-Agent",
-        "value": "artex-selfupdate",
+        "value": "boda-selfupdate",
         "sources": ["selfupdate/github.go", "selfupdate/stage.go"],
-        "rules": ["detections/sigma/artex_selfupdate_egress.yml"],
+        "rules": ["detections/sigma/boda_selfupdate_egress.yml"],
     },
     {
         "label": "platform-guard audit framing marker",
-        "value": "【ARTEX 平台管控·非目标防御】",
+        "value": "【BODA 平台管控·非目标防御】",
         "sources": ["guard/guard.go"],
-        "rules": ["detections/sigma/artex_guard_audit_framing.yml"],
+        "rules": ["detections/sigma/boda_guard_audit_framing.yml"],
     },
 ]
 
 # --- generic destructive-command hunting leads -------------------------------
-# NOT unique ARTEX fingerprints. These tokens are shared with ARTEX's own guard
+# NOT unique BODA fingerprints. These tokens are shared with BODA's own guard
 # deny-list (db/db.go); the hunting rule mirrors that list. The test asserts only
 # the correspondence the rule claims, so it catches an upstream re-sync that drops
 # or renames a deny-list entry the rule says it mirrors.
@@ -169,7 +169,7 @@ for ind in INDICATORS:
         else:
             bad("%s no longer pins prefix %r" % (rfile, prefix))
 
-print("== 3/5  destructive hunting tokens match ARTEX's guard deny-list ==")
+print("== 3/5  destructive hunting tokens match BODA's guard deny-list ==")
 src, rule, tokens = DENYLIST["source"], DENYLIST["rule"], DENYLIST["tokens"]
 for tok in tokens:
     in_src = contains(src, tok)
@@ -187,7 +187,7 @@ for tok in tokens:
         bad("%r in the deny-list but not pinned by %s" % (tok, rule))
 
 print("== 4/5  the published indicator list matches source and rules ==")
-CSV_REL = "detections/indicators/artex_indicators.csv"
+CSV_REL = "detections/indicators/boda_indicators.csv"
 EXPECTED_HEADER = ["id", "type", "value", "perspective", "source", "rule", "description"]
 VALID_PERSPECTIVES = {"target", "forensic"}
 
@@ -303,7 +303,7 @@ print("== 5/5  CI and the pre-commit hook both fire this test on any pinned sour
 # detections/ tree at all).
 WORKFLOW_REL = ".github/workflows/detections.yml"
 PRECOMMIT_REL = ".pre-commit-config.yaml"
-DETECTIONS_SAMPLE = "detections/sigma/artex_enrich_user_agent.yml"
+DETECTIONS_SAMPLE = "detections/sigma/boda_enrich_user_agent.yml"
 needed_sources = set()
 for ind in INDICATORS:
     needed_sources.update(ind["sources"])
@@ -338,7 +338,7 @@ else:
 # The local hook gates on a files regex, not a paths list. Its comment promises the
 # "same source scope as CI", so the same required set must match that regex. This is
 # the sibling drift the CI check above does not see: CI paths can carry a source the
-# hook's regex omits (as cmd/artex/main.go once did), leaving the local gate a false
+# hook's regex omits (as cmd/boda/main.go once did), leaving the local gate a false
 # promise even while the merge gate is sound.
 pc_text = read(PRECOMMIT_REL)
 if pc_text is None:

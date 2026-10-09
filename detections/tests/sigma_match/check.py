@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Live event-matching test for the ARTEX Sigma rules (../../sigma/). check.sh
+# Live event-matching test for the BODA Sigma rules (../../sigma/). check.sh
 # installs a pinned pySigma inside a container and runs this script with the rule
 # tree mounted read-only at /sigma and this directory at /src.
 #

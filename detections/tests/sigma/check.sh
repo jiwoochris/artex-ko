@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# In-container half of the ARTEX Sigma rule test. run.sh launches this inside a
+# In-container half of the BODA Sigma rule test. run.sh launches this inside a
 # Python container with the Sigma rule tree mounted read-only at /sigma. It
 # installs a pinned sigma-cli (pySigma) plus the splunk backend, then asserts
 # the properties the rule files and the defense guide claim:
@@ -47,7 +47,7 @@ echo "== 3/4  each atomic indicator survives into the compiled query =="
 # robust across splunk-backend releases. These strings come straight from the
 # rule bodies, which are grounded in this repository's source. The last one is
 # the recording-proxy CA filename, grounded in traffic/traffic.go.
-for ind in 'artex-enrich/1.0' 'artex-selfupdate' '【ARTEX 平台管控·非目标防御】' 'mitmproxy-ca-cert.pem'; do
+for ind in 'boda-enrich/1.0' 'boda-selfupdate' '【BODA 平台管控·非目标防御】' 'mitmproxy-ca-cert.pem'; do
   if printf '%s' "$tree_out" | grep -qF "$ind"; then
     pass "indicator present: $ind"
   else
@@ -71,7 +71,7 @@ fi
 # a single-file input. A passing conversion here would mean the reference is
 # decorative; this asserts it is load-bearing.
 if sigma convert -t splunk --without-pipeline \
-     /sigma/correlation/artex_enrich_scan_velocity.yml >/dev/null 2>&1; then
+     /sigma/correlation/boda_enrich_scan_velocity.yml >/dev/null 2>&1; then
   bad  "a correlation rule converted alone (its base-rule reference is not enforced)"
 else
   pass "correlation rule fails to convert alone — it requires its atomic base rule"

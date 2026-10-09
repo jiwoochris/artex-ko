@@ -1,23 +1,23 @@
-# ARTEX 탐지 규칙 (Suricata / 네트워크)
+# BODA 탐지 규칙 (Suricata / 네트워크)
 
 한국어 · [English](README.md)
 
 [Sigma 규칙](../sigma/)의 네트워크 계층 짝입니다. 이 [Suricata](https://suricata.io) 시그니처는
-네트워크 선에서 관측되는 두 가지 ARTEX 산출물을 다루며, 모든 지표는 추정이 아니라 이 저장소
+네트워크 선에서 관측되는 두 가지 BODA 산출물을 다루며, 모든 지표는 추정이 아니라 이 저장소
 소스에서 확인한 문자열이나 행동에 근거합니다. 호스트·로그·SIEM 계층은 [`../sigma/`](../sigma/)에
 있고, 전체 그림은 방어 가이드([한국어](../../docs/defense-ko.md) · [English](../../docs/defense-en.md))가
 설명합니다.
 
-## 규칙: [`artex.rules`](artex.rules)
+## 규칙: [`boda.rules`](boda.rules)
 
-- **sid 1000001**: `ARTEX enrichment prober User-Agent`. User-Agent 가 `artex-enrich/` 로 시작하는
+- **sid 1000001**: `BODA enrichment prober User-Agent`. User-Agent 가 `boda-enrich/` 로 시작하는
   인바운드 HTTP `GET` 입니다(자산 보강 프로버 `enrich/enrich.go:233`). 단건 요청 존재 지표입니다.
   `classtype: attempted-recon`.
-- **sid 1000002**: `ARTEX enrichment prober high-rate enumeration`. 같은 User-Agent 가
+- **sid 1000002**: `BODA enrichment prober high-rate enumeration`. 같은 User-Agent 가
   `detection_filter` 임계인 **출처당 300초에 30요청** 을 넘는 경우입니다. 단건 규칙이 놓치는, 기계
-  속도로 쏟아내는 빈도입니다. Sigma 상관 규칙 `artex_enrich_scan_velocity` 를 반영합니다.
+  속도로 쏟아내는 빈도입니다. Sigma 상관 규칙 `boda_enrich_scan_velocity` 를 반영합니다.
   `classtype: attempted-recon`.
-- **sid 1000003**: `ARTEX worker WebFetch User-Agent`. User-Agent 가 `norma/` 로 시작하는 인바운드
+- **sid 1000003**: `BODA worker WebFetch User-Agent`. User-Agent 가 `norma/` 로 시작하는 인바운드
   HTTP 요청입니다(norma SDK 의 WebFetch 도구 `github.com/Autumn-27/norma/tool/webfetch.go`). 이 UA 는 norma 전 버전
   (v0.1.0–v0.4.3, 검증 완료)에 걸쳐 하드코딩되어 있으며, 기록 프록시가 요청 헤더를 수정하지
   않으므로(`traffic/traffic.go`) 대상 호스트 와이어에 그대로 도달합니다. 보강 프로버와 달리
@@ -25,8 +25,8 @@
 
 ## 범위와 정직함: 배포 전에 읽으십시오
 
-- **두 가지 ARTEX User-Agent 가 네트워크에서 관측됩니다.** 보강 프로버는 정찰 단계에서
-  `artex-enrich/1.0`(`enrich/enrich.go:233`)을, norma SDK 의 WebFetch 도구는 공격 단계에서
+- **두 가지 BODA User-Agent 가 네트워크에서 관측됩니다.** 보강 프로버는 정찰 단계에서
+  `boda-enrich/1.0`(`enrich/enrich.go:233`)을, norma SDK 의 WebFetch 도구는 공격 단계에서
   `norma/0.4`(`github.com/Autumn-27/norma/tool/webfetch.go`)를 보냅니다. 기록 프록시(`traffic/traffic.go`)는 요청 헤더를
   변경하지 않으므로 두 UA 모두 대상 와이어에 도달합니다. 그 외 worker 도구(Bash 하위 프로세스인
   `curl`, `nmap` 등)는 자체 User-Agent 를 사용하므로, 일반 스캐너 시그니처와
@@ -37,11 +37,11 @@
 - **정적 User-Agent 는 운영자가 바꿀 수 있으므로**, 없다고 해서 안전하다는 뜻은 **아닙니다**.
   오래가는 신호는 행동, 곧 속도와 폭입니다. sid 1000002(그리고 Sigma 상관 계층)가 속도를 기준으로
   삼는 이유, 그리고 순수 웹 다단계 탐지가 환경별 기본 규칙을 필요로 하는 이유가 여기에 있습니다.
-- **의도적으로 뺀 것.** 자가 업데이트 User-Agent `artex-selfupdate` 는 GitHub 로 HTTPS 를 타고 가므로
+- **의도적으로 뺀 것.** 자가 업데이트 User-Agent `boda-selfupdate` 는 GitHub 로 HTTPS 를 타고 가므로
   네트워크에서 관측되지 않습니다(TLS SNI 만으로는 경보를 걸기에 너무 흔합니다). 감사 통제 마커는
   대상을 향하는 트래픽이 아니라 운영자 측 로그 산출물이므로,
-  [`../sigma/artex_guard_audit_framing.yml`](../sigma/artex_guard_audit_framing.yml)로 탐지하십시오.
-  서버 포트 `:8787` 과 기록 프록시 `127.0.0.1:8788`(`cmd/artex/main.go`)은 네트워크 시그니처가
+  [`../sigma/boda_guard_audit_framing.yml`](../sigma/boda_guard_audit_framing.yml)로 탐지하십시오.
+  서버 포트 `:8787` 과 기록 프록시 `127.0.0.1:8788`(`cmd/boda/main.go`)은 네트워크 시그니처가
   아니라 호스트 포렌식용(`ss`·`netstat`)입니다.
 
 ## 검증과 테스트
@@ -51,7 +51,7 @@ Suricata 8 로 검증했습니다. 적재 테스트는 트래픽이 필요 없�
 ```sh
 # 문법 + 엔진 적재 테스트 (기대: "Configuration provided was successfully loaded")
 docker run --rm -v "$PWD/detections/suricata":/r -w /r jasonish/suricata:latest \
-  suricata -T -S artex.rules -l /tmp --init-errors-fatal
+  suricata -T -S boda.rules -l /tmp --init-errors-fatal
 ```
 
 `--init-errors-fatal` 은 파싱은 되지만 초기화에 실패하는 규칙도 하드 에러로 만들어, 조용히 버려진
@@ -69,10 +69,10 @@ sid 1000001 이 프로브마다 정확히 한 번씩 발화하고(35플로 캡�
 임계를 넘으며(Suricata 8.0.7 에서 **5**회 경보, 31~35번째 플로), 같은 캡처를 양성(benign) 브라우저
 User-Agent 로 돌리면 경보가 **0** 임을 단언합니다. 시그니처가 특이함을 확인하는 것입니다.
 [`../tests/README.ko.md`](../tests/README.ko.md)를 참조하십시오. 대신 자신의 트래픽으로 확인하려면, 로컬
-서버에 대해 루프백 `curl -A 'artex-enrich/1.0'` 을 캡처해 경보를 읽으십시오.
+서버에 대해 루프백 `curl -A 'boda-enrich/1.0'` 을 캡처해 경보를 읽으십시오.
 
 ```sh
-suricata -r enrich.pcap -S artex.rules -l out && \
+suricata -r enrich.pcap -S boda.rules -l out && \
   grep -c '"signature_id":1000001' out/eve.json    # 존재: 프로브마다 한 번
 ```
 

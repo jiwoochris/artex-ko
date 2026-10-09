@@ -50,21 +50,21 @@ jobs:
           path: server/webui/dist
       - name: Build and package with build.sh
         env:
-          ARTEX_TARGET_OS: ${{ matrix.goos }}
-          ARTEX_TARGET_ARCH: ${{ matrix.goarch }}
-          ARTEX_BUILD_VERSION: ${{ github.ref_name }}
-          ARTEX_SKIP_FRONTEND: "1"
-          ARTEX_SKIP_NPM_CI: "1"
+          BODA_TARGET_OS: ${{ matrix.goos }}
+          BODA_TARGET_ARCH: ${{ matrix.goarch }}
+          BODA_BUILD_VERSION: ${{ github.ref_name }}
+          BODA_SKIP_FRONTEND: "1"
+          BODA_SKIP_NPM_CI: "1"
           # UPX 자가 압축 해제 ELF 는 일부 Linux 커널·가상화·보안 정책에서 크래시가 난다.
           # Release 는 Go linker 스트립과 zip 압축을 사용해 이식성을 우선 보장한다.
-          ARTEX_COMPRESS: "0"
-          ARTEX_PACKAGE: "1"
-          ARTEX_PACKAGE_DIR: dist
+          BODA_COMPRESS: "0"
+          BODA_PACKAGE: "1"
+          BODA_PACKAGE_DIR: dist
         run: |
-          ./build.sh --target "${ARTEX_TARGET_OS}/${ARTEX_TARGET_ARCH}"
+          ./build.sh --target "${BODA_TARGET_OS}/${BODA_TARGET_ARCH}"
       - name: Smoke test Linux amd64 binary
         if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
-        run: dist/artex-linux-amd64/artex -h
+        run: dist/boda-linux-amd64/boda -h
       - uses: actions/upload-artifact@v4
         with:
           name: pkg-${{ matrix.goos }}-${{ matrix.goarch }}
@@ -74,7 +74,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bin-linux-${{ matrix.goarch }}
-          path: dist/artex-linux-${{ matrix.goarch }}/artex
+          path: dist/boda-linux-${{ matrix.goarch }}/boda
 
   # ③ 모든 zip 을 모아 → GitHub Release 생성
   release:

@@ -13,9 +13,9 @@ import (
 	"strconv"
 	"unicode/utf8"
 
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/evidence"
+	"github.com/quantum-decrypt-security/boda/agent"
+	"github.com/quantum-decrypt-security/boda/db"
+	"github.com/quantum-decrypt-security/boda/evidence"
 	actool "github.com/Autumn-27/norma/tool"
 )
 

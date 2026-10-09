@@ -1,4 +1,4 @@
-# ARTEX `/btw` 곁질문
+# BODA `/btw` 곁질문
 
 한국어 · [中文](README.zh.md)
 
@@ -67,4 +67,4 @@ flowchart LR
 
 자동화 검사, 실제 모델 사용, 알려진 제한은 [VALIDATION.md](VALIDATION.md) 에 정리했습니다.
 
-독립 요청 방식은 [Grok CLI 의 side-question.ts(고정 커밋)](https://github.com/superagent-ai/grok-cli/blob/fb97af83f06dca873281d60168430f06c8de6324/src/utils/side-question.ts) 를, 실행 격리는 [OpenCode(고정 커밋)](https://github.com/anomalyco/opencode/tree/b3f1a96c6dd7adeb28b36dd11add1998fc84d67b) 를 참고했습니다. ARTEX 는 컨텍스트에 norma 의 구조화 메시지를 사용하며, 프런트엔드 로그에서 텍스트를 이어 붙이는 방식은 쓰지 않았습니다.
+독립 요청 방식은 [Grok CLI 의 side-question.ts(고정 커밋)](https://github.com/superagent-ai/grok-cli/blob/fb97af83f06dca873281d60168430f06c8de6324/src/utils/side-question.ts) 를, 실행 격리는 [OpenCode(고정 커밋)](https://github.com/anomalyco/opencode/tree/b3f1a96c6dd7adeb28b36dd11add1998fc84d67b) 를 참고했습니다. BODA 는 컨텍스트에 norma 의 구조화 메시지를 사용하며, 프런트엔드 로그에서 텍스트를 이어 붙이는 방식은 쓰지 않았습니다.

@@ -25,7 +25,7 @@ Examples of unacceptable behavior:
 
 ## Special rule on using a security tool
 
-ARTEX is an offensive-security tool. Using these community spaces (issues, pull requests, discussions) for the following purposes is prohibited:
+BODA is an offensive-security tool. Using these community spaces (issues, pull requests, discussions) for the following purposes is prohibited:
 
 - Requesting, sharing, or encouraging attacks against unauthorized real or production systems.
 - Exchanging actionable information meant to attack a specific target.

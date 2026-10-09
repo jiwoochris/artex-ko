@@ -2,7 +2,7 @@
 #
 # Non-suite gate: runs the host-triage tool's built-in --self-test in a container.
 #
-# The triage tool (detections/triage/artex_host_triage.py) is a responder helper,
+# The triage tool (detections/triage/boda_host_triage.py) is a responder helper,
 # not a detection rule, so it is deliberately NOT one of the detections/tests/<x>/
 # run.sh suites — that keeps the harness-sync registry exactly the eight rule
 # suites (check-harness-sync.py counts only SUITES entries, `detections/tests/<x>/
@@ -28,4 +28,4 @@ PYTHON_IMAGE="${PYTHON_IMAGE:-python:3.12-slim}"
 
 docker run --rm \
   -v "$REPO/detections/triage:/triage:ro" \
-  "$PYTHON_IMAGE" python3 /triage/artex_host_triage.py --self-test
+  "$PYTHON_IMAGE" python3 /triage/boda_host_triage.py --self-test

@@ -88,12 +88,12 @@ func TestInterceptArchiveErrorsLocalized(t *testing.T) {
 	}
 
 	// task_archives.go: validateArchivePath — package path validation.
-	if err := validateArchivePath("/tmp/artex-data", ""); err == nil {
+	if err := validateArchivePath("/tmp/boda-data", ""); err == nil {
 		t.Fatal("빈 보관 경로 검증이 통과해서는 안 됩니다")
 	} else {
 		assertKoreanError(t, "archive_path.empty", err.Error())
 	}
-	if err := validateArchivePath("/tmp/artex-data", "/etc/passwd"); err == nil {
+	if err := validateArchivePath("/tmp/boda-data", "/etc/passwd"); err == nil {
 		t.Fatal("관리 디렉터리 밖 경로 검증이 통과해서는 안 됩니다")
 	} else {
 		assertKoreanError(t, "archive_path.outside", err.Error())

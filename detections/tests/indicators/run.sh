@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# Source-of-truth consistency test for the ARTEX detection indicators
+# Source-of-truth consistency test for the BODA detection indicators
 # (see check.py for the assertions). It proves the one thing the Sigma, Suricata,
 # and ATT&CK tests do not: that each rule's pinned indicator is still the string
-# ARTEX's own source actually emits. The realistic rot it catches is an upstream
+# BODA's own source actually emits. The realistic rot it catches is an upstream
 # re-sync that bumps the prober User-Agent or rewrites the guard marker — every
 # other test stays green while the deployed rule silently stops matching.
 #
@@ -22,7 +22,7 @@ REPO="$(cd "$HERE/../../.." && pwd)"
 PYTHON_IMAGE="${PYTHON_IMAGE:-python:3.12-slim}"
 
 docker run --rm \
-  -e ARTEX_REPO_ROOT=/repo \
+  -e BODA_REPO_ROOT=/repo \
   -v "$REPO/detections:/repo/detections:ro" \
   -v "$REPO/enrich:/repo/enrich:ro" \
   -v "$REPO/selfupdate:/repo/selfupdate:ro" \

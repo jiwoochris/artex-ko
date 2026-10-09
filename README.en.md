@@ -1,6 +1,6 @@
 <div align="center">
 
-# ARTEX — Korean Edition
+# BODA — Korean Edition
 
 **An autonomous penetration-testing system driven by LLM multi-agents** (Go backend + Next.js frontend)
 
@@ -16,7 +16,7 @@
 >
 > **This repository is published for use only within authorized environments, and only to build defensive and detection capabilities.**
 >
-> ARTEX is an autonomous offensive tool powerful enough to carry an attack from reconnaissance through intrusion to data exfiltration with little human involvement, so the harm from misuse is correspondingly large. In October 2026, several Korean news outlets reported that investigators had found indications the upstream ARTEX was used in personal-data breaches targeting Korean financial institutions; the related investigation is ongoing. This Korean edition is not published to help attackers. Its purpose is to help defenders understand how such autonomous AI attacks work and build the capability to detect and block them.
+> BODA is an autonomous offensive tool powerful enough to carry an attack from reconnaissance through intrusion to data exfiltration with little human involvement, so the harm from misuse is correspondingly large. In October 2026, several Korean news outlets reported that investigators had found indications the upstream BODA was used in personal-data breaches targeting Korean financial institutions; the related investigation is ongoing. This Korean edition is not published to help attackers. Its purpose is to help defenders understand how such autonomous AI attacks work and build the capability to detect and block them.
 >
 > - **Unauthorized use is a crime in itself.** Do not run any scanning, probing, or exploitation against systems you do not own or for which you lack explicit written authorization. In the Republic of Korea, unauthorized intrusion into an information and communications network violates the Network Act, and the Personal Information Protection Act also applies where personal data is involved.
 > - **Do not target live services or other parties' assets.** Verify only in learning, research, and locally isolated environments you own (deliberately vulnerable targets such as OWASP Juice Shop or DVWA).
@@ -28,7 +28,7 @@
 
 > **This repository is a localized edition of the Chinese open-source project [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX) (AGPL-3.0), adapted so that Korean users and teams can adopt it as-is.** To preserve the agents' decision-making performance, the internal reasoning prompts are kept in the original language, and only the user-facing output (findings, summaries, reports, chat replies) is forced into Korean. See ["Why a Korean edition"](#why-a-korean-edition) below for the rationale.
 
-ARTEX is a system in which several LLM-driven agents autonomously run a penetration test: they **break goals down on their own, execute real tools, and accumulate discovered assets and vulnerabilities into a graph** as they go. A single Go binary ships with the Next.js frontend embedded, and all data is stored in PostgreSQL.
+BODA is a system in which several LLM-driven agents autonomously run a penetration test: they **break goals down on their own, execute real tools, and accumulate discovered assets and vulnerabilities into a graph** as they go. A single Go binary ships with the Next.js frontend embedded, and all data is stored in PostgreSQL.
 
 > **Note on this edition's language.** The product UI, prompts, and user-facing output of this fork are being localized to **Korean**, not English. This English README exists so international readers can understand what the project is, how it differs from upstream, and how to run it. If you want the agent output in another language, see [Configuration](#configuration) — the output language is enforced by a small code-fixed directive that can be adapted.
 
@@ -36,7 +36,7 @@ ARTEX is a system in which several LLM-driven agents autonomously run a penetrat
 
 ## ⚠️ Read first — authorized use and legal notice
 
-ARTEX may be used **only against targets you own or for which you have explicit written authorization.** Any scanning, probing, or exploitation beyond the authorized scope may itself be illegal.
+BODA may be used **only against targets you own or for which you have explicit written authorization.** Any scanning, probing, or exploitation beyond the authorized scope may itself be illegal.
 
 - In the Republic of Korea, intruding into or disrupting another party's information and communications network without authorization violates the **Act on Promotion of Information and Communications Network Utilization and Information Protection** (정보통신망법).
 - Personal data collected or exposed during a penetration test is subject to the Korean **Personal Information Protection Act** (개인정보보호법). Even with authorization, handle the access, retention, and deletion of personal data with care.
@@ -49,7 +49,7 @@ Full license terms, usage restrictions, and the disclaimer are in the [License a
 
 ## Why a Korean edition
 
-Upstream ARTEX has its prompts, UI, and documentation entirely in Chinese, which made it cumbersome for Korean users to read the results and share them with a team. This edition aims to:
+Upstream BODA has its prompts, UI, and documentation entirely in Chinese, which made it cumbersome for Korean users to read the results and share them with a team. This edition aims to:
 
 - **Localize the output** — the findings, fact summaries, final reports, and chat replies that agents surface to a human are forced into Korean. Commands, payloads, code, URLs, and raw logs are needed for analysis and are left in their original form.
 - **Preserve performance** — the internal reasoning prompts (the behavioral instruction body) that drive the agents' judgment are **not** translated. Behavior benchmarked in the original language is kept intact, and only the output language is changed, avoiding the quality drift that translation introduces.
@@ -89,13 +89,13 @@ The original (Chinese UI) screens are available in [`README.zh.md`](README.zh.md
 
 > **Prerequisites:** Docker and Docker Compose. The database is **PostgreSQL**, brought up by compose. Exploration requires an **LLM** (`ANTHROPIC_API_KEY` or `OPENAI_API_KEY`; can also be set in the UI).
 
-> **⚠️ The image this compose pulls is the upstream (original) Chinese build.** The `artex` service in `docker-compose.yml` pulls `autumn27/artex`, the image the original author published to Docker Hub. That image has a **Chinese UI and Chinese output**, and the Korean localization this repository adds (Korean UI, Korean reports, `langDirective`) is **not yet included** in it. To see the Korean edition's screens and output, for now build it yourself via the **single-binary build from source** path under ["Other installation methods"](#other-installation-methods) below. A Korean-edition Docker image is in the works.
+> **⚠️ The image this compose pulls is the upstream (original) Chinese build.** The `boda` service in `docker-compose.yml` pulls `autumn27/artex`, the image the original author published to Docker Hub. That image has a **Chinese UI and Chinese output**, and the Korean localization this repository adds (Korean UI, Korean reports, `langDirective`) is **not yet included** in it. To see the Korean edition's screens and output, for now build it yourself via the **single-binary build from source** path under ["Other installation methods"](#other-installation-methods) below. A Korean-edition Docker image is in the works.
 
 ```bash
 git clone https://github.com/jiwoochris/artex-ko.git
 cd artex-ko
 cp .env.example .env          # set POSTGRES_PASSWORD; ANTHROPIC_API_KEY is optional
-docker compose up -d          # brings up the artex image + postgres together
+docker compose up -d          # brings up the boda image + postgres together
 # → open http://localhost:8787 (on first visit, set the admin password at /setup)
 ```
 
@@ -111,31 +111,31 @@ Upstream provides several methods: an install script (`./install.sh`), precompil
   ```bash
   cd web && npm ci && npm run build:static && cd ..   # 1) static frontend build
   rm -rf server/webui/dist && mkdir -p server/webui/dist && cp -a web/out/. server/webui/dist/   # 2) sync into the embed directory (avoids nesting on rebuild)
-  CGO_ENABLED=0 go build -tags embedui -o artex ./cmd/artex   # 3) compile with the frontend embedded
+  CGO_ENABLED=0 go build -tags embedui -o boda ./cmd/boda   # 3) compile with the frontend embedded
   ./start.sh                                          # → http://localhost:8787
   ```
 
 > The `npm ci` in step 1) installs the devDependencies the build needs (e.g. `@tailwindcss/postcss`). If your shell has `NODE_ENV=production` set, `npm ci` skips devDependencies and the build fails with `Error: Cannot find module '@tailwindcss/postcss'`; in that case install with `npm ci --include=dev`.
 
-> Launch with `start.sh` (`start.bat` on Windows) rather than running `./artex` directly. That script is a supervisor that restarts the program based on its exit code, and it also handles the UI's "one-click update."
+> Launch with `start.sh` (`start.bat` on Windows) rather than running `./boda` directly. That script is a supervisor that restarts the program based on its exit code, and it also handles the UI's "one-click update."
 
 ---
 
 ## Configuration
 
-**Database** (`config.json`, or override with the `ARTEX_PG_DSN` environment variable):
+**Database** (`config.json`, or override with the `BODA_PG_DSN` environment variable):
 
 ```json
 {
   "database": {
     "host": "127.0.0.1", "port": 5432,
-    "user": "artex", "password": "yourpass",
-    "dbname": "artex", "sslmode": "disable"
+    "user": "boda", "password": "yourpass",
+    "dbname": "boda", "sslmode": "disable"
   }
 }
 ```
 
-**LLM:** `export ANTHROPIC_API_KEY=sk-...` (or `OPENAI_API_KEY`), or enter it on the UI's "LLM settings" page. Optional environment variables: `ARTEX_LLM_PROVIDER` / `ARTEX_LLM_MODEL` / `ARTEX_LLM_BASE_URL` / `ARTEX_LLM_PROXY`. To use a domestic or open model, point `ARTEX_LLM_BASE_URL` at an OpenAI-compatible endpoint.
+**LLM:** `export ANTHROPIC_API_KEY=sk-...` (or `OPENAI_API_KEY`), or enter it on the UI's "LLM settings" page. Optional environment variables: `BODA_LLM_PROVIDER` / `BODA_LLM_MODEL` / `BODA_LLM_BASE_URL` / `BODA_LLM_PROXY`. To use a domestic or open model, point `BODA_LLM_BASE_URL` at an OpenAI-compatible endpoint.
 
 **Output language:** this edition forces user-facing output into Korean via a small, code-fixed directive appended to each role's system prompt (it does not translate the reasoning body). If you need a different output language, adapt that directive in `agent/prompt.go` (`langDirective`).
 
@@ -163,7 +163,7 @@ SSE holds a long-lived connection and keeps pushing events, so you **must disabl
 
 ## System architecture
 
-ARTEX is an **autonomous penetration system driven by LLM multi-agents.** It uses a single Go backend (with the Next.js frontend embedded) over PostgreSQL, and the agent capabilities are provided by the [`norma`](https://github.com/Autumn-27/norma) SDK. At its core is a **dual-graph structure** and the two autonomy mechanisms around it: process-level information exchange between workers, and the planner's multi-round shared todolist.
+BODA is an **autonomous penetration system driven by LLM multi-agents.** It uses a single Go backend (with the Next.js frontend embedded) over PostgreSQL, and the agent capabilities are provided by the [`norma`](https://github.com/Autumn-27/norma) SDK. At its core is a **dual-graph structure** and the two autonomy mechanisms around it: process-level information exchange between workers, and the planner's multi-round shared todolist.
 
 ### Overall layers
 
@@ -325,13 +325,13 @@ flowchart TB
   R3["round 3 (② yields fact)　dispatch intent ③"] --> T3
 ```
 
-This lets the attack chain progress reliably even in an "event-driven + stateless session" environment — without duplication and without going out of order. This is the core of how ARTEX completes multi-step attack chains autonomously.
+This lets the attack chain progress reliably even in an "event-driven + stateless session" environment — without duplication and without going out of order. This is the core of how BODA completes multi-step attack chains autonomously.
 
 ---
 
 ## Defense and detection material
 
-This repository aims to help the **defending side** understand how autonomous AI attacks work and build the capability to detect and block them. It takes the ARTEX behavior seen in the architecture above and turns it around into a **defender's view**, laying out what to observe and where to tighten.
+This repository aims to help the **defending side** understand how autonomous AI attacks work and build the capability to detect and block them. It takes the BODA behavior seen in the architecture above and turns it around into a **defender's view**, laying out what to observe and where to tighten.
 
 - **[Defense & Detection Guide (docs/defense-en.md)](docs/defense-en.md)** (also in [Korean](docs/defense-ko.md))
   - How autonomous AI attacks differ from traditional scanners, why they are hard to detect, and how to detect them anyway
@@ -341,8 +341,8 @@ This repository aims to help the **defending side** understand how autonomous AI
   - Korean official channels for indicators of compromise and advisories (KISA, FSI, PIPC) and the reporting duties under Korean law
 - **[Deployable detection rules (detections/)](detections/)** — the guide's fingerprint detections shipped as ready-to-use rules: the host/log/SIEM layer as [Sigma](https://sigmahq.io) rules (atomic + correlation; use `sigma convert` for Splunk, Elasticsearch, and others), and the network layer as [Suricata](https://suricata.io) rules targeting the enrich prober and norma SDK WebFetch User-Agents.
   - **[ATT&CK coverage layer (detections/attack/)](detections/attack/)**: a [MITRE ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/) layer (JSON) that maps the rules above to the techniques they tag, so you can see at a glance which attack behavior each rule catches. Every technique comes only from a rule's `attack.*` tags, with nothing added by guesswork.
-  - **[Machine-readable indicator list (detections/indicators/)](detections/indicators/)**: the unique fingerprints ARTEX itself emits, gathered into a single CSV (`artex_indicators.csv`) and shipped as a ready-to-import MISP event (`artex_indicators.misp.json`) as well, so you can drop them straight into a SIEM lookup table or a threat-intelligence platform (MISP, or anything that ingests the MISP format) as indicators of compromise (IoCs). Every value is a string verified in the repository source, and each row carries its source file and detection rule.
-  - **[Host triage script (detections/triage/)](detections/triage/)**: a read-only script, [`artex_host_triage.py`](detections/triage/artex_host_triage.py), for the responder standing at a single suspected host's shell with no SIEM or network sensor. It checks the same fingerprints the rules above do, plus — on the box itself — the three host/DB indicators the indicator CSV deliberately carries without a Sigma rule because they are not log- or network-observable (the server listen port, the recording-proxy endpoint, the PostgreSQL exploration schema). It runs on the standard library alone with nothing to install, and every finding is a triage lead carrying the same caveat as its indicator row, never an attribution on its own.
+  - **[Machine-readable indicator list (detections/indicators/)](detections/indicators/)**: the unique fingerprints BODA itself emits, gathered into a single CSV (`boda_indicators.csv`) and shipped as a ready-to-import MISP event (`boda_indicators.misp.json`) as well, so you can drop them straight into a SIEM lookup table or a threat-intelligence platform (MISP, or anything that ingests the MISP format) as indicators of compromise (IoCs). Every value is a string verified in the repository source, and each row carries its source file and detection rule.
+  - **[Host triage script (detections/triage/)](detections/triage/)**: a read-only script, [`boda_host_triage.py`](detections/triage/boda_host_triage.py), for the responder standing at a single suspected host's shell with no SIEM or network sensor. It checks the same fingerprints the rules above do, plus — on the box itself — the three host/DB indicators the indicator CSV deliberately carries without a Sigma rule because they are not log- or network-observable (the server listen port, the recording-proxy endpoint, the PostgreSQL exploration schema). It runs on the standard library alone with nothing to install, and every finding is a triage lead carrying the same caveat as its indicator row, never an attribution on its own.
   - The rules, the layer, the indicators above, and the host-triage script's self-test are all re-run and verified by the repository tests ([detections/tests/](detections/tests/)): a detection rule you cannot run is only a claim.
 
 > This material is continually expanded. Suggest additional detection rules or hardening items as issues, and when you send a rule directly, please follow the contract in [the "Contributing detection rules and detection tests" section of the contributing guide](CONTRIBUTING.en.md#contributing-detection-rules-and-detection-tests) (ground every indicator in observable fact, state the limits, pass static validation, and include a reproducible test).
@@ -357,14 +357,14 @@ Local development and testing:
 ./dev.sh    # backend (:8787) + traffic proxy (:8788) + frontend next dev (:5173) → http://localhost:5173
 ```
 
-- Backend: `go run ./cmd/artex` (without `-tags embedui` the frontend is not embedded)
+- Backend: `go run ./cmd/boda` (without `-tags embedui` the frontend is not embedded)
 - Frontend: `cd web && npm run dev` (proxies `/api` to the backend, with hot reload)
 - Tests: `go test ./...`
 - Mock preview (no backend): `cd web && NEXT_PUBLIC_MOCK=1 npm run dev`
 
 For other development topics (such as manual vulnerability re-verification), see the "开发" (Development) section of [`README.zh.md`](README.zh.md#开发).
 
-The changes this Korean edition adds on top of upstream ARTEX are tracked in the [changelog (CHANGELOG.en.md)](CHANGELOG.en.md).
+The changes this Korean edition adds on top of upstream BODA are tracked in the [changelog (CHANGELOG.en.md)](CHANGELOG.en.md).
 
 ---
 
@@ -397,5 +397,5 @@ This project is provided "AS IS" without any warranty, express or implied. The o
 
 - Upstream repository: [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX)
 - Original README (Chinese): [README.zh.md](README.zh.md)
-- Original online demo (Chinese UI): [https://artex-demo.vercel.app/](https://artex-demo.vercel.app/)
+- Original online demo (Chinese UI): [https://boda-demo.vercel.app/](https://boda-demo.vercel.app/)
 - Agent SDK: [Autumn-27/norma](https://github.com/Autumn-27/norma)

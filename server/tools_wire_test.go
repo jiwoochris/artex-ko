@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	actool "github.com/Autumn-27/norma/tool"
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/db"
+	"github.com/quantum-decrypt-security/boda/agent"
+	"github.com/quantum-decrypt-security/boda/db"
 )
 
 func names(tools []actool.CoreTool) map[string]actool.CoreTool {

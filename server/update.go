@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Autumn-27/artex/selfupdate"
+	"github.com/quantum-decrypt-security/boda/selfupdate"
 )
 
 // 页面一键更新的 HTTP 面。真正的下载/校验/换装逻辑全在 selfupdate 包里，
@@ -135,7 +135,7 @@ type updateProgress struct {
 // updateHub 持有一次升级的进度并广播给 SSE 订阅者。
 //
 // running 同时充当互斥：升级期间再次 POST /api/update/apply 直接 409，
-// 避免两个 goroutine 同时往同一个 artex.new 写。
+// 避免两个 goroutine 同时往同一个 boda.new 写。
 type updateHub struct {
 	mu      sync.Mutex
 	running bool
@@ -324,7 +324,7 @@ func (s *Server) updateApply(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 202, map[string]any{"ok": true, "target": rel.TagName})
 }
 
-// updateRollback 主动退回上一版本（换装前备份的 artex.old）。
+// updateRollback 主动退回上一版本（换装前备份的 boda.old）。
 func (s *Server) updateRollback(w http.ResponseWriter, r *http.Request) {
 	if _, running := updHub.snapshot(); running {
 		writeErr(w, 409, updateErrRollbackInProgress)

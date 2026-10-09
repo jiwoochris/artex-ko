@@ -5,19 +5,19 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/quantum-decrypt-security/boda/db"
 )
 
 // Initialize an explicitly configured fresh database before taking the same
 // suite lock as db, agent and server. Hold it on one pinned connection.
 func TestMain(m *testing.M) {
-	if os.Getenv("ARTEX_PG_DSN") == "" {
+	if os.Getenv("BODA_PG_DSN") == "" {
 		os.Exit(m.Run())
 	}
 	os.Exit(runEvidenceSuite(m))
 }
 func runEvidenceSuite(m *testing.M) int {
-	pg, err := db.Open(os.Getenv("ARTEX_PG_DSN"))
+	pg, err := db.Open(os.Getenv("BODA_PG_DSN"))
 	if err != nil {
 		panic(err)
 	}

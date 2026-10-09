@@ -1,11 +1,11 @@
-title: ARTEX Platform Guard Audit-Log Framing
+title: BODA Platform Guard Audit-Log Framing
 id: 3add497e-36cb-47c4-8993-df8f98585ef7
 status: experimental
 description: |
-    Detects the control-framing string the ARTEX platform guard writes to its audit log when it
+    Detects the control-framing string the BODA platform guard writes to its audit log when it
     blocks a tool call. Blocked calls are recorded with a message beginning with the literal
-    marker shown below (ARTEX platform control, non-target defence). Finding this marker in a
-    host's application or audit logs strongly supports that ARTEX ran on that host. This is a
+    marker shown below (BODA platform control, non-target defence). Finding this marker in a
+    host's application or audit logs strongly supports that BODA ran on that host. This is a
     host and forensic indicator, not a target-side signal.
 references:
     - https://github.com/jiwoochris/artex-ko/blob/main/docs/defense-ko.md
@@ -20,8 +20,8 @@ logsource:
     category: application
 detection:
     keywords:
-        - '【ARTEX 平台管控·非目标防御】'
+        - '【BODA 平台管控·非目标防御】'
     condition: keywords
 falsepositives:
-    - Logs that quote this defense guide or the ARTEX source code for documentation purposes.
+    - Logs that quote this defense guide or the BODA source code for documentation purposes.
 level: high

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Deterministic pcap generator for the ARTEX Suricata rule tests.
+"""Deterministic pcap generator for the BODA Suricata rule tests.
 
 Synthesizes N independent plaintext HTTP request/response flows from a single
 source, each carrying a chosen User-Agent, so `suricata -r` can be run offline
-to prove the rules in ../../suricata/artex.rules fire (or stay silent) exactly
+to prove the rules in ../../suricata/boda.rules fire (or stay silent) exactly
 as documented. Output is regenerated on every run and is never committed -- the
 test ships as source, not as a binary capture.
 

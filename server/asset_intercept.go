@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/quantum-decrypt-security/boda/db"
 )
 
 // 자산 가로채기 규칙 검증기(validateAssetInterceptRuleReq)가 돌려주는 사용자 노출

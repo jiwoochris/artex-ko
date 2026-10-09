@@ -1,4 +1,4 @@
-# SigmaHQ validator baseline for the ARTEX detection rules.
+# SigmaHQ validator baseline for the BODA detection rules.
 #
 # `sigma check` on its own runs only pySigma's core validators. This config turns
 # on the full SigmaHQ convention set (the pySigma-validators-sigmahq plugin) and
@@ -26,7 +26,7 @@ validators:
   # sigmahq_filename_prefix and sigmahq_correlation_filename_prefix require
   # logsource-prefixed filenames (web_*, proxy_*) and a correlation_* prefix, the
   # filing scheme of SigmaHQ's single flat rules/ tree. This repository ships a
-  # small set under detections/sigma/ with descriptive artex_* names and a
+  # small set under detections/sigma/ with descriptive boda_* names and a
   # correlation/ subdirectory, referenced by the correlation rules' header
   # comments, the reproduction tests, and the README index. Renaming to the
   # monorepo prefixes would desynchronize those references for no gain on a

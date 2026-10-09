@@ -1,4 +1,4 @@
-// Command artex runs the ARTEX backend: the dual SQLite graph stores,
+// Command boda runs the BODA backend: the dual SQLite graph stores,
 // the event-driven exploration engine, and the JSON HTTP API consumed by the
 // shadcn/ui frontend.
 package main
@@ -16,10 +16,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/config"
-	"github.com/Autumn-27/artex/selfupdate"
-	"github.com/Autumn-27/artex/server"
+	"github.com/quantum-decrypt-security/boda/agent"
+	"github.com/quantum-decrypt-security/boda/config"
+	"github.com/quantum-decrypt-security/boda/selfupdate"
+	"github.com/quantum-decrypt-security/boda/server"
 )
 
 // version is the build version, injected at release time via
@@ -27,11 +27,11 @@ import (
 var version = "dev"
 
 const banner = `
-    _    ____ _____ _______  __
-   / \  |  _ \_   _| ____\ \/ /
-  / _ \ | |_) || | |  _|  \  /
- / ___ \|  _ < | | | |___ /  \
-/_/   \_\_| \_\|_| |_____/_/\_\
+ ____     ___    ____       _
+| __ )   / _ \  |  _ \     / \
+|  _ \  | | | | | | | |   / _ \
+| |_) | | |_| | | |_| |  / ___ \
+|____/   \___/  |____/  /_/   \_\
 `
 
 // printBanner writes the startup banner + version/runtime info to stdout.
@@ -87,7 +87,7 @@ func run() int {
 	if _, e := os.Stat(cfgPath); e == nil {
 		log.Printf("[config] 설정 파일: %s", cfgPath)
 	} else {
-		log.Printf("[config] 설정 파일: %s (파일 없음 · 환경 변수 ARTEX_PG_DSN 만 사용)", cfgPath)
+		log.Printf("[config] 설정 파일: %s (파일 없음 · 환경 변수 BODA_PG_DSN 만 사용)", cfgPath)
 	}
 
 	sigCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -120,7 +120,7 @@ func run() int {
 	}
 
 	go func() {
-		log.Printf("ARTEX %s backend listening on %s (data=%s, workers=%d)", version, *addr, *dataDir, mgr.Workers())
+		log.Printf("BODA %s backend listening on %s (data=%s, workers=%d)", version, *addr, *dataDir, mgr.Workers())
 		if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("serve: %v", err)
 		}

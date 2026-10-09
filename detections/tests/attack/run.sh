@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Reproducible consistency test for the ARTEX ATT&CK coverage layer
-# (../../attack/artex_navigator_layer.json). A coverage layer that drifts from the
+# Reproducible consistency test for the BODA ATT&CK coverage layer
+# (../../attack/boda_navigator_layer.json). A coverage layer that drifts from the
 # rules it claims to cover is worse than none, so this turns "these rules cover
 # these ATT&CK techniques" from a claim into something a reviewer can re-run from
 # source. It catches the realistic regression: a rule is added, removed, or

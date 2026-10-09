@@ -29,7 +29,7 @@ repos:
         entry: detections/tests/run-all.sh
         language: script
         pass_filenames: false
-        files: '^(detections/|enrich/enrich\.go|selfupdate/(github|stage)\.go|guard/guard\.go|db/db\.go|db/schema\.sql|cmd/artex/main\.go|traffic/traffic\.go)'
+        files: '^(detections/|enrich/enrich\.go|selfupdate/(github|stage)\.go|guard/guard\.go|db/db\.go|db/schema\.sql|cmd/boda/main\.go|traffic/traffic\.go)'
       - id: docs
         name: 문서 내부 링크·이미지·앵커(#헤딩) 무결성 검사
         entry: python3 -I scripts/check-doc-links.py

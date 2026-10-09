@@ -1,4 +1,4 @@
-# ARTEX 탐지 규칙 테스트
+# BODA 탐지 규칙 테스트
 
 한국어 · [English](README.md)
 
@@ -54,7 +54,7 @@ RESULT: PASS
 
 ## Suricata: [`suricata/`](suricata/)
 
-[`suricata/run.sh`](suricata/run.sh) 는 [`../suricata/artex.rules`](../suricata/artex.rules) 의
+[`suricata/run.sh`](suricata/run.sh) 는 [`../suricata/boda.rules`](../suricata/boda.rules) 의
 네트워크 규칙을 종단으로 돌려 다섯 가지 속성을 단언합니다:
 
 - **유효성**: 규칙 파일 전체가 `suricata -T --init-errors-fatal` 로 적재되므로, 아래 어떤 캡처도
@@ -67,7 +67,7 @@ RESULT: PASS
 - **존재성(WebFetch)**: sid `1000003` 이 norma WebFetch 요청마다 정확히 한 번 발화하고, 같은 캡처에서
   보강 프로버 sid 는 침묵합니다. 두 네트워크 시그니처가 각자 발화할 뿐 아니라 서로 특이적임을
   확인합니다.
-- **특이성**: 다른 것은 같고 User-Agent 만 양성(benign) 브라우저로 바꾼 캡처는 ARTEX 경보를
+- **특이성**: 다른 것은 같고 User-Agent 만 양성(benign) 브라우저로 바꾼 캡처는 BODA 경보를
   **하나도** 내지 않습니다.
 
 [`suricata/gen_pcap.py`](suricata/gen_pcap.py) 는 [scapy](https://scapy.net) 로 캡처를 만듭니다.
@@ -91,7 +91,7 @@ detections/tests/suricata/run.sh
   PASS  sid 1000002 velocity: fires past 30-in-300s  (got 5, want ge 1)
   PASS  sid 1000003 presence: one alert per WebFetch request  (got 8, want eq 8)
   PASS  enrich sids stay silent on norma traffic (specificity)  (got 0, want eq 0)
-  PASS  benign browser UA produces no ARTEX alerts  (got 0, want eq 0)
+  PASS  benign browser UA produces no BODA alerts  (got 0, want eq 0)
 RESULT: PASS
 ```
 
@@ -114,7 +114,7 @@ RESULT: PASS
 
 - **유효성**: `sigma check` 가 트리 전체에서 오류 0, 조건 오류 0, 이슈 0 을 보고합니다.
 - **컴파일**: `sigma convert -t splunk` 가 트리 전체를 오류 없이 백엔드 질의 언어로 변환합니다.
-- **지표 보존**: 각 원자 지표 문자열(`artex-enrich/1.0`, `artex-selfupdate`, 가드 마커, 그리고 기록용
+- **지표 보존**: 각 원자 지표 문자열(`boda-enrich/1.0`, `boda-selfupdate`, 가드 마커, 그리고 기록용
   프록시 CA 파일명 `mitmproxy-ca-cert.pem`)이 컴파일된 질의에 그대로 남아 있으므로, 규칙이 자신이
   기반한 문자열을 조용히 잃을 수 없습니다.
 - **상관 규칙 컴파일**: [`../sigma/correlation/`](../sigma/correlation/) 의 행동 규칙이 버려지지
@@ -144,7 +144,7 @@ detections/tests/sigma/run.sh
 ```
   PASS  sigma check: 0 errors, 0 condition errors, 0 issues
   PASS  whole tree converts to splunk (exit 0)
-  PASS  indicator present: artex-enrich/1.0
+  PASS  indicator present: boda-enrich/1.0
   PASS  correlation rule fails to convert alone — it requires its atomic base rule
 RESULT: PASS
 ```
@@ -167,7 +167,7 @@ RESULT: PASS
 - **참 양성(true positive)**: 각 규칙이 자신의 악성 샘플 이벤트를 전부 매칭합니다.
 - **참 음성(true negative)**: 각 규칙이 자신의 정상 샘플 이벤트를 하나도 매칭하지 않습니다. 예를 들어
   `.mitmproxy/` 아래의 단독 `mitmproxy-ca-cert.pem` 은 기록용 프록시 규칙을 발화시키지 **않습니다**. 그
-  규칙의 `|all` 수식자가 ARTEX 가 쓰는 `_ca/` 디렉터리까지 함께 요구하기 때문이며, 이 판별을 증명하는 것이
+  규칙의 `|all` 수식자가 BODA 가 쓰는 `_ca/` 디렉터리까지 함께 요구하기 때문이며, 이 판별을 증명하는 것이
   바로 매칭 테스트입니다.
 - **상관 규칙·타임라인 짝짓기**: 모든 상관 규칙에는 [`events/correlation/<이름>.json`](sigma_match/events/correlation/)
   타임라인 파일이 있고, 모든 타임라인은 규칙으로 되짚어집니다. 타임라인의 각 이벤트는 상대 초를 담은 `ts`
@@ -204,11 +204,11 @@ detections/tests/sigma_match/run.sh
 
 ```
   PASS  rule/sample pairing: 5 atomic rules, 5 event files, no orphans
-  PASS  artex_enrich_user_agent: 1/1 positive events matched
-  PASS  artex_recording_proxy_ca: 2/2 benign events correctly not matched
+  PASS  boda_enrich_user_agent: 1/1 positive events matched
+  PASS  boda_recording_proxy_ca: 2/2 benign events correctly not matched
   PASS  rule/timeline pairing: 4 correlation rules, 4 timeline files, no orphans
-  PASS  artex_enrich_fanout: fired — 20 distinct hosts from one source within the 10-minute window
-  PASS  artex_enrich_fanout: quiet — high volume, low breadth: 25 requests from one source but only 4 distinct hosts
+  PASS  boda_enrich_fanout: fired — 20 distinct hosts from one source within the 10-minute window
+  PASS  boda_enrich_fanout: quiet — high volume, low breadth: 25 requests from one source but only 4 distinct hosts
 RESULT: PASS
 ```
 
@@ -302,7 +302,7 @@ RESULT: PASS
 
 ## ATT&CK 레이어: [`attack/`](attack/)
 
-[`attack/run.sh`](attack/run.sh) 는 [`../attack/artex_navigator_layer.json`](../attack/artex_navigator_layer.json)
+[`attack/run.sh`](attack/run.sh) 는 [`../attack/boda_navigator_layer.json`](../attack/boda_navigator_layer.json)
 의 [ATT&CK 커버리지 레이어](../attack/)가 커버한다고 주장하는 규칙과 어긋나지 않는지 확인합니다. 규칙
 집합에서 어긋난 커버리지 레이어는 없느니만 못하므로, 이 테스트는 "이 규칙들이 이 ATT&CK 기법들을
 커버한다"를 검토자가 소스에서 다시 돌려 볼 수 있는 것으로 바꿉니다. 단언하는 것:
@@ -340,32 +340,32 @@ RESULT: PASS
 ## 지표 근거(source-of-truth): [`indicators/`](indicators/)
 
 [`indicators/run.sh`](indicators/run.sh) 는 위 세 테스트가 하지 못하는 한 가지를 증명합니다. 각 규칙이
-고정한 지표가 여전히 ARTEX 자신의 소스가 실제로 내보내는 문자열인지입니다. Sigma 테스트는 지표가
+고정한 지표가 여전히 BODA 자신의 소스가 실제로 내보내는 문자열인지입니다. Sigma 테스트는 지표가
 규칙→질의 *컴파일*을 거쳐 살아남음을 증명하고, ATT&CK 테스트는 레이어가 규칙 태그와 일치함을
 증명하며, Suricata 테스트는 네트워크 규칙이 생성한 캡처에서 *발화*함을 증명합니다. 어느 것도 지표가
 유래했다고 주장하는 소스 파일을 되짚어 보지는 않습니다. 이들이 모두 놓치는 부패는, 프로버 User-Agent
-를 `artex-enrich/2.0` 으로 올리거나 가드 마커를 다시 쓰는 상류 재동기화입니다. 그래도 규칙은 모두
+를 `boda-enrich/2.0` 으로 올리거나 가드 마커를 다시 쓰는 상류 재동기화입니다. 그래도 규칙은 모두
 컴파일되고, 레이어는 여전히 일치하고, pcap 테스트도 여전히 발화합니다. 그런데 배포된 규칙은 실제
-ARTEX 트래픽에 조용히 매칭을 멈춥니다. 각 지표에 대해 양방향으로 단언합니다:
+BODA 트래픽에 조용히 매칭을 멈춥니다. 각 지표에 대해 양방향으로 단언합니다:
 
 - **소스가 여전히 내보냄**: 값이 그것을 만들어 내는 상류 소스 파일에 존재합니다(`enrich/enrich.go`
-  의 `artex-enrich/1.0`, `selfupdate/` 의 `artex-selfupdate`, `guard/guard.go` 의 가드 마커). 값이
+  의 `boda-enrich/1.0`, `selfupdate/` 의 `boda-selfupdate`, `guard/guard.go` 의 가드 마커). 값이
   없다는 것은 규칙이 아직 따라잡지 못한 상류 변경을 뜻합니다.
 - **규칙이 여전히 고정함**: 값이 그것을 기반으로 세운 규칙에 존재하므로, 규칙 편집이 지표를 소스에서
   조용히 떼어 놓을 수 없습니다. Suricata 규칙은 `startswith` 접두어로 확인하는데, 이는 그 규칙이
   실제로 와이어를 매칭하는 방식과 같습니다.
-- **차단 목록 대응**: 파괴적 명령 토큰(`rm -rf`, `mkfs`, `DROP DATABASE`, `FLUSHALL`)이 ARTEX
+- **차단 목록 대응**: 파괴적 명령 토큰(`rm -rf`, `mkfs`, `DROP DATABASE`, `FLUSHALL`)이 BODA
   가드의 차단 목록(`db/db.go`)과 그것을 반영한 헌팅 규칙 양쪽에 나타납니다. 이것들은 고유 지문이
   아니라 일반 헌팅 단서이므로, 테스트는 규칙이 실제로 주장하는 대응 관계만 단언합니다.
 - **공개 목록이 근거를 유지함**: 방어자가 가져다 쓰는 산출물인 기계가 읽는 지표 목록
-  [`detections/indicators/artex_indicators.csv`](../indicators/artex_indicators.csv) 을 행 단위로 다시
+  [`detections/indicators/boda_indicators.csv`](../indicators/boda_indicators.csv) 을 행 단위로 다시
   읽습니다. 모든 값은 인용한 소스 파일에 여전히 존재하고 인용한 규칙에 고정돼 있어야 하며, 테스트가
   근거를 확인한 모든 지문은 이 목록에 나타나야 합니다. 그래서 공개된 CSV 는 자신이 유래했다고 주장하는
   소스에서 어느 방향으로도 조용히 어긋날 수 없습니다.
 - **두 관문이 고정된 각 소스에서 발화함**: 테스트가 읽는 모든 상류 소스는 그것을 돌리는 두 관문에
   포함됩니다. CI 워크플로의 `push`·`pull_request` paths 필터([`.github/workflows/detections.yml`](../../.github/workflows/detections.yml))와
   로컬 pre-commit 훅의 `files` 정규식([`.pre-commit-config.yaml`](../../.pre-commit-config.yaml))입니다.
-  필요한 집합은 지표 자체에서 파생되므로, 새 소스를 고정하면서(예전의 `cmd/artex/main.go` 포트가
+  필요한 집합은 지표 자체에서 파생되므로, 새 소스를 고정하면서(예전의 `cmd/boda/main.go` 포트가
   그랬듯) *두* 관문에 모두 배선하지 않으면 여기서 실패합니다. 그러지 않으면 그 소스만 건드린 변경이
   그 소스를 빠뜨린 관문에서 테스트를 건너뜁니다. CI 에서는 머지 게이트를 초록으로 통과하고, 훅에서는
   "CI 와 같은 소스 범위"라고 약속해 놓고도 로컬에서 끝내 잡히지 않습니다.
@@ -388,13 +388,13 @@ detections/tests/indicators/run.sh
 예상 출력(축약):
 
 ```
-  PASS  enrichment prober User-Agent: 'artex-enrich/1.0' emitted by enrich/enrich.go
-  PASS  detections/sigma/artex_enrich_user_agent.yml pins 'artex-enrich/1.0'
+  PASS  enrichment prober User-Agent: 'boda-enrich/1.0' emitted by enrich/enrich.go
+  PASS  detections/sigma/boda_enrich_user_agent.yml pins 'boda-enrich/1.0'
   PASS  'FLUSHALL' present in both db/db.go and detections/sigma/destructive_command_hunting.yml
-  PASS  enrich-user-agent: 'artex-enrich/1.0' grounded in enrich/enrich.go
-  PASS  tested fingerprint 'artex-enrich/1.0' is published in the list
-  PASS  .github/workflows/detections.yml push paths covers cmd/artex/main.go
-  PASS  .pre-commit-config.yaml files covers cmd/artex/main.go
+  PASS  enrich-user-agent: 'boda-enrich/1.0' grounded in enrich/enrich.go
+  PASS  tested fingerprint 'boda-enrich/1.0' is published in the list
+  PASS  .github/workflows/detections.yml push paths covers cmd/boda/main.go
+  PASS  .pre-commit-config.yaml files covers cmd/boda/main.go
 RESULT: PASS
 ```
 
@@ -404,7 +404,7 @@ RESULT: PASS
 ## MISP 내보내기 일관성: [`misp/`](misp/)
 
 [`misp/run.sh`](misp/run.sh) 는 지표의 두 번째 공개 형태, 바로 가져올 수 있는 MISP 이벤트
-[`detections/indicators/artex_indicators.misp.json`](../indicators/artex_indicators.misp.json) 를
+[`detections/indicators/boda_indicators.misp.json`](../indicators/boda_indicators.misp.json) 를
 다룹니다. 위 지표 테스트가 CSV 를 소스에 근거하게 유지한다면, 이 테스트는 방어자가 실제로 위협
 인텔리전스 플랫폼에 적재하는 산출물인 MISP 이벤트가 그 CSV 에서 어긋나지 않게 유지합니다. 단언하는 것:
 
@@ -415,7 +415,7 @@ RESULT: PASS
 - **CSV 와 행 단위 동기화**: 모든 CSV 행이 의도한 타입·카테고리를 가진 MISP 속성 정확히 하나로
   대응되고(`http.user-agent` → `user-agent`, 가드 마커 `string` → `pattern-in-file`, `port` →
   `port`, `ip-dst|port` → 합성 `ip|port` 값을 가진 `ip-dst|port`, 탐색 스키마 `other` → `other`), CSV 행 없이 남는 MISP 속성이
-  하나도 없습니다. 이벤트는 CSV 와 함께 손으로 유지하므로, `artex_indicators.misp.json` 을 같은
+  하나도 없습니다. 이벤트는 CSV 와 함께 손으로 유지하므로, `boda_indicators.misp.json` 을 같은
   커밋에서 맞춰 갱신하지 않은 채 CSV 행을 추가·삭제·타입 변경하면 실패합니다.
 - **`to_ids` 가 `rule` 열을 반영함**: 규칙이 뒷받침하는 지표는 `to_ids: true` 이고, 규칙이 없는
   호스트 포렌식 행은 `disable_correlation: true` 와 함께 `to_ids: false` 입니다. CSV 가 함의하는
@@ -448,7 +448,7 @@ detections/tests/misp/run.sh
 
 여덟 스위트는 모두 `detections/` 를 건드리는 모든 push 나 pull request 에서 CI 로 돕니다
 ([`../../.github/workflows/detections.yml`](../../.github/workflows/detections.yml) 참조). 그리고 지표
-테스트는 그것이 고정한 상류 소스 파일(`enrich/`, `selfupdate/`, `guard/`, `db/`, `cmd/artex/main.go`)이
+테스트는 그것이 고정한 상류 소스 파일(`enrich/`, `selfupdate/`, `guard/`, `db/`, `cmd/boda/main.go`)이
 바뀔 때도 돕니다. 그래서 지표를 떨어뜨리거나, ATT&CK 레이어에서 어긋나거나, 문서화한 백엔드에서
 변환이 멈추거나, SigmaHQ 관례를 깨거나, 소스와 동기화가 어긋나거나, MISP 이벤트가 CSV 에서 어긋나게
 두거나, 워크플로가 아직 감시하지 않는 새 소스를 고정하는 규칙 변경은 머지되기 전에 빌드를 빨갛게

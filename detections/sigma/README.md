@@ -1,4 +1,4 @@
-# ARTEX detection rules (Sigma / host · log · SIEM)
+# BODA detection rules (Sigma / host · log · SIEM)
 
 English · [한국어](README.ko.md)
 
@@ -8,7 +8,7 @@ English · [한국어](README.ko.md)
 > 허가를 받은 시스템을 지키는 **방어·탐지 목적에만** 사용하십시오. 한국어 전체 문서는
 > **[README.ko.md](README.ko.md)** 를, 전체 탐지 묶음 개요는 **[../README.ko.md](../README.ko.md)** 를 보십시오.
 
-The host, log, and SIEM layer of the ARTEX detection set. These [Sigma](https://sigmahq.io) rules
+The host, log, and SIEM layer of the BODA detection set. These [Sigma](https://sigmahq.io) rules
 formalize the pseudo-rules in the defense guide ([Korean](../../docs/defense-ko.md) ·
 [English](../../docs/defense-en.md), section 4) into a vendor-neutral format you convert to your own
 SIEM or EDR query language. Every indicator is grounded in a string or behaviour verified in this
@@ -20,22 +20,22 @@ script — is indexed in [`../README.md`](../README.md).
 
 One rule, one observable fact. Convert them individually or as part of the whole tree.
 
-- **[`artex_enrich_user_agent.yml`](artex_enrich_user_agent.yml)** — *ARTEX Asset Enrichment Probe
-  User-Agent*. Inbound `artex-enrich/1.0` User-Agent from asset enrichment (`enrich/enrich.go`).
+- **[`boda_enrich_user_agent.yml`](boda_enrich_user_agent.yml)** — *BODA Asset Enrichment Probe
+  User-Agent*. Inbound `boda-enrich/1.0` User-Agent from asset enrichment (`enrich/enrich.go`).
   Target-side, supporting indicator. `level: high`.
-- **[`artex_selfupdate_egress.yml`](artex_selfupdate_egress.yml)** — *ARTEX Self-Update Egress
-  User-Agent*. Outbound `artex-selfupdate` User-Agent from the self-update routine
+- **[`boda_selfupdate_egress.yml`](boda_selfupdate_egress.yml)** — *BODA Self-Update Egress
+  User-Agent*. Outbound `boda-selfupdate` User-Agent from the self-update routine
   (`selfupdate/github.go`). Host/forensic egress indicator. `level: medium`.
-- **[`artex_guard_audit_framing.yml`](artex_guard_audit_framing.yml)** — *ARTEX Platform Guard
+- **[`boda_guard_audit_framing.yml`](boda_guard_audit_framing.yml)** — *BODA Platform Guard
   Audit-Log Framing*. The platform-guard control marker written to the audit log on a blocked tool
   call (`guard/guard.go`). Host/forensic indicator. `level: high`.
-- **[`artex_recording_proxy_ca.yml`](artex_recording_proxy_ca.yml)** — *ARTEX Recording-Proxy MITM CA
+- **[`boda_recording_proxy_ca.yml`](boda_recording_proxy_ca.yml)** — *BODA Recording-Proxy MITM CA
   Certificate Artifact*. Creation of the recording proxy's MITM CA file under the
   `_ca/mitmproxy-ca-cert.pem` layout (`traffic/traffic.go`). Host/forensic artifact; the bare filename
   is shared with standalone mitmproxy, so it is a hunting lead. `level: medium`.
 - **[`destructive_command_hunting.yml`](destructive_command_hunting.yml)** — *Destructive Command
-  Execution (ARTEX Guard-List Hunting)*. Destructive shell/DB commands mirroring the ARTEX guard's
-  built-in deny list (`db/db.go` seed). Generic hunting lead, **not** an ARTEX signature. `level: medium`.
+  Execution (BODA Guard-List Hunting)*. Destructive shell/DB commands mirroring the BODA guard's
+  built-in deny list (`db/db.go` seed). Generic hunting lead, **not** an BODA signature. `level: medium`.
 
 ## Correlation rules (behaviour) — [`correlation/`](correlation/)
 
@@ -44,27 +44,27 @@ behaviour-based layer of the defense guide (sections 4.1–4.2 and 4.4). Each re
 above by its `id`, so **convert the whole `sigma/` tree, not a single correlation file**, or the
 reference will not resolve (the [Sigma test](../tests/sigma/) asserts exactly this dependency).
 
-- **[`correlation/artex_enrich_scan_velocity.yml`](correlation/artex_enrich_scan_velocity.yml)** —
-  *Enrichment Scan Velocity*. A burst of `artex-enrich/1.0` probes from one source in a short window
+- **[`correlation/boda_enrich_scan_velocity.yml`](correlation/boda_enrich_scan_velocity.yml)** —
+  *Enrichment Scan Velocity*. A burst of `boda-enrich/1.0` probes from one source in a short window
   (enrichment runs at concurrency 4 with no rate limit) — the velocity the single-request rule misses.
   `event_count`, `level: high`.
-- **[`correlation/artex_enrich_fanout.yml`](correlation/artex_enrich_fanout.yml)** — *Enrichment
+- **[`correlation/boda_enrich_fanout.yml`](correlation/boda_enrich_fanout.yml)** — *Enrichment
   Fan-Out*. One source carrying the enrichment User-Agent to many *distinct* hosts: machine-speed breadth
   across an asset list, where the distinct-host count, not request volume, is the tell. `value_count`,
   `level: high`.
-- **[`correlation/artex_guard_block_burst.yml`](correlation/artex_guard_block_burst.yml)** —
-  *Guard-Block Burst*. Repeated platform-guard control markers on one host — an actively engaged ARTEX
+- **[`correlation/boda_guard_block_burst.yml`](correlation/boda_guard_block_burst.yml)** —
+  *Guard-Block Burst*. Repeated platform-guard control markers on one host — an actively engaged BODA
   run tripping its own guard, not a document that merely quotes the marker. `event_count`, `level: high`.
-- **[`correlation/artex_guard_marker_then_destructive.yml`](correlation/artex_guard_marker_then_destructive.yml)**
+- **[`correlation/boda_guard_marker_then_destructive.yml`](correlation/boda_guard_marker_then_destructive.yml)**
   — *Guard Marker With Destructive Command*. The guard marker and a destructive command co-occurring on
-  one host within a window (defense guide §4.2, multi-stage): combining an ARTEX-specific marker with the
+  one host within a window (defense guide §4.2, multi-stage): combining an BODA-specific marker with the
   otherwise-generic destructive-command signal raises specificity. `temporal`, `level: high`.
 
 Thresholds and windows are conservative defaults — tune them to your baseline. The pure web multi-stage
 case (enumerate → probe → authenticate) still needs base rules specific to your environment, because that
-pattern does not reduce to a single ARTEX-unique User-Agent; a generic behavioural base template to start
+pattern does not reduce to a single BODA-unique User-Agent; a generic behavioural base template to start
 from is in the [defense guide §4.2](../../docs/defense-en.md), kept out of this tested tree because it
-cannot be grounded in ARTEX source.
+cannot be grounded in BODA source.
 
 ## Scope and honesty — read before deploying
 
@@ -72,11 +72,11 @@ cannot be grounded in ARTEX source.
   file, so the absence of an atomic indicator does **not** mean safety. The durable signal is the
   behaviour the `correlation/` rules key on — one source chaining recon → enumeration → probing →
   auth/injection attempts, adapting to responses, running without pause.
-- **The destructive-command rule is generic hunting.** It mirrors ARTEX's guard deny list, but the same
+- **The destructive-command rule is generic hunting.** It mirrors BODA's guard deny list, but the same
   commands are run by legitimate administrators. Treat a hit as a lead, allow-list your environment, and
-  do not attribute it to ARTEX on its own.
+  do not attribute it to BODA on its own.
 - **Ports and schema are host-forensic, not Sigma.** The server default `:8787` and recording proxy
-  `127.0.0.1:8788` (`cmd/artex/main.go`), and the PostgreSQL exploration-graph schema, are best checked on
+  `127.0.0.1:8788` (`cmd/boda/main.go`), and the PostgreSQL exploration-graph schema, are best checked on
   a suspected host, so they ship in the [indicator CSV](../indicators/) and the
   [host-triage script](../triage/) rather than as noisy rules.
 - **`logsource` and field names are generic.** The rules use generic `category`/`product` log sources and

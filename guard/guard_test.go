@@ -45,7 +45,7 @@ func TestPreToolUsePassthrough(t *testing.T) {
 // agent behavior could drift. This test fails if the framing is accidentally localized.
 func TestSystemBlockMessagePreservedIsBrainInput(t *testing.T) {
 	got := systemBlockMessage("<原因>")
-	want := "【ARTEX 平台管控·非目标防御】此调用被平台拦截。原因：<原因>。此操作被禁止。"
+	want := "【BODA 平台管控·非目标防御】此调用被平台拦截。原因：<原因>。此操作被禁止。"
 	if got != want {
 		t.Errorf("systemBlockMessage framing drifted (F14 두뇌 보존 — 원문 유지해야 함):\n got %q\nwant %q", got, want)
 	}

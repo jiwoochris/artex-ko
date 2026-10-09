@@ -14,12 +14,12 @@
 - [OpenCode 세션 압축](https://github.com/anomalyco/opencode/blob/b3f1a96c6dd7adeb28b36dd11add1998fc84d67b/packages/core/src/session/compaction.ts): 요청 전체를 추정하고, 출력·버퍼를 예약하며, 최근 내용에 롤링 요약을 더하고, 도구 없는 요약 요청을 보냅니다. 이 구현은 기본적으로 최근 예산 8000, 요약 출력 상한 4096 토큰을 씁니다.
 - [OpenCode 오버플로 복구](https://github.com/anomalyco/opencode/blob/b3f1a96c6dd7adeb28b36dd11add1998fc84d67b/packages/core/src/session/runner/llm.ts): 어시스턴트 출력이 아직 시작되지 않았을 때만 오버플로 복구를 시도하고, 복구한 뒤의 호출은 같은 오버플로 복구 경로로 다시 들어가지 않습니다.
 
-ARTEX 는 독립 출력 예산, 최근 내용과 롤링 요약, 제한된 복구라는 방식을 참고했습니다. norma v0.3.6 의 구조화 메시지와 도구 짝 맞추기는 그대로 유지하되 Grok 의 텍스트 발췌 방식은 그대로 가져오지 않았고, OpenCode 의 메인 세션 압축 이벤트를 ARTEX 메인 transcript 에 기록하지도 않습니다.
+BODA 는 독립 출력 예산, 최근 내용과 롤링 요약, 제한된 복구라는 방식을 참고했습니다. norma v0.3.6 의 구조화 메시지와 도구 짝 맞추기는 그대로 유지하되 Grok 의 텍스트 발췌 방식은 그대로 가져오지 않았고, OpenCode 의 메인 세션 압축 이벤트를 BODA 메인 transcript 에 기록하지도 않습니다.
 
 ## 요청 예산과 실행
 
 - 메시지는 norma 의 방식을 그대로 써서 내용 블록 단위로 UTF-8 바이트를 추정하고 4/3 여유분을 더합니다. 여기에 시스템 프롬프트, 도구 schema, 메시지 포장 오버헤드를 추가로 셈합니다. 이 추정값은 모델의 정확한 토큰 수가 아닙니다.
-- 곁질문 출력은 기본적으로 최대 8192 토큰이며, 메인 설정에 이미 정해진 출력 상한도 넘지 않습니다. 서비스 환경 변수 `ARTEX_BTW_MAX_OUTPUT_TOKENS` 로 256–32768 범위의 상한을 설정할 수 있고, 제품 기본 모델이나 메인 작업 파라미터는 바꾸지 않습니다.
+- 곁질문 출력은 기본적으로 최대 8192 토큰이며, 메인 설정에 이미 정해진 출력 상한도 넘지 않습니다. 서비스 환경 변수 `BODA_BTW_MAX_OUTPUT_TOKENS` 로 256–32768 범위의 상한을 설정할 수 있고, 제품 기본 모델이나 메인 작업 파라미터는 바꾸지 않습니다.
 - 입력 예산은 컨텍스트 창에서 출력 상한과 안전 여유분을 뺀 값이며, 창 크기를 모를 때는 플랫폼 기본값인 200K 를 씁니다. 안전 여유분은 창의 5% 이고, 최소 128 토큰, 최대 8192 토큰입니다.
 - 성공한 문답은 증가하는 순번에 따라 한 번에 최대 20 묶음까지 불러옵니다. 원문은 최대 20 묶음까지 남기며, 그 토큰 예산은 입력 예산의 1/4 이내이고 16K 를 넘지 않습니다.
 - 예산을 넘긴 문답은 롤링 요약으로 반영합니다. 요약에는 출처 기록과 컨텍스트 시점을 함께 담습니다. 과거의 어시스턴트 답변은 새로운 도구 증거와 같지 않으므로, 충돌이 생기면 가장 최신 메인 스냅샷을 우선합니다.
@@ -52,9 +52,9 @@ POST 는 요청을 먼저 받아들여 돌려주고, 준비와 압축은 백그�
 
 ```sh
 go test -race ./sidequestion ./db ./server -run 'TestSide|TestCheckpoint|TestSnapshot|TestBuildRequest|TestService|TestMainSide|TestTaskArchive' -count=1
-go build ./cmd/artex
+go build ./cmd/boda
 npx tsc --noEmit
 npm run build -- --webpack
 ```
 
-프런트엔드 프로덕션 빌드는 독립 사본을 써서 현재 미리 보기의 `.next` 를 덮어쓰지 않도록 했습니다. 후보 서비스는 `/private/tmp/artex-btw-budget-candidate` 에 있고, `/private/tmp/artex-btw-preview/artex` 로 복사해 실행했습니다. 원래 바이너리는 같은 디렉터리의 `artex.before-context-budget` 로 백업했습니다.
+프런트엔드 프로덕션 빌드는 독립 사본을 써서 현재 미리 보기의 `.next` 를 덮어쓰지 않도록 했습니다. 후보 서비스는 `/private/tmp/boda-btw-budget-candidate` 에 있고, `/private/tmp/boda-btw-preview/boda` 로 복사해 실행했습니다. 원래 바이너리는 같은 디렉터리의 `boda.before-context-budget` 로 백업했습니다.

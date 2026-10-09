@@ -1,4 +1,4 @@
-# ARTEX detection rule tests
+# BODA detection rule tests
 
 English · [한국어](README.ko.md)
 
@@ -59,7 +59,7 @@ are inherited by the runner, so exporting any of them applies to every suite at 
 ## Suricata — [`suricata/`](suricata/)
 
 [`suricata/run.sh`](suricata/run.sh) exercises the network rules in
-[`../suricata/artex.rules`](../suricata/artex.rules) end to end and asserts five properties:
+[`../suricata/boda.rules`](../suricata/boda.rules) end to end and asserts five properties:
 
 - **Valid** — the whole rules file loads under `suricata -T --init-errors-fatal`, so a rule that fails to
   parse or initialise is caught even when no capture below exercises it. Plain `suricata -r` skips such a
@@ -72,7 +72,7 @@ are inherited by the runner, so exporting any of them applies to every suite at 
   stay silent on that same capture — so the two network signatures are mutually specific, not just each
   present.
 - **Specificity** — an identical capture whose only change is a benign browser User-Agent produces **zero**
-  ARTEX alerts.
+  BODA alerts.
 
 [`suricata/gen_pcap.py`](suricata/gen_pcap.py) builds the capture with [scapy](https://scapy.net): N
 independent plaintext HTTP request/response flows from one fixed source, each carrying a chosen
@@ -95,7 +95,7 @@ Expected output (abridged):
   PASS  sid 1000002 velocity: fires past 30-in-300s  (got 5, want ge 1)
   PASS  sid 1000003 presence: one alert per WebFetch request  (got 8, want eq 8)
   PASS  enrich sids stay silent on norma traffic (specificity)  (got 0, want eq 0)
-  PASS  benign browser UA produces no ARTEX alerts  (got 0, want eq 0)
+  PASS  benign browser UA produces no BODA alerts  (got 0, want eq 0)
 RESULT: PASS
 ```
 
@@ -119,7 +119,7 @@ compilation with [sigma-cli](https://github.com/SigmaHQ/sigma-cli) (pySigma), an
 
 - **Valid** — `sigma check` reports 0 errors, 0 condition errors, and 0 issues over the whole tree.
 - **Compiles** — `sigma convert -t splunk` turns the whole tree into a backend query language without error.
-- **Indicators survive** — each atomic indicator string (`artex-enrich/1.0`, `artex-selfupdate`, the guard
+- **Indicators survive** — each atomic indicator string (`boda-enrich/1.0`, `boda-selfupdate`, the guard
   marker, and the recording-proxy CA filename `mitmproxy-ca-cert.pem`) is still present in the compiled query,
   so a rule cannot silently lose the string it is built on.
 - **Correlations compile** — the behaviour rules in [`../sigma/correlation/`](../sigma/correlation/) emit their
@@ -149,7 +149,7 @@ Expected output (abridged):
 ```
   PASS  sigma check: 0 errors, 0 condition errors, 0 issues
   PASS  whole tree converts to splunk (exit 0)
-  PASS  indicator present: artex-enrich/1.0
+  PASS  indicator present: boda-enrich/1.0
   PASS  correlation rule fails to convert alone — it requires its atomic base rule
 RESULT: PASS
 ```
@@ -171,7 +171,7 @@ asserts six properties, three for the atomic rules and three for the correlation
 - **True positives** — each rule matches every one of its malicious sample events.
 - **True negatives** — each rule matches none of its benign sample events. For example, a standalone
   `mitmproxy-ca-cert.pem` under `.mitmproxy/` does **not** trip the recording-proxy rule, because its `|all`
-  modifier also requires the `_ca/` directory ARTEX writes — the matching test is what proves that discrimination.
+  modifier also requires the `_ca/` directory BODA writes — the matching test is what proves that discrimination.
 - **Correlation rule/timeline pairing** — every correlation rule has an
   [`events/correlation/<name>.json`](sigma_match/events/correlation/) timeline file and every timeline maps back
   to a rule. Each timeline event carries a `ts` field in relative seconds.
@@ -208,11 +208,11 @@ Expected output (abridged):
 
 ```
   PASS  rule/sample pairing: 5 atomic rules, 5 event files, no orphans
-  PASS  artex_enrich_user_agent: 1/1 positive events matched
-  PASS  artex_recording_proxy_ca: 2/2 benign events correctly not matched
+  PASS  boda_enrich_user_agent: 1/1 positive events matched
+  PASS  boda_recording_proxy_ca: 2/2 benign events correctly not matched
   PASS  rule/timeline pairing: 4 correlation rules, 4 timeline files, no orphans
-  PASS  artex_enrich_fanout: fired — 20 distinct hosts from one source within the 10-minute window
-  PASS  artex_enrich_fanout: quiet — high volume, low breadth: 25 requests from one source but only 4 distinct hosts
+  PASS  boda_enrich_fanout: fired — 20 distinct hosts from one source within the 10-minute window
+  PASS  boda_enrich_fanout: quiet — high volume, low breadth: 25 requests from one source but only 4 distinct hosts
 RESULT: PASS
 ```
 
@@ -304,7 +304,7 @@ RESULT: PASS
 ## ATT&CK layer — [`attack/`](attack/)
 
 [`attack/run.sh`](attack/run.sh) checks that the [ATT&CK coverage layer](../attack/) in
-[`../attack/artex_navigator_layer.json`](../attack/artex_navigator_layer.json) stays consistent with the
+[`../attack/boda_navigator_layer.json`](../attack/boda_navigator_layer.json) stays consistent with the
 rules it claims to cover. A coverage layer that drifts from its rule set is worse than none, so this turns
 "these rules cover these ATT&CK techniques" into something a reviewer can re-run from source. It asserts:
 
@@ -342,26 +342,26 @@ Override the image with `PYTHON_IMAGE` if you mirror it internally.
 ## Indicator source-of-truth — [`indicators/`](indicators/)
 
 [`indicators/run.sh`](indicators/run.sh) proves the one thing the three tests above do not: that each rule's
-pinned indicator is still the string ARTEX's own source actually emits. The Sigma test proves an indicator
+pinned indicator is still the string BODA's own source actually emits. The Sigma test proves an indicator
 survives rule→query *compilation*; the ATT&CK test proves the layer matches the rules' tags; the Suricata
 test proves the network rule *fires* on a synthesized capture. None of them look back at the source file the
 indicator claims to come from. The rot they all miss is an upstream re-sync that bumps the prober User-Agent
-to `artex-enrich/2.0` or rewrites the guard marker: every rule still compiles, the layer still matches, the
-pcap test still fires — and the deployed rule silently stops matching real ARTEX traffic. It asserts, for
+to `boda-enrich/2.0` or rewrites the guard marker: every rule still compiles, the layer still matches, the
+pcap test still fires — and the deployed rule silently stops matching real BODA traffic. It asserts, for
 each indicator, bidirectionally:
 
 - **Source still emits it** — the value is present in the upstream source file(s) that produce it
-  (`artex-enrich/1.0` in `enrich/enrich.go`, `artex-selfupdate` in `selfupdate/`, the guard marker in
+  (`boda-enrich/1.0` in `enrich/enrich.go`, `boda-selfupdate` in `selfupdate/`, the guard marker in
   `guard/guard.go`). A missing value means an upstream change the rule has not caught up with.
 - **Rule still pins it** — the value is present in the rule built on it, so a rule edit cannot quietly move
   the indicator away from its source. The Suricata rule is checked by its `startswith` prefix, matching how
   it actually matches the wire.
 - **Deny-list correspondence** — the destructive-command tokens (`rm -rf`, `mkfs`, `DROP DATABASE`,
-  `FLUSHALL`) appear both in ARTEX's guard deny-list (`db/db.go`) and in the hunting rule that mirrors it.
+  `FLUSHALL`) appear both in BODA's guard deny-list (`db/db.go`) and in the hunting rule that mirrors it.
   These are generic hunting leads, not unique fingerprints, so the test asserts only the correspondence the
   rule actually claims.
 - **Published list stays grounded** — the machine-readable indicator list
-  [`detections/indicators/artex_indicators.csv`](../indicators/artex_indicators.csv), the artifact a
+  [`detections/indicators/boda_indicators.csv`](../indicators/boda_indicators.csv), the artifact a
   defender imports, is re-read row by row: every value must still be present in the source file(s) it cites
   and pinned in the rule(s) it cites, and every fingerprint the test grounds must appear in the list. So the
   published CSV cannot silently drift from the source it claims to come from, in either direction.
@@ -369,7 +369,7 @@ each indicator, bidirectionally:
   gates that run it: the CI workflow's `push` and `pull_request` paths filter
   ([`.github/workflows/detections.yml`](../../.github/workflows/detections.yml)) and the local pre-commit
   hook's `files` regex ([`.pre-commit-config.yaml`](../../.pre-commit-config.yaml)). The required set is
-  derived from the indicators themselves, so pinning a new source (as the `cmd/artex/main.go` ports once were)
+  derived from the indicators themselves, so pinning a new source (as the `cmd/boda/main.go` ports once were)
   without wiring it into *both* gates fails here — otherwise a change touching only that source skips the test
   on whichever gate omits it: on CI it passes the merge gate green, on the hook it is never caught locally
   even though the hook promises "the same source scope as CI".
@@ -392,13 +392,13 @@ detections/tests/indicators/run.sh
 Expected output (abridged):
 
 ```
-  PASS  enrichment prober User-Agent: 'artex-enrich/1.0' emitted by enrich/enrich.go
-  PASS  detections/sigma/artex_enrich_user_agent.yml pins 'artex-enrich/1.0'
+  PASS  enrichment prober User-Agent: 'boda-enrich/1.0' emitted by enrich/enrich.go
+  PASS  detections/sigma/boda_enrich_user_agent.yml pins 'boda-enrich/1.0'
   PASS  'FLUSHALL' present in both db/db.go and detections/sigma/destructive_command_hunting.yml
-  PASS  enrich-user-agent: 'artex-enrich/1.0' grounded in enrich/enrich.go
-  PASS  tested fingerprint 'artex-enrich/1.0' is published in the list
-  PASS  .github/workflows/detections.yml push paths covers cmd/artex/main.go
-  PASS  .pre-commit-config.yaml files covers cmd/artex/main.go
+  PASS  enrich-user-agent: 'boda-enrich/1.0' grounded in enrich/enrich.go
+  PASS  tested fingerprint 'boda-enrich/1.0' is published in the list
+  PASS  .github/workflows/detections.yml push paths covers cmd/boda/main.go
+  PASS  .pre-commit-config.yaml files covers cmd/boda/main.go
 RESULT: PASS
 ```
 
@@ -408,7 +408,7 @@ Override the image with `PYTHON_IMAGE` if you mirror it internally.
 ## MISP export consistency — [`misp/`](misp/)
 
 [`misp/run.sh`](misp/run.sh) covers the second published form of the indicators — the ready-to-import MISP
-event [`detections/indicators/artex_indicators.misp.json`](../indicators/artex_indicators.misp.json). The
+event [`detections/indicators/boda_indicators.misp.json`](../indicators/boda_indicators.misp.json). The
 indicator test above keeps the CSV grounded in the source; this test keeps the MISP event, the artifact a
 defender actually loads into a threat-intelligence platform, from drifting away from that CSV. It asserts:
 
@@ -419,7 +419,7 @@ defender actually loads into a threat-intelligence platform, from drifting away 
   and category (`http.user-agent` → `user-agent`, the guard marker `string` → `pattern-in-file`, `port` →
   `port`, `ip-dst|port` → `ip-dst|port` with the composite `ip|port` value, and the exploration-schema `other` → `other`), and no MISP attribute is left
   without a CSV row. The event is hand-maintained alongside the CSV, so adding, removing, or retyping a CSV
-  row without updating `artex_indicators.misp.json` to match in the same commit fails.
+  row without updating `boda_indicators.misp.json` to match in the same commit fails.
 - **`to_ids` mirrors the `rule` column** — a rule-backed indicator is `to_ids: true`; a host-forensic row
   with no rule is `to_ids: false` with `disable_correlation: true`. Flipping a flag away from what the CSV
   implies fails, so the MISP event cannot quietly over- or under-claim which fingerprints are actionable.
@@ -450,7 +450,7 @@ recorded reference), and avoid any content that reads as attack guidance. See
 
 All eight suites run in CI (see [`../../.github/workflows/detections.yml`](../../.github/workflows/detections.yml))
 on every push or pull request that touches `detections/` — and the indicator test also runs when the upstream
-source files it pins (`enrich/`, `selfupdate/`, `guard/`, `db/`, `cmd/artex/main.go`) change — so a rule
+source files it pins (`enrich/`, `selfupdate/`, `guard/`, `db/`, `cmd/boda/main.go`) change — so a rule
 change that drops an indicator, drifts from the ATT&CK layer, stops converting on a documented backend,
 breaks a SigmaHQ convention, falls out of sync with the source, lets the MISP event drift from the CSV, or
 pins a new source the workflow does not yet watch turns the build red before it can merge.

@@ -1,22 +1,22 @@
-# ARTEX host triage
+# BODA host triage
 
 English · [한국어](README.ko.md)
 
-> 한국어: [`artex_host_triage.py`](artex_host_triage.py) 는 ARTEX 가 돌았다고 의심되는 **호스트 한 대에서 직접**
+> 한국어: [`boda_host_triage.py`](boda_host_triage.py) 는 BODA 가 돌았다고 의심되는 **호스트 한 대에서 직접**
 > 돌리는 읽기 전용 분류(triage) 스크립트입니다. SIEM(Sigma)·네트워크 센서(Suricata)·위협 인텔리전스
 > 플랫폼(지표 CSV·MISP)을 쓰는 방어자 말고, SIEM 없이 의심 호스트의 셸 앞에 선 대응자를 위한 것입니다.
 > 리슨 포트·기록 프록시 아티팩트·로그 마커·PostgreSQL 스키마를 저장소 소스에 근거해 점검하고, 각 발견에
 > 같은 한계(포트는 바꿀 수 있음, CA 파일명은 단독 mitmproxy 와 공유됨 등)를 함께 적습니다. 자신이 소유하거나
 > 서면 허가를 받은 호스트에만 사용하십시오. 한국어 전체 문서는 **[README.ko.md](README.ko.md)** 를 보십시오.
 
-A read-only triage helper you run **on a single suspected host** to answer "did ARTEX run here?" from
+A read-only triage helper you run **on a single suspected host** to answer "did BODA run here?" from
 local state. The rest of this directory serves defenders who run a SIEM ([Sigma](../sigma/)), a network
 sensor ([Suricata](../suricata/)), or a threat-intelligence platform (the [indicators](../indicators/)).
 This script serves the other responder: the one at a host's shell, with no SIEM, who needs a quick,
 defensible answer from what is on the box.
 
 It operationalizes the same fingerprints the rest of the directory ships, **plus the three host/DB
-indicators the [indicator list](../indicators/artex_indicators.csv) deliberately carries without a Sigma
+indicators the [indicator list](../indicators/boda_indicators.csv) deliberately carries without a Sigma
 rule** because they are not log- or network-observable and can only be checked on the host itself
 (`server-listen-port`, `recording-proxy-endpoint`, `postgres-exploration-schema`).
 
@@ -26,33 +26,33 @@ Every check is grounded in a string or path verified in this repository's source
 carries the same honest caveat as the matching Sigma rule or indicator row.
 
 - **Listening ports** — `:8787` (admin UI) and `127.0.0.1:8788` (recording proxy), the defaults of the
-  `--addr` / `--proxy` flags in [`cmd/artex/main.go`](../../cmd/artex/main.go). Parsed from `ss`/`netstat`/`lsof`
+  `--addr` / `--proxy` flags in [`cmd/boda/main.go`](../../cmd/boda/main.go). Parsed from `ss`/`netstat`/`lsof`
   on the live host, or from a file you pass with `--ports-from`.
 - **Recording-proxy artifacts** — the MITM CA the recorder writes on first start,
   `<data-dir>/traffic/_ca/mitmproxy-ca-cert.pem`, and the sibling `_index/index.sqlite` and `_blobs/`
   ([`traffic/traffic.go`](../../traffic/traffic.go); the data directory default is `data/` next to the binary).
   The CA is the trust anchor of an adversary-in-the-middle traffic recorder (ATT&CK T1557).
-- **Log markers** — the enrichment prober UA `artex-enrich/1.0` ([`enrich/enrich.go`](../../enrich/enrich.go)),
-  the self-update egress UA `artex-selfupdate` ([`selfupdate/github.go`](../../selfupdate/github.go)), and
+- **Log markers** — the enrichment prober UA `boda-enrich/1.0` ([`enrich/enrich.go`](../../enrich/enrich.go)),
+  the self-update egress UA `boda-selfupdate` ([`selfupdate/github.go`](../../selfupdate/github.go)), and
   the platform-guard audit marker ([`guard/guard.go`](../../guard/guard.go); kept verbatim, including the
   non-ASCII framing, so the grep matches) in the log file(s) you point it at. Rotated logs compressed as
   `.gz`/`.bz2`/`.xz` are decompressed and scanned too, so the host's log history is covered; a format with
   no standard-library codec (`.zst`/`.lz4`) is reported as **skipped** rather than silently treated as
   clean — decompress it first or `grep` it by hand.
 - **PostgreSQL exploration schema** — the dual-graph tables (`exploration_nodes`/`_edges`/`_anchors` with
-  `assets`/`companies`/`activity` and the `agent_prompts` seed) in the ARTEX store
+  `assets`/`companies`/`activity` and the `agent_prompts` seed) in the BODA store
   ([`db/schema.sql`](../../db/schema.sql)). Run against a DSN with `psql` if available; otherwise the
   script prints the exact read-only query for you to run by hand.
 - **Process env injection** — a running process whose environment carries a proxy var (`HTTP_PROXY` /
   `HTTPS_PROXY` / `ALL_PROXY`) **together with** a toolchain CA-trust var (`SSL_CERT_FILE` /
   `CURL_CA_BUNDLE` / `REQUESTS_CA_BUNDLE` / `GIT_SSL_CAINFO` / `NODE_EXTRA_CA_CERTS`) pointing at a
-  `mitmproxy-ca-cert.pem`. ARTEX injects exactly these into every worker tool it spawns
+  `mitmproxy-ca-cert.pem`. BODA injects exactly these into every worker tool it spawns
   ([`agent/worker.go`](../../agent/worker.go) `proxyEnv`, asserted by
   [`agent/proxyenv_test.go`](../../agent/proxyenv_test.go)). The variable **names are hard-coded** in the
   source (only the values are configurable), so this tell survives an operator renaming the binary or
   changing the ports — a stronger signal than the bare listen port. Read from `/proc` on the live Linux
   host, or from a captured dump with `--proc-from`. A proxy and a mitmproxy CA together are reported high;
-  a mitmproxy CA alone, or the ARTEX default proxy endpoint (`127.0.0.1:8788`) alone, is medium; a
+  a mitmproxy CA alone, or the BODA default proxy endpoint (`127.0.0.1:8788`) alone, is medium; a
   corporate proxy with no mitmproxy CA is deliberately not flagged.
 
 A hit is a **triage lead, not an attribution**, and the absence of every finding is **not** a clean bill
@@ -79,21 +79,21 @@ filesystem, log files, and (with a DSN) `psql`, so they are OS-independent.
 
 ```sh
 # check a host end to end
-detections/triage/artex_host_triage.py \
-    --data-dir /opt/artex/data \
-    --log /var/log/syslog --log-dir /var/log/artex \
-    --pg-dsn "$ARTEX_PG_DSN"
+detections/triage/boda_host_triage.py \
+    --data-dir /opt/boda/data \
+    --log /var/log/syslog --log-dir /var/log/boda \
+    --pg-dsn "$BODA_PG_DSN"
 
 # machine-readable findings, and exit non-zero if anything fired
-detections/triage/artex_host_triage.py --data-dir /opt/artex/data --json --exit-code
+detections/triage/boda_host_triage.py --data-dir /opt/boda/data --json --exit-code
 
 # offline / forensic image: read a captured process-environment dump
 #   make the dump on the host with:
 #   for p in /proc/[0-9]*; do echo "# $p"; tr '\0' '\n' < "$p/environ"; echo; done > proc_env_dump.txt
-detections/triage/artex_host_triage.py --proc-from proc_env_dump.txt
+detections/triage/boda_host_triage.py --proc-from proc_env_dump.txt
 
 # reproducible fixture test (no host state touched)
-detections/triage/artex_host_triage.py --self-test
+detections/triage/boda_host_triage.py --self-test
 ```
 
 The script is pure Python 3 standard library: no install, no network, and it writes nothing anywhere

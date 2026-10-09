@@ -1,7 +1,7 @@
 /**
  * Script: extract-i18n.ts
  *
- * ARTEX 한국어화 — UI 문자열 1차 추출기.
+ * BODA 한국어화 — UI 문자열 1차 추출기.
  *
  * `src/` 아래 모든 `.ts`/`.tsx` 를 TypeScript AST 로 파싱해, 사용자에게 노출되는
  * 하드코딩 중국어 문자열만 뽑아낸다. 추출 대상은 세 종류다.
@@ -270,7 +270,7 @@ for (const absFile of scannedFiles) {
 const topNs = [...byNs.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15);
 
 console.log("─".repeat(64));
-console.log("ARTEX i18n 추출 완료");
+console.log("BODA i18n 추출 완료");
 console.log("─".repeat(64));
 console.log(`스캔한 파일            : ${scannedFiles.length} (src/ 아래 .ts/.tsx, scripts 제외)`);
 console.log(`한자 포함 파일         : ${fileWithHan}`);

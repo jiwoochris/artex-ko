@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Reproducible regression test for the ARTEX Suricata rules
-# (../../suricata/artex.rules). It proves four properties with no committed
+# Reproducible regression test for the BODA Suricata rules
+# (../../suricata/boda.rules). It proves four properties with no committed
 # binary capture and no host dependencies beyond Docker:
 #
 #   1. the whole rules file loads with zero errors       (validity)
@@ -31,7 +31,7 @@ SURICATA_IMAGE="${SURICATA_IMAGE:-jasonish/suricata:latest}"
 PYTHON_IMAGE="${PYTHON_IMAGE:-python:3.12-slim}"
 
 NUM_FLOWS=35
-ENRICH_UA="artex-enrich/1.0"
+ENRICH_UA="boda-enrich/1.0"
 # norma SDK WebFetch tool, hardcoded in github.com/Autumn-27/norma/tool/webfetch.go
 # (literal "norma/0.4", verified in the go.sum-pinned v0.4.3 module source). Fewer flows
 # than NUM_FLOWS because sid 1000003 is a single-hit presence rule with no rate component.
@@ -56,7 +56,7 @@ echo "== 1/5  validate the full ruleset loads (suricata -T) =="
 # still exits 0, so the firing checks would stay green while a signature silently fails to
 # load. This is the Suricata analogue of the Sigma suite's `sigma check` validity assertion.
 if docker run --rm -v "$RULES_DIR:/r:ro" "$SURICATA_IMAGE" \
-     suricata -T -S /r/artex.rules -l /tmp --init-errors-fatal >/dev/null 2>&1; then
+     suricata -T -S /r/boda.rules -l /tmp --init-errors-fatal >/dev/null 2>&1; then
   note "PASS  ruleset loads with zero parse/init errors (suricata -T)"
 else
   note "FAIL  ruleset loads with zero parse/init errors (suricata -T)"
@@ -76,7 +76,7 @@ run_suricata() { # $1 = capture basename
   mkdir -p "$SCRATCH/$name-out"
   # -k none: crafted packets carry no valid checksums; do not drop on them.
   docker run --rm -v "$SCRATCH:/data" -v "$RULES_DIR:/r:ro" "$SURICATA_IMAGE" \
-    suricata -r "/data/$name.pcap" -S /r/artex.rules -k none -l "/data/$name-out" \
+    suricata -r "/data/$name.pcap" -S /r/boda.rules -k none -l "/data/$name-out" \
     >/dev/null 2>&1
 }
 
@@ -134,7 +134,7 @@ expect "enrich sids stay silent on norma traffic (specificity)" "$nenrich" eq 0
 echo "== 5/5  run Suricata offline over the benign capture =="
 run_suricata benign
 b="$(alerts benign any)"
-expect "benign browser UA produces no ARTEX alerts" "$b" eq 0
+expect "benign browser UA produces no BODA alerts" "$b" eq 0
 
 echo
 if [ "$fail" -eq 0 ]; then

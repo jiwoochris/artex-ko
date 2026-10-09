@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# Reproducible consistency test for the MISP-format export of the ARTEX
+# Reproducible consistency test for the MISP-format export of the BODA
 # indicators (see check.py for the assertions). It proves two things no other
-# detection test does: that detections/indicators/artex_indicators.misp.json is
+# detection test does: that detections/indicators/boda_indicators.misp.json is
 # a MISP document pymisp actually parses (every attribute type/category is a real
 # MISP type a server would accept), and that it stays row-for-row in sync with
 # the source-of-truth CSV it is generated from — same values, the intended MISP
@@ -24,7 +24,7 @@ PYTHON_IMAGE="${PYTHON_IMAGE:-python:3.12-slim}"
 PYMISP_VERSION="${PYMISP_VERSION:-2.5.34.4}"
 
 docker run --rm \
-  -e ARTEX_REPO_ROOT=/repo \
+  -e BODA_REPO_ROOT=/repo \
   -e PYMISP_VERSION="$PYMISP_VERSION" \
   -v "$REPO/detections:/repo/detections:ro" \
   -v "$REPO/.github:/repo/.github:ro" \

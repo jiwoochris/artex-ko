@@ -73,7 +73,7 @@ if [ "$harness_fail" -ne 0 ]; then
   printf '  FAIL  harness sync (run-all.sh / CI / directories out of sync: see above)\n'
 fi
 if [ "$triage_fail" -ne 0 ]; then
-  printf '  FAIL  triage self-test (detections/triage/artex_host_triage.py --self-test: see above)\n'
+  printf '  FAIL  triage self-test (detections/triage/boda_host_triage.py --self-test: see above)\n'
 fi
 if [ "$fail" -ne 0 ]; then
   printf 'RESULT: FAIL\n'

@@ -2,7 +2,7 @@
 
 [한국어](CONTRIBUTING.md) · English
 
-Thank you for your interest in the Korean edition of ARTEX (`artex-ko`). This document
+Thank you for your interest in the Korean edition of BODA (`artex-ko`). This document
 gathers the scope, policies, and procedures you should know before you start contributing.
 Before you send a contribution, please read [Authorized use and legal responsibility](#authorized-use-and-legal-responsibility)
 and [Localization policy](#localization-policy) first.
@@ -16,7 +16,7 @@ and [Localization policy](#localization-policy) first.
 
 ## Authorized use and legal responsibility
 
-ARTEX is an offensive-security tool in which an LLM multi-agent system performs penetration
+BODA is an offensive-security tool in which an LLM multi-agent system performs penetration
 testing **autonomously**. Contributors are bound by the same scope limits as users.
 
 - When you verify code, run the tool only against **a target you own or have explicit written
@@ -65,7 +65,7 @@ this policy can degrade performance, so we do not accept them.
   OpenAI-family models is covered in the
   [README's "Model selection and output language" section](README.en.md#model-selection-and-output-language).
 - **The procedure for keeping up with upstream changes is in the maintainer document.** When
-  the original ARTEX is updated, the runbook for distinguishing preserved assets from
+  the original BODA is updated, the runbook for distinguishing preserved assets from
   translation targets, reflecting them, and checking translation symmetry and drift is in
   [MAINTAINING.en.md](MAINTAINING.en.md).
 
@@ -103,7 +103,7 @@ build caches in named volumes makes re-runs faster.
 
 ```bash
 docker run --rm -v "$PWD":/src -w /src \
-  -v artexko-gomod:/go/pkg/mod -v artexko-gocache:/root/.cache/go-build \
+  -v bodako-gomod:/go/pkg/mod -v bodako-gocache:/root/.cache/go-build \
   golang:1.26 sh -c 'go build ./... && go vet ./agent/ && go test ./agent/'
 ```
 
@@ -111,33 +111,33 @@ docker run --rm -v "$PWD":/src -w /src \
 
 The `go test ./agent/` above **quietly skips the DB integration tests** that only run when
 connected to PostgreSQL. Six packages — `agent`, `config`, `db`, `evidence`, `llmrec`,
-`server` — contain tests that require a real database; if there is no `ARTEX_PG_DSN`
+`server` — contain tests that require a real database; if there is no `BODA_PG_DSN`
 environment variable and no `database` entry in the config file, those tests are skipped with
 `--- SKIP` and the package still ends in `ok`. As a result, if you fix one of these six
 packages and verify without a DSN, **it can pass locally (ok) while the PR's `go-db` job
 fails.**
 
-To run these tests locally, bring up PostgreSQL and pass `ARTEX_PG_DSN`. The example below
+To run these tests locally, bring up PostgreSQL and pass `BODA_PG_DSN`. The example below
 launches the same `postgres:16-alpine` as CI on an isolated network, reusing the named volumes
 from above.
 
 ```bash
 # 1) Bring up an isolated network and an empty postgres (same image and account as CI).
-docker network create artexko-db 2>/dev/null || true
-docker run -d --name artexko-pg --network artexko-db \
-  -e POSTGRES_USER=artex -e POSTGRES_PASSWORD=artex -e POSTGRES_DB=artex \
+docker network create bodako-db 2>/dev/null || true
+docker run -d --name bodako-pg --network bodako-db \
+  -e POSTGRES_USER=boda -e POSTGRES_PASSWORD=boda -e POSTGRES_DB=boda \
   postgres:16-alpine
-until docker exec artexko-pg pg_isready -U artex -d artex >/dev/null 2>&1; do sleep 1; done
+until docker exec bodako-pg pg_isready -U boda -d boda >/dev/null 2>&1; do sleep 1; done
 
 # 2) Pass the DSN to run the DB integration packages (the DSN host is the container name).
 #    To run only the package you fixed, replace ./agent/ with config, db, evidence, llmrec, or server.
-docker run --rm --network artexko-db -v "$PWD":/src -w /src \
-  -v artexko-gomod:/go/pkg/mod -v artexko-gocache:/root/.cache/go-build \
-  -e ARTEX_PG_DSN='postgres://artex:artex@artexko-pg:5432/artex?sslmode=disable' \
+docker run --rm --network bodako-db -v "$PWD":/src -w /src \
+  -v bodako-gomod:/go/pkg/mod -v bodako-gocache:/root/.cache/go-build \
+  -e BODA_PG_DSN='postgres://boda:boda@bodako-pg:5432/boda?sslmode=disable' \
   golang:1.26 sh -c 'go test ./agent/ -count=1'
 
 # 3) Clean up.
-docker rm -f artexko-pg && docker network rm artexko-db
+docker rm -f bodako-pg && docker network rm bodako-db
 ```
 
 CI's `go-db` job **isolates each of these six packages with its own postgres** and forces them
@@ -163,7 +163,7 @@ Formatting and linting before commit are managed with Biome. `lint-staged` autom
 
 ```bash
 cp .env.example .env     # set POSTGRES_PASSWORD
-docker compose up -d     # start artex + postgres → http://localhost:8787
+docker compose up -d     # start boda + postgres → http://localhost:8787
 ```
 
 ---
@@ -217,7 +217,7 @@ i18n(web): 대시보드 네비게이션 라벨 한국어 번역
 ## Contributing detection rules and detection tests
 
 This repository also keeps, in [`detections/`](detections/), rules for **defending against and
-detecting** autonomous AI attacks like ARTEX. It consists of deployable [Sigma](https://sigmahq.io)
+detecting** autonomous AI attacks like BODA. It consists of deployable [Sigma](https://sigmahq.io)
 rules ([`detections/sigma/`](detections/sigma/)), network [Suricata](https://suricata.io) rules
 ([`detections/suricata/`](detections/suricata/)), a [MITRE ATT&CK](https://attack.mitre.org/)
 coverage layer ([`detections/attack/`](detections/attack/)), and tests that reproducibly prove
@@ -227,20 +227,20 @@ this contract, so if you change only a rule and do not update the tests/layer, t
 
 - **Ground every indicator in an observable fact.** The strings, User-Agents, and behavioral
   thresholds a rule uses must be ones actually found in this repository's source, and must not be
-  inferred. State the source file that is the basis for the rule (for example, the `artex-enrich/1.0`
+  inferred. State the source file that is the basis for the rule (for example, the `boda-enrich/1.0`
   indicator is confirmed in `enrich/enrich.go`). The indicator-match tests
   ([`detections/tests/indicators/`](detections/tests/indicators/)) check that each indicator is
   still present in both the upstream source and the rule, so if an upstream resync changes a source
   string, the test fails unless you fix the rule along with it. If you change the machine-readable
-  indicator list ([`detections/indicators/artex_indicators.csv`](detections/indicators/artex_indicators.csv)),
+  indicator list ([`detections/indicators/boda_indicators.csv`](detections/indicators/boda_indicators.csv)),
   also update the MISP event that carries those same indicators
-  ([`detections/indicators/artex_indicators.misp.json`](detections/indicators/artex_indicators.misp.json)).
+  ([`detections/indicators/boda_indicators.misp.json`](detections/indicators/boda_indicators.misp.json)).
   The MISP export test ([`detections/tests/misp/`](detections/tests/misp/)) enforces that the two
   files match row by row and that the event is a valid MISP document loadable by pymisp.
 - **State limitations honestly.** Write what a rule cannot catch and its false-positive potential
   in the Sigma rule's `description` and in the Suricata rule's comments. If something is a general
-  hunting lead (for example, a destructive command) rather than an ARTEX-specific signature, say so,
-  so that a single hit does not get used to conclude the attacker is ARTEX.
+  hunting lead (for example, a destructive command) rather than an BODA-specific signature, say so,
+  so that a single hit does not get used to conclude the attacker is BODA.
 - **Pass static validation.** A Sigma rule must pass the SigmaHQ validator criteria with zero issues
   (`sigma check --validation-config detections/tests/sigma_lint/validators.yml`). Plain `sigma check`
   runs only pySigma's core validators, so SigmaHQ conventions such as title casing, field/logsource
@@ -258,7 +258,7 @@ this contract, so if you change only a rule and do not update the tests/layer, t
   converts across multiple backends, so keep it consistent with the backend-support description in
   [`detections/README.md`](detections/README.md).
 - **Update the ATT&CK layer with it.** If you add or change an `attack.*` tag on a rule, update the
-  techniques and scores in [`detections/attack/artex_navigator_layer.json`](detections/attack/artex_navigator_layer.json)
+  techniques and scores in [`detections/attack/boda_navigator_layer.json`](detections/attack/boda_navigator_layer.json)
   to match. The consistency test enforces a bidirectional rule↔layer match, so it fails if there is a
   rule tag missing from the layer or a layer technique missing from the rules.
 - **Do not include anything that reads as attack guidance.** The detection material in this repository
@@ -293,7 +293,7 @@ from step 3 of the contribution flow above).
 These eight tests are run by the repository CI
 ([`.github/workflows/detections.yml`](.github/workflows/detections.yml)) on every push/PR that changes
 anything under `detections/`. The indicator-match test also runs when the upstream source files those
-indicators point to (`enrich/`, `selfupdate/`, `guard/`, `db/`, `cmd/artex/main.go`) change, catching the
+indicators point to (`enrich/`, `selfupdate/`, `guard/`, `db/`, `cmd/boda/main.go`) change, catching the
 case where an upstream resync changes a User-Agent, marker, or default port and silently makes a rule
 stale. So a change that updates only a rule without updating the tests/layer, a rule that breaks a SigmaHQ
 convention, or a rule that is inconsistent with the source shows up red in CI before merge.

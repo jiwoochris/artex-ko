@@ -1,4 +1,4 @@
-# ARTEX detection rules (Suricata / network)
+# BODA detection rules (Suricata / network)
 
 English · [한국어](README.ko.md)
 
@@ -9,20 +9,20 @@ English · [한국어](README.ko.md)
 > **[README.ko.md](README.ko.md)** 를 보십시오.
 
 The network-layer companion to the [Sigma rules](../sigma/). These [Suricata](https://suricata.io)
-signatures cover the two ARTEX artifacts that are observable on the wire, and every indicator is grounded in a
+signatures cover the two BODA artifacts that are observable on the wire, and every indicator is grounded in a
 string or behaviour verified in this repository's source, not inferred. The host, log, and SIEM layers live
 under [`../sigma/`](../sigma/); the defense guide ([Korean](../../docs/defense-ko.md) ·
 [English](../../docs/defense-en.md)) explains the full picture.
 
-## Rules — [`artex.rules`](artex.rules)
+## Rules — [`boda.rules`](boda.rules)
 
-- **sid 1000001** — `ARTEX enrichment prober User-Agent`. An inbound HTTP `GET` whose User-Agent starts with
-  `artex-enrich/` — the asset-enrichment prober (`enrich/enrich.go:233`). The single-request presence
+- **sid 1000001** — `BODA enrichment prober User-Agent`. An inbound HTTP `GET` whose User-Agent starts with
+  `boda-enrich/` — the asset-enrichment prober (`enrich/enrich.go:233`). The single-request presence
   indicator. `classtype: attempted-recon`.
-- **sid 1000002** — `ARTEX enrichment prober high-rate enumeration`. The same User-Agent crossing a
+- **sid 1000002** — `BODA enrichment prober high-rate enumeration`. The same User-Agent crossing a
   `detection_filter` rate of **30 requests in 300 s per source** — the machine-speed velocity a single-hit
-  rule misses. Mirrors the Sigma correlation `artex_enrich_scan_velocity`. `classtype: attempted-recon`.
-- **sid 1000003** — `ARTEX worker WebFetch User-Agent`. An inbound HTTP request whose User-Agent starts with
+  rule misses. Mirrors the Sigma correlation `boda_enrich_scan_velocity`. `classtype: attempted-recon`.
+- **sid 1000003** — `BODA worker WebFetch User-Agent`. An inbound HTTP request whose User-Agent starts with
   `norma/` — the norma SDK's WebFetch tool (`github.com/Autumn-27/norma/tool/webfetch.go`). This UA is hardcoded across all norma
   versions (v0.1.0–v0.4.3, verified) and reaches the target through the recording proxy, which does not
   modify request headers (`traffic/traffic.go`). Unlike the enrich prober, this fires during the **attack
@@ -30,7 +30,7 @@ under [`../sigma/`](../sigma/); the defense guide ([Korean](../../docs/defense-k
 
 ## Scope and honesty — read before deploying
 
-- **Two ARTEX User-Agents are network-observable.** The enrich prober sends `artex-enrich/1.0`
+- **Two BODA User-Agents are network-observable.** The enrich prober sends `boda-enrich/1.0`
   (`enrich/enrich.go:233`) during reconnaissance; the norma SDK's WebFetch tool sends `norma/0.4`
   (`github.com/Autumn-27/norma/tool/webfetch.go`) during the attack phase. The recording proxy (`traffic/traffic.go`) does not
   modify request headers, so both UAs reach the target on the wire. Other worker tools (Bash subprocesses
@@ -42,11 +42,11 @@ under [`../sigma/`](../sigma/); the defense guide ([Korean](../../docs/defense-k
 - **A static User-Agent can be changed** by the operator, so its absence does **not** mean safety. The durable
   signal is behaviour — rate and breadth — which is why sid 1000002 (and the Sigma correlation layer) key on
   velocity, and why pure web multi-stage detection needs base rules specific to your environment.
-- **Deliberately omitted.** The self-update User-Agent `artex-selfupdate` travels over HTTPS to GitHub and is
+- **Deliberately omitted.** The self-update User-Agent `boda-selfupdate` travels over HTTPS to GitHub and is
   not network-observable (TLS SNI alone is too common to alert on). The audit-control marker is an
   operator-side log artifact, not target-facing traffic — detect it with
-  [`../sigma/artex_guard_audit_framing.yml`](../sigma/artex_guard_audit_framing.yml). The server port `:8787`
-  and recording proxy `127.0.0.1:8788` (`cmd/artex/main.go`) are host-forensic (`ss`/`netstat`), not a
+  [`../sigma/boda_guard_audit_framing.yml`](../sigma/boda_guard_audit_framing.yml). The server port `:8787`
+  and recording proxy `127.0.0.1:8788` (`cmd/boda/main.go`) are host-forensic (`ss`/`netstat`), not a
   network signature.
 
 ## Validate and test
@@ -56,7 +56,7 @@ Validated with Suricata 8. The load test needs no traffic and always runs:
 ```sh
 # syntax + engine load test (expect: "Configuration provided was successfully loaded")
 docker run --rm -v "$PWD/detections/suricata":/r -w /r jasonish/suricata:latest \
-  suricata -T -S artex.rules -l /tmp --init-errors-fatal
+  suricata -T -S boda.rules -l /tmp --init-errors-fatal
 ```
 
 `--init-errors-fatal` makes a rule that parses but fails to initialise a hard error too, so the load test
@@ -75,10 +75,10 @@ It asserts that sid 1000001 fires exactly once per probe (35 over a 35-flow capt
 trips past the 30-in-300 s rate (**5** alerts on Suricata 8.0.7, flows 31–35), and that the same capture
 with a benign browser User-Agent produces **0** alerts — confirming the signatures are specific. See
 [`../tests/README.md`](../tests/README.md). To check against your own traffic instead, capture a loopback
-`curl -A 'artex-enrich/1.0'` against a local server and read the alerts:
+`curl -A 'boda-enrich/1.0'` against a local server and read the alerts:
 
 ```sh
-suricata -r enrich.pcap -S artex.rules -l out && \
+suricata -r enrich.pcap -S boda.rules -l out && \
   grep -c '"signature_id":1000001' out/eve.json    # presence: one per probe
 ```
 

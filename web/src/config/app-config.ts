@@ -10,18 +10,18 @@ const currentYear = new Date().getFullYear();
 // ko 제목은 엠대시 대신 콜론을 써서 "제품명: 설명" 형태로 둔다.
 const META_BY_LOCALE = {
   ko: {
-    title: "ARTEX: 자율 침투 테스트 콘솔",
+    title: "BODA: 자율 침투 테스트 콘솔",
     description: "LLM 기반으로 자율 침투 테스트를 수행하는 시스템 콘솔",
   },
   zh: {
-    title: "ARTEX — 自主渗透测试控制台",
+    title: "BODA — 自主渗透测试控制台",
     description: "LLM 驱动的自主渗透测试系统控制台",
   },
 } as const;
 
 export const APP_CONFIG = {
-  name: "ARTEX",
+  name: "BODA",
   version: packageJson.version,
-  copyright: `© ${currentYear}, ARTEX.`,
+  copyright: `© ${currentYear}, BODA.`,
   meta: META_BY_LOCALE[resolveLocale()],
 };

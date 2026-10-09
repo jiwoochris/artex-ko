@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ARTEX 설치 스크립트: ① 전부 Docker  ② 로컬 컴파일 실행
+# BODA 설치 스크립트: ① 전부 Docker  ② 로컬 컴파일 실행
 set -euo pipefail
 cd "$(cd "$(dirname "$0")" && pwd)"
 
@@ -51,7 +51,7 @@ install_docker(){
   ok "기동을 완료했습니다 → http://localhost:8787"
   warn "방금 받은 이미지는 상류(원본) autumn27/artex 중국어 빌드라, 이 저장소의 한국어화(한국어 UI·리포트)는 아직 담겨 있지 않습니다"
   warn "한국어판 화면·출력을 보려면 이 스크립트를 다시 실행해 \"2) 로컬 실행 (go 컴파일)\" 을 고르거나, README \"소스에서 단일 바이너리 컴파일\" 경로로 빌드하세요"
-  info "로그 확인: docker compose logs -f artex"
+  info "로그 확인: docker compose logs -f boda"
 }
 
 # ── ② 로컬 컴파일 실행 ────────────────────────────
@@ -63,16 +63,16 @@ install_local(){
     2)
       ensure_docker
       local pw; pw="$(ask 'Postgres 비밀번호 (엔터를 누르면 무작위)' "$(rand)")"
-      docker run -d --name artex-pg -p 5432:5432 \
-        -e POSTGRES_USER=artex -e POSTGRES_PASSWORD="$pw" -e POSTGRES_DB=artex \
-        -v artex-pg:/var/lib/postgresql/data postgres:16-alpine
-      DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=artex DB_PASS="$pw" DB_NAME=artex DB_SSL=disable ;;
+      docker run -d --name boda-pg -p 5432:5432 \
+        -e POSTGRES_USER=boda -e POSTGRES_PASSWORD="$pw" -e POSTGRES_DB=boda \
+        -v boda-pg:/var/lib/postgresql/data postgres:16-alpine
+      DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=boda DB_PASS="$pw" DB_NAME=boda DB_SSL=disable ;;
     *)
       DB_HOST="$(ask '데이터베이스 주소' 127.0.0.1)"
       DB_PORT="$(ask '포트' 5432)"
-      DB_USER="$(ask '계정' artex)"
+      DB_USER="$(ask '계정' boda)"
       DB_PASS="$(ask '비밀번호' '')"
-      DB_NAME="$(ask '데이터베이스 이름' artex)"
+      DB_NAME="$(ask '데이터베이스 이름' boda)"
       DB_SSL="$(ask 'sslmode (disable/require)' disable)" ;;
   esac
 
@@ -101,19 +101,19 @@ JSON
     ( cd web && npm ci && npm run build:static )
     rm -rf server/webui/dist && mkdir -p server/webui && cp -r web/out server/webui/dist
     info "프런트엔드를 내장한 단일 바이너리를 컴파일합니다…"
-    CGO_ENABLED=0 go build -tags embedui -trimpath -o artex ./cmd/artex
+    CGO_ENABLED=0 go build -tags embedui -trimpath -o boda ./cmd/boda
   else
     warn "npm 을 찾을 수 없습니다: 프런트엔드를 내장하지 않은 백엔드만 컴파일합니다 (프런트엔드는 npm run dev 로 따로 실행)"
-    CGO_ENABLED=0 go build -o artex ./cmd/artex
+    CGO_ENABLED=0 go build -o boda ./cmd/boda
   fi
-  ok "컴파일을 완료했습니다 → ./artex"
+  ok "컴파일을 완료했습니다 → ./boda"
 
   info "기동합니다… (Ctrl-C 로 종료)"
-  ./artex
+  ./boda
 }
 
 echo "=============================="
-echo "  ARTEX 설치"
+echo "  BODA 설치"
 echo "  1) 전부 Docker 설치"
 echo "  2) 로컬 실행 (go 컴파일)"
 echo "=============================="

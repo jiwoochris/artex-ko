@@ -1,5 +1,5 @@
 {
-  "note": "webserver access log timeline for the ARTEX Enrichment Fan-Out correlation (value_count of DISTINCT cs-host >= 20, grouped by c-ip, within a 10-minute window). 'ts' is relative seconds. Breadth — distinct hosts touched, not request volume — is the signal, so a high-volume/low-breadth burst must stay quiet.",
+  "note": "webserver access log timeline for the BODA Enrichment Fan-Out correlation (value_count of DISTINCT cs-host >= 20, grouped by c-ip, within a 10-minute window). 'ts' is relative seconds. Breadth — distinct hosts touched, not request volume — is the signal, so a high-volume/low-breadth burst must stay quiet.",
   "positive": [
     {
       "label": "20 distinct hosts from one source within the 10-minute window",
@@ -10,7 +10,7 @@
           "cs-host": "host00.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 25,
@@ -18,7 +18,7 @@
           "cs-host": "host01.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 50,
@@ -26,7 +26,7 @@
           "cs-host": "host02.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 75,
@@ -34,7 +34,7 @@
           "cs-host": "host03.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 100,
@@ -42,7 +42,7 @@
           "cs-host": "host04.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 125,
@@ -50,7 +50,7 @@
           "cs-host": "host05.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 150,
@@ -58,7 +58,7 @@
           "cs-host": "host06.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 175,
@@ -66,7 +66,7 @@
           "cs-host": "host07.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 200,
@@ -74,7 +74,7 @@
           "cs-host": "host08.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 225,
@@ -82,7 +82,7 @@
           "cs-host": "host09.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 250,
@@ -90,7 +90,7 @@
           "cs-host": "host10.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 275,
@@ -98,7 +98,7 @@
           "cs-host": "host11.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 300,
@@ -106,7 +106,7 @@
           "cs-host": "host12.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 325,
@@ -114,7 +114,7 @@
           "cs-host": "host13.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 350,
@@ -122,7 +122,7 @@
           "cs-host": "host14.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 375,
@@ -130,7 +130,7 @@
           "cs-host": "host15.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 400,
@@ -138,7 +138,7 @@
           "cs-host": "host16.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 425,
@@ -146,7 +146,7 @@
           "cs-host": "host17.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 450,
@@ -154,7 +154,7 @@
           "cs-host": "host18.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 475,
@@ -162,7 +162,7 @@
           "cs-host": "host19.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         }
       ]
     }
@@ -177,7 +177,7 @@
           "cs-host": "host00.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 25,
@@ -185,7 +185,7 @@
           "cs-host": "host01.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 50,
@@ -193,7 +193,7 @@
           "cs-host": "host02.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 75,
@@ -201,7 +201,7 @@
           "cs-host": "host03.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 100,
@@ -209,7 +209,7 @@
           "cs-host": "host04.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 125,
@@ -217,7 +217,7 @@
           "cs-host": "host05.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 150,
@@ -225,7 +225,7 @@
           "cs-host": "host06.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 175,
@@ -233,7 +233,7 @@
           "cs-host": "host07.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 200,
@@ -241,7 +241,7 @@
           "cs-host": "host08.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 225,
@@ -249,7 +249,7 @@
           "cs-host": "host09.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 250,
@@ -257,7 +257,7 @@
           "cs-host": "host10.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 275,
@@ -265,7 +265,7 @@
           "cs-host": "host11.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 300,
@@ -273,7 +273,7 @@
           "cs-host": "host12.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 325,
@@ -281,7 +281,7 @@
           "cs-host": "host13.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 350,
@@ -289,7 +289,7 @@
           "cs-host": "host14.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 375,
@@ -297,7 +297,7 @@
           "cs-host": "host15.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 400,
@@ -305,7 +305,7 @@
           "cs-host": "host16.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 425,
@@ -313,7 +313,7 @@
           "cs-host": "host17.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 450,
@@ -321,7 +321,7 @@
           "cs-host": "host18.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         }
       ]
     },
@@ -334,7 +334,7 @@
           "cs-host": "host00.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 40,
@@ -342,7 +342,7 @@
           "cs-host": "host01.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 80,
@@ -350,7 +350,7 @@
           "cs-host": "host02.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 120,
@@ -358,7 +358,7 @@
           "cs-host": "host03.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 160,
@@ -366,7 +366,7 @@
           "cs-host": "host04.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 200,
@@ -374,7 +374,7 @@
           "cs-host": "host05.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 240,
@@ -382,7 +382,7 @@
           "cs-host": "host06.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 280,
@@ -390,7 +390,7 @@
           "cs-host": "host07.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 320,
@@ -398,7 +398,7 @@
           "cs-host": "host08.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 360,
@@ -406,7 +406,7 @@
           "cs-host": "host09.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 400,
@@ -414,7 +414,7 @@
           "cs-host": "host10.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 440,
@@ -422,7 +422,7 @@
           "cs-host": "host11.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 480,
@@ -430,7 +430,7 @@
           "cs-host": "host12.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 520,
@@ -438,7 +438,7 @@
           "cs-host": "host13.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 560,
@@ -446,7 +446,7 @@
           "cs-host": "host14.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 600,
@@ -454,7 +454,7 @@
           "cs-host": "host15.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 640,
@@ -462,7 +462,7 @@
           "cs-host": "host16.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 680,
@@ -470,7 +470,7 @@
           "cs-host": "host17.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 720,
@@ -478,7 +478,7 @@
           "cs-host": "host18.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 760,
@@ -486,7 +486,7 @@
           "cs-host": "host19.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         }
       ]
     },
@@ -499,7 +499,7 @@
           "cs-host": "host00.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 20,
@@ -507,7 +507,7 @@
           "cs-host": "host01.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 40,
@@ -515,7 +515,7 @@
           "cs-host": "host02.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 60,
@@ -523,7 +523,7 @@
           "cs-host": "host03.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 80,
@@ -531,7 +531,7 @@
           "cs-host": "host00.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 100,
@@ -539,7 +539,7 @@
           "cs-host": "host01.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 120,
@@ -547,7 +547,7 @@
           "cs-host": "host02.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 140,
@@ -555,7 +555,7 @@
           "cs-host": "host03.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 160,
@@ -563,7 +563,7 @@
           "cs-host": "host00.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 180,
@@ -571,7 +571,7 @@
           "cs-host": "host01.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 200,
@@ -579,7 +579,7 @@
           "cs-host": "host02.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 220,
@@ -587,7 +587,7 @@
           "cs-host": "host03.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 240,
@@ -595,7 +595,7 @@
           "cs-host": "host00.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 260,
@@ -603,7 +603,7 @@
           "cs-host": "host01.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 280,
@@ -611,7 +611,7 @@
           "cs-host": "host02.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 300,
@@ -619,7 +619,7 @@
           "cs-host": "host03.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 320,
@@ -627,7 +627,7 @@
           "cs-host": "host00.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 340,
@@ -635,7 +635,7 @@
           "cs-host": "host01.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 360,
@@ -643,7 +643,7 @@
           "cs-host": "host02.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 380,
@@ -651,7 +651,7 @@
           "cs-host": "host03.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 400,
@@ -659,7 +659,7 @@
           "cs-host": "host00.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 420,
@@ -667,7 +667,7 @@
           "cs-host": "host01.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 440,
@@ -675,7 +675,7 @@
           "cs-host": "host02.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 460,
@@ -683,7 +683,7 @@
           "cs-host": "host03.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 480,
@@ -691,7 +691,7 @@
           "cs-host": "host00.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         }
       ]
     },
@@ -704,7 +704,7 @@
           "cs-host": "host00.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 25,
@@ -712,7 +712,7 @@
           "cs-host": "host01.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 50,
@@ -720,7 +720,7 @@
           "cs-host": "host02.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 75,
@@ -728,7 +728,7 @@
           "cs-host": "host03.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 100,
@@ -736,7 +736,7 @@
           "cs-host": "host04.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 125,
@@ -744,7 +744,7 @@
           "cs-host": "host05.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 150,
@@ -752,7 +752,7 @@
           "cs-host": "host06.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 175,
@@ -760,7 +760,7 @@
           "cs-host": "host07.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 200,
@@ -768,7 +768,7 @@
           "cs-host": "host08.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 225,
@@ -776,7 +776,7 @@
           "cs-host": "host09.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 0,
@@ -784,7 +784,7 @@
           "cs-host": "host10.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 25,
@@ -792,7 +792,7 @@
           "cs-host": "host11.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 50,
@@ -800,7 +800,7 @@
           "cs-host": "host12.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 75,
@@ -808,7 +808,7 @@
           "cs-host": "host13.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 100,
@@ -816,7 +816,7 @@
           "cs-host": "host14.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 125,
@@ -824,7 +824,7 @@
           "cs-host": "host15.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 150,
@@ -832,7 +832,7 @@
           "cs-host": "host16.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 175,
@@ -840,7 +840,7 @@
           "cs-host": "host17.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 200,
@@ -848,7 +848,7 @@
           "cs-host": "host18.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         },
         {
           "ts": 225,
@@ -856,7 +856,7 @@
           "cs-host": "host19.example.test",
           "cs-method": "GET",
           "cs-uri-stem": "/",
-          "cs-user-agent": "artex-enrich/1.0"
+          "cs-user-agent": "boda-enrich/1.0"
         }
       ]
     }

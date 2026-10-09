@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Reproducible live event-matching test for the ARTEX Sigma rules — both the
+# Reproducible live event-matching test for the BODA Sigma rules — both the
 # atomic rules (../../sigma/*.yml) and the correlation rules
 # (../../sigma/correlation/*.yml). The sibling sigma/ suite proves those rules are
 # valid and COMPILE to a backend query; this suite proves they actually FIRE on a

@@ -6,7 +6,7 @@
 스크립트가 그 "별도 점검"을 맡는다. README 최상단·방어 가이드·detections README 가
 방문자와 방어자에게 "여기로 가 보라"고 안내하는 외부 링크(사고 신고 창구 boho.or.kr·
 privacy.go.kr·pipc.go.kr·fsec.or.kr, CISA KEV, OWASP·SigmaHQ·Suricata·MITRE·MISP,
-원본 데모 artex-demo.vercel.app, GitHub 배지 등)가 변질·이동·폐쇄되면 조용히 깨진
+원본 데모 boda-demo.vercel.app, GitHub 배지 등)가 변질·이동·폐쇄되면 조용히 깨진
 채로 남는데, 그것을 주기적으로·수동으로 잡아낸다.
 
 점검 대상 URL 을 고르는 규칙

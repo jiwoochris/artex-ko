@@ -1,4 +1,4 @@
-# ARTEX 한국어판 리버스엔지니어링 결과 보고서
+# BODA 한국어판 리버스엔지니어링 결과 보고서
 
 - 대상 저장소: `https://github.com/quantum-decrypt-security/artex-ko`
 - 분석 경로: `/home/user/artex-ko`
@@ -10,12 +10,12 @@
 
 ## 0. 요약 (Executive Summary)
 
-- ARTEX 는 **LLM 멀티 에이전트가 정찰·침투·검증을 자율로 수행**하는 침투 테스트 플랫폼임
+- BODA 는 **LLM 멀티 에이전트가 정찰·침투·검증을 자율로 수행**하는 침투 테스트 플랫폼임
 - 구조는 **Go 단일 백엔드 + Next.js 프런트엔드(바이너리 내장) + PostgreSQL** 로 구성됨
 - 에이전트 기능의 하부는 외부 SDK `github.com/Autumn-27/norma` 가 제공함 (세션 루프·LLM 추상화·기본 도구)
 - 핵심 설계는 **이중 그래프 블랙보드**(자산 그래프 + 탐색 그래프)와 **이벤트 구동 폐곡선 엔진**임
 - 본 저장소는 원본(중국산 오픈소스) 프로젝트의 **한국어 현지화 판본**이며, 내부 추론 프롬프트는 원문 유지·사용자 노출 산출물만 한국어 강제함
-- 특기할 점: 저장소가 **ARTEX 자신을 탐지하기 위한 방어 자료(`detections/`)** 를 함께 제공함 (Sigma·Suricata·ATT&CK·침해지표·호스트 triage)
+- 특기할 점: 저장소가 **BODA 자신을 탐지하기 위한 방어 자료(`detections/`)** 를 함께 제공함 (Sigma·Suricata·ATT&CK·침해지표·호스트 triage)
 
 ---
 
@@ -39,13 +39,13 @@
 
 ### 1.2 기동·배포 모델
 
-- 진입점 `cmd/artex/main.go` 는 서브커맨드 없이 플래그만 노출함
+- 진입점 `cmd/boda/main.go` 는 서브커맨드 없이 플래그만 노출함
   - `-addr`(기본 `:8787`): 관리 UI·REST API 리슨 주소
   - `-proxy`(기본 `127.0.0.1:8788`): 트래픽 기록 MITM 프록시
   - `-data`(기본 `<baseDir>/data`): 로컬 상태 디렉터리(`jwt.key`·트래픽·아카이브 등)
 - 기동 순서: 플래그 파싱 → 로그 캡처 시작 → 자가 업데이트 부트스트랩 → 설정 경로 해석 → Manager 생성 → HTTP 서버 기동
 - 배포 방식 두 가지
-  - **Docker Compose**: `postgres:16-alpine` + `artex` 이미지(현재 compose 기본은 상류 중국어 이미지)
+  - **Docker Compose**: `postgres:16-alpine` + `boda` 이미지(현재 compose 기본은 상류 중국어 이미지)
   - **단일 바이너리**: `build.sh` 가 OS/arch 별 `-tags embedui` 바이너리 생성, `start.sh` 감독 루프로 구동
 - **기동이 곧 마이그레이션**: 매 부팅마다 `schema.sql` 을 멱등하게 재적용함(`ADD COLUMN/CREATE INDEX IF NOT EXISTS`)
 
@@ -137,7 +137,7 @@
 
 - 모든 도구 호출이 `PreToolUse`·`PostToolUse` 훅을 통과함(감사 로그 + 통제)
 - 과거의 RoE 인가 범위 메커니즘과 하드코딩 파괴/반출 게이트는 제거됨 → 통제가 **DB intercept 규칙으로 이전**됨
-- 차단 메시지는 "ARTEX 플랫폼 관제·비대상 방어" 프레이밍을 써서 에이전트가 WAF/403 처럼 우회하려 들지 않고 전략을 바꾸도록 유도함(프롬프트 엔지니어링)
+- 차단 메시지는 "BODA 플랫폼 관제·비대상 방어" 프레이밍을 써서 에이전트가 WAF/403 처럼 우회하려 들지 않고 전략을 바꾸도록 유도함(프롬프트 엔지니어링)
 - `postToolUse` 는 Bash 결과를 blocked/error/ok 로 분류해 planner 가 전략을 조정하게 함
 
 ### 5.2 도구 호출 인터셉트 (`intercept/` · `db/intercept.go`)
@@ -208,7 +208,7 @@
 
 - AI 가 아닌 엔진 측 자산 자동 보완 워커 풀임
 - DNS 해석(dnsx)과 웹 자산 HTTP 프로빙을 수행하며 **기록 프록시를 경유**함
-- 인바운드 프로브 UA 는 `artex-enrich/1.0` 로, 방어 탐지에서 가장 많이 참조되는 지표임
+- 인바운드 프로브 UA 는 `boda-enrich/1.0` 로, 방어 탐지에서 가장 많이 참조되는 지표임
 - DNS 는 무게이트, HTTP 는 교전 규칙(RoE)으로 게이트됨
 
 ---
@@ -239,12 +239,12 @@
 
 - 모든 지표가 추정이 아니라 **본 저장소 소스에서 확인한 문자열·행동**에 근거함
 - **Sigma(호스트/로그)**
-  - 원자 규칙: enrich UA(`artex-enrich/1.0`)·자가업데이트 UA(`artex-selfupdate`)·guard 통제 마커·MITM CA 파일·파괴 명령 헌팅
+  - 원자 규칙: enrich UA(`boda-enrich/1.0`)·자가업데이트 UA(`boda-selfupdate`)·guard 통제 마커·MITM CA 파일·파괴 명령 헌팅
   - 상관 규칙: enrich 스캔 속도·팬아웃·guard 차단 버스트·guard 마커→파괴 명령(temporal)
-- **Suricata(네트워크)**: sid 1000001~1000003 (`artex-enrich/`·고속 변형·norma WebFetch `norma/` UA)
+- **Suricata(네트워크)**: sid 1000001~1000003 (`boda-enrich/`·고속 변형·norma WebFetch `norma/` UA)
 - **indicators/**: CSV + MISP 피드(로그·네트워크로 못 보는 호스트/DB 전용 지표 포함 — 포트 8787·프록시 8788·PG 스키마)
 - **attack/**: MITRE ATT&CK 내비게이터 레이어(8 기법/6 전술)
-- **triage/**: 의심 호스트 한 대에서 돌리는 읽기 전용 "여기서 ARTEX 가 돌았는가" 분류 스크립트
+- **triage/**: 의심 호스트 한 대에서 돌리는 읽기 전용 "여기서 BODA 가 돌았는가" 분류 스크립트
 - **tests/**: Sigma lint·match·backends, Suricata `-T`, indicators, misp, attack, triage 자가검증 CI 하네스
 
 ---

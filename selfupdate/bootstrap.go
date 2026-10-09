@@ -16,10 +16,10 @@ import (
 
 // smokeEnv 让被冒烟测试拉起的子进程直接跳过 Bootstrap。
 //
-// 严格来说不加也不会出事：子进程的 os.Executable() 是 artex.new，推导出来的
+// 严格来说不加也不会出事：子进程的 os.Executable() 是 boda.new，推导出来的
 // 全部路径都带 .new 前缀，碰不到真正的升级文件。但依赖这种巧合太脆弱，
 // 显式短路一目了然，也省掉子进程一次无谓的磁盘探测。
-const smokeEnv = "ARTEX_SELFUPDATE_SMOKE"
+const smokeEnv = "BODA_SELFUPDATE_SMOKE"
 
 // Action 是 Bootstrap 给 main 的指令。
 type Action int
@@ -44,7 +44,7 @@ type State struct {
 //
 // 三种局面：
 //
-//	① 存在暂存件 artex.new  → 校验 + 冒烟，通过则换装并要求重启；不通过则丢弃继续跑旧版
+//	① 存在暂存件 boda.new  → 校验 + 冒烟，通过则换装并要求重启；不通过则丢弃继续跑旧版
 //	② 只剩标记文件          → 说明刚换装完，累计一次尝试；连续失败够多次则回滚
 //	③ 什么都没有            → 正常启动
 func Bootstrap() (Action, State) {

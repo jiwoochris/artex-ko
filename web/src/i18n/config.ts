@@ -1,4 +1,4 @@
-// 지원 locale 과 기본값. 이 저장소는 ARTEX 한국어판이므로 기본 locale 은 "ko" 이고,
+// 지원 locale 과 기본값. 이 저장소는 BODA 한국어판이므로 기본 locale 은 "ko" 이고,
 // 원문 대조(상류 업데이트 비교)를 위해 중국어 "zh" 를 함께 둔다.
 export const LOCALES = ["ko", "zh"] as const;
 export type Locale = (typeof LOCALES)[number];

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# In-container half of the ARTEX Sigma SigmaHQ-convention lint test. run.sh
+# In-container half of the BODA Sigma SigmaHQ-convention lint test. run.sh
 # launches this inside a Python container with the Sigma rule tree mounted
 # read-only at /sigma and this directory at /src. It installs a pinned sigma-cli
 # plus the pinned SigmaHQ validator plugin, then asserts two properties:

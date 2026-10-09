@@ -11,7 +11,7 @@ cleanup() { kill 0 2>/dev/null || true; }
 trap cleanup EXIT INT TERM
 
 # 백엔드(일반 go run, 프런트엔드 미내장). 동시 work agent 수는 "시스템 설정"에서 설정합니다.
-go run ./cmd/artex -addr :8787 -proxy 127.0.0.1:8788 &
+go run ./cmd/boda -addr :8787 -proxy 127.0.0.1:8788 &
 
 # 프런트엔드 핫 리로드(Vite/Next dev server, /api 는 :8787 로 리버스 프록시).
 ( cd web && npm run dev ) &

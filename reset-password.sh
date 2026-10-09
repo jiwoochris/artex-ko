@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 # =============================================================================
-# ARTEX 관리자 비밀번호 재설정 스크립트
+# BODA 관리자 비밀번호 재설정 스크립트
 #
-# 로그인 사용자 이름은 ARTEX 로 고정입니다. 비밀번호는 bcrypt 해시로 데이터베이스 settings 테이블의
+# 로그인 사용자 이름은 BODA 로 고정입니다. 비밀번호는 bcrypt 해시로 데이터베이스 settings 테이블의
 # auth.password_hash 키에 저장됩니다. 이 스크립트는 데이터베이스에 접속한 뒤 pgcrypto 로 DB 안에서 bcrypt 해시를 생성해
 # 그 키에 다시 씁니다. 백엔드 로그인 검증(golang.org/x/crypto/bcrypt)과 완전히 호환됩니다.
 #
 # 배포 방식 두 가지:
 #   local (기본값) -- 호스트에서 psql 로 데이터베이스에 직접 접속합니다. 접속 정보는 다음 우선순위로 가져옵니다:
-#                    명령행 인자 > --dsn/$ARTEX_PG_DSN > config.json 의 database.*
+#                    명령행 인자 > --dsn/$BODA_PG_DSN > config.json 의 database.*
 #   docker        -- `docker compose exec`(또는 `docker exec`)로 postgres
 #                    컨테이너 안에서 psql 을 실행합니다(compose 는 기본적으로 5432 를 호스트에 노출하지 않아 컨테이너 안에서 실행합니다).
 #
 # 사용 예:
 #   ./reset-password.sh                          # 로컬, config.json/환경을 자동으로 읽고 새 비밀번호를 대화형으로 입력
 #   ./reset-password.sh -p 'NewPass!'            # 로컬, 새 비밀번호를 직접 지정
-#   ./reset-password.sh --dsn postgres://u:p@h:5432/artex
-#   ./reset-password.sh -H 127.0.0.1 -P 5433 -U autopentest -W pass -d artex
+#   ./reset-password.sh --dsn postgres://u:p@h:5432/boda
+#   ./reset-password.sh -H 127.0.0.1 -P 5433 -U autopentest -W pass -d boda
 #   ./reset-password.sh -m docker                # docker 배포(.env 의 POSTGRES_* 를 읽음)
 #   ./reset-password.sh -m docker -c pg컨테이너명 --exec docker
 #
@@ -112,7 +112,7 @@ apply_config_fields() {
 
 # ---- 모드 자동 판정 ---------------------------------------------------------
 if [[ -z "$MODE" ]]; then
-  if [[ -n "$DSN$HOST$USER$DBNAME" || -n "${ARTEX_PG_DSN:-}" || -f "${CONFIG:-config.json}" ]]; then
+  if [[ -n "$DSN$HOST$USER$DBNAME" || -n "${BODA_PG_DSN:-}" || -f "${CONFIG:-config.json}" ]]; then
     MODE="local"
   elif command -v docker >/dev/null 2>&1 && [[ -f docker-compose.yml ]]; then
     MODE="docker"
@@ -124,7 +124,7 @@ info "배포 모드: $MODE"
 
 # ---- 새 비밀번호 수집 -----------------------------------------------------------
 if [[ -z "$NEWPASS" ]]; then
-  read -r -s -p "새 비밀번호 입력(사용자 이름은 ARTEX 로 고정):" NEWPASS; echo >&2
+  read -r -s -p "새 비밀번호 입력(사용자 이름은 BODA 로 고정):" NEWPASS; echo >&2
   [[ -n "$NEWPASS" ]] || die "비밀번호는 비워 둘 수 없습니다"
   read -r -s -p "확인을 위해 다시 입력:" NEWPASS2; echo >&2
   [[ "$NEWPASS" == "$NEWPASS2" ]] || die "두 번 입력한 값이 일치하지 않습니다"
@@ -132,13 +132,13 @@ fi
 [[ -n "$NEWPASS" ]] || die "비밀번호는 비워 둘 수 없습니다"
 
 # 환경 변수로 비밀번호를 psql 에 전달합니다(\getenv 로 읽으며 argv/ps 에 들어가지 않습니다)
-export ARTEX_RESET_NEWPASS="$NEWPASS"
+export BODA_RESET_NEWPASS="$NEWPASS"
 
 # DB 안에서 bcrypt 를 생성해 upsert 합니다. 비밀번호는 :'newpw' 로 자동 이스케이프됩니다. CREATE EXTENSION 은 멱등이며,
 # 데이터베이스 역할에 확장 생성 권한이 없으면 여기서 오류가 납니다(안내는 아래 run 의 실패 분기 참조).
 SQL=$(cat <<SQL
 \\set ON_ERROR_STOP on
-\\getenv newpw ARTEX_RESET_NEWPASS
+\\getenv newpw BODA_RESET_NEWPASS
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 INSERT INTO settings(key, value)
 VALUES ('$PASS_KEY', crypt(:'newpw', gen_salt('bf', $BCRYPT_COST)))
@@ -148,9 +148,9 @@ SQL
 
 # ---- 실행 -----------------------------------------------------------------
 if [[ "$MODE" == "local" ]]; then
-  # 접속 정보 우선순위: 명령행 > --dsn/$ARTEX_PG_DSN > config.json
+  # 접속 정보 우선순위: 명령행 > --dsn/$BODA_PG_DSN > config.json
   if [[ -z "$DSN" && -z "$HOST$USER$DBNAME" ]]; then
-    [[ -n "${ARTEX_PG_DSN:-}" ]] && DSN="$ARTEX_PG_DSN"
+    [[ -n "${BODA_PG_DSN:-}" ]] && DSN="$BODA_PG_DSN"
   fi
   if [[ -z "$DSN" && -z "$HOST$USER$DBNAME" ]]; then
     cfg="${CONFIG:-config.json}"
@@ -178,7 +178,7 @@ if [[ "$MODE" == "local" ]]; then
 
   info "대상 데이터베이스: $target"
   if [[ "$ASSUME_YES" -ne 1 ]]; then
-    read -r -p "이 데이터베이스에서 ARTEX 비밀번호를 재설정할까요? [y/N]" ans
+    read -r -p "이 데이터베이스에서 BODA 비밀번호를 재설정할까요? [y/N]" ans
     [[ "$ans" == "y" || "$ans" == "Y" ]] || die "취소했습니다"
   fi
 
@@ -200,29 +200,29 @@ else
     fi
   fi
 
-  # 컨테이너 안 psql 자격 증명: 명령행을 우선, 다음 .env 의 POSTGRES_*, 마지막으로 compose 기본값(artex)
+  # 컨테이너 안 psql 자격 증명: 명령행을 우선, 다음 .env 의 POSTGRES_*, 마지막으로 compose 기본값(boda)
   if [[ -f .env ]]; then
     # shellcheck disable=SC1091
     set -a; . ./.env; set +a
   fi
-  DUSER="${USER:-${POSTGRES_USER:-artex}}"
-  DNAME="${DBNAME:-${POSTGRES_DB:-artex}}"
+  DUSER="${USER:-${POSTGRES_USER:-boda}}"
+  DNAME="${DBNAME:-${POSTGRES_DB:-boda}}"
   [[ -n "$DBPASS" ]] && export PGPASSWORD="$DBPASS"
   [[ -z "${PGPASSWORD:-}" && -n "${POSTGRES_PASSWORD:-}" ]] && export PGPASSWORD="$POSTGRES_PASSWORD"
 
   info "대상: 컨테이너 $CONTAINER 안 psql -U $DUSER -d $DNAME(exec=$EXEC_KIND)"
   if [[ "$ASSUME_YES" -ne 1 ]]; then
-    read -r -p "이 컨테이너 데이터베이스에서 ARTEX 비밀번호를 재설정할까요? [y/N]" ans
+    read -r -p "이 컨테이너 데이터베이스에서 BODA 비밀번호를 재설정할까요? [y/N]" ans
     [[ "$ans" == "y" || "$ans" == "Y" ]] || die "취소했습니다"
   fi
 
   # -e 는 이름만 주고 값은 주지 않습니다 → 현재 환경에서 상속하므로 비밀번호가 docker 명령 argv 에 나타나지 않습니다.
   declare -a EXEC_CMD
   if [[ "$EXEC_KIND" == "compose" ]]; then
-    EXEC_CMD=(docker compose exec -T -e ARTEX_RESET_NEWPASS -e PGPASSWORD "$CONTAINER"
+    EXEC_CMD=(docker compose exec -T -e BODA_RESET_NEWPASS -e PGPASSWORD "$CONTAINER"
               psql -U "$DUSER" -d "$DNAME" -v ON_ERROR_STOP=1 -q)
   else
-    EXEC_CMD=(docker exec -i -e ARTEX_RESET_NEWPASS -e PGPASSWORD "$CONTAINER"
+    EXEC_CMD=(docker exec -i -e BODA_RESET_NEWPASS -e PGPASSWORD "$CONTAINER"
               psql -U "$DUSER" -d "$DNAME" -v ON_ERROR_STOP=1 -q)
   fi
 
@@ -231,5 +231,5 @@ else
   fi
 fi
 
-unset ARTEX_RESET_NEWPASS
-echo "✓ ARTEX 관리자 비밀번호를 재설정했습니다. 사용자 이름 ARTEX + 새 비밀번호로 로그인하세요(서비스를 재시작할 필요가 없습니다)."
+unset BODA_RESET_NEWPASS
+echo "✓ BODA 관리자 비밀번호를 재설정했습니다. 사용자 이름 BODA + 새 비밀번호로 로그인하세요(서비스를 재시작할 필요가 없습니다)."

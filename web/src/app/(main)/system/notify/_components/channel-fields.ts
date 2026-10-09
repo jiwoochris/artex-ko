@@ -112,7 +112,7 @@ export const CHANNEL_FIELDS: Record<string, FieldDef[]> = {
     },
     { key: "username", label: "field.email.username.label", kind: "text" },
     { key: "password", label: "field.email.password.label", kind: "password" },
-    { key: "from", label: "field.email.from.label", kind: "text", placeholder: "artex@example.com" },
+    { key: "from", label: "field.email.from.label", kind: "text", placeholder: "boda@example.com" },
     { key: "to", label: "field.email.to.label", kind: "list", help: "field.email.to.help" },
     { key: "tls", label: "field.email.tls.label", kind: "switch", help: "field.email.tls.help" },
   ],

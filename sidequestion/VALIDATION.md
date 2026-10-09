@@ -36,7 +36,7 @@
 - TypeScript 와 프로덕션 빌드: 통과(근거 `npx tsc --noEmit`, `npm run build`).
 - 새로 추가한 프런트엔드 모듈의 Biome 검사: 통과(근거 `biome check`, 새 모듈 3 개).
 
-따로 버려도 되는 데이터베이스에 `ARTEX_PG_DSN` 을 설정하면 자동화 검사를 재현할 수 있습니다(운영 DB 를 가리키지 마십시오):
+따로 버려도 되는 데이터베이스에 `BODA_PG_DSN` 을 설정하면 자동화 검사를 재현할 수 있습니다(운영 DB 를 가리키지 마십시오):
 
 ```sh
 go test -race ./agent ./db ./server ./sidequestion ./llmrec ./llmpool \

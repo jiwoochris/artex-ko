@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Reproducible regression test for the ARTEX Sigma rules (../../sigma/). It turns
+# Reproducible regression test for the BODA Sigma rules (../../sigma/). It turns
 # the "validated by sigma check and sigma convert" claim in the rule README into
 # something a reviewer can re-run from source with one command, and it catches
 # regressions: a malformed rule, a broken correlation reference, or an indicator
@@ -12,7 +12,7 @@
 #
 #   1. sigma check passes          0 errors / 0 condition errors / 0 issues
 #   2. the whole tree compiles     sigma convert -> splunk, exit 0
-#   3. atomic indicators survive   artex-enrich/1.0, artex-selfupdate, guard marker, mitmproxy-ca-cert.pem
+#   3. atomic indicators survive   boda-enrich/1.0, boda-selfupdate, guard marker, mitmproxy-ca-cert.pem
 #   4. correlations compile        event_count / value_count aggregations present
 #   5. correlations are load-bearing  one correlation rule converted alone FAILS,
 #                                     because it references its atomic base rule by id

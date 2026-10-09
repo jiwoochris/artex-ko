@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 #
-# In-container half of the ARTEX ATT&CK coverage-layer test. run.sh launches this
+# In-container half of the BODA ATT&CK coverage-layer test. run.sh launches this
 # inside a Python container with the detections tree mounted read-only at
 # /detections. It proves that the ATT&CK Navigator layer in
-# detections/attack/artex_navigator_layer.json stays consistent with the rules it
+# detections/attack/boda_navigator_layer.json stays consistent with the rules it
 # claims to cover, so the layer cannot silently drift from the Sigma rule set:
 #
 #   1. the layer is valid JSON with the required Navigator v4.x fields
@@ -26,7 +26,7 @@ import re
 import sys
 
 DET = "/detections"
-LAYER = os.path.join(DET, "attack", "artex_navigator_layer.json")
+LAYER = os.path.join(DET, "attack", "boda_navigator_layer.json")
 SIGMA = os.path.join(DET, "sigma")
 
 # ATT&CK Enterprise tactic shortnames (the Navigator "tactic" field uses these).
@@ -78,7 +78,7 @@ print("== 1/7  layer parses as JSON with the required Navigator fields ==")
 try:
     with open(LAYER, encoding="utf-8") as fh:
         layer = json.load(fh)
-    ok("artex_navigator_layer.json is valid JSON")
+    ok("boda_navigator_layer.json is valid JSON")
 except Exception as exc:  # noqa: BLE001
     print("  FAIL  cannot parse layer: %s" % exc)
     print("RESULT: FAIL")

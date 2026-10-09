@@ -1,5 +1,5 @@
 {
-  "note": "host timeline joining application/audit logs and process-creation logs for the ARTEX Guard Marker With Destructive Command temporal correlation (both referenced rules must fire on the SAME host within a 30-minute window). 'ts' is relative seconds.",
+  "note": "host timeline joining application/audit logs and process-creation logs for the BODA Guard Marker With Destructive Command temporal correlation (both referenced rules must fire on the SAME host within a 30-minute window). 'ts' is relative seconds.",
   "positive": [
     {
       "label": "guard marker then a destructive command on the same host within 30 minutes",
@@ -7,7 +7,7 @@
         {
           "ts": 0,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 600,
@@ -25,12 +25,12 @@
         {
           "ts": 0,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 120,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         }
       ]
     },
@@ -51,7 +51,7 @@
         {
           "ts": 0,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 3600,
@@ -67,7 +67,7 @@
         {
           "ts": 0,
           "host": "web01",
-          "message": "guard 【ARTEX 平台管控·非目标防御】此操作被禁止: rm -rf /"
+          "message": "guard 【BODA 平台管控·非目标防御】此操作被禁止: rm -rf /"
         },
         {
           "ts": 600,

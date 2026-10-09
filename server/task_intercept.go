@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/quantum-decrypt-security/boda/db"
 )
 
 // validateTaskInterceptRuleReq 의 action 검증 오류다. 이 검증기와 buildTaskInterceptRules

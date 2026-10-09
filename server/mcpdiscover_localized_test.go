@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/quantum-decrypt-security/boda/db"
 )
 
 // mcpdiscover.go 의 connectMCP 이 돌려주는 전송 설정 검증 오류 문구를 한국어로 유지하는

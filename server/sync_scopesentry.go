@@ -9,14 +9,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/mcphttp"
+	"github.com/quantum-decrypt-security/boda/db"
+	"github.com/quantum-decrypt-security/boda/mcphttp"
 )
 
 // 자산 동기화(ScopeSentry 데이터 소스).
 //
 // ScopeSentry 는 ASM 자산 측량 플랫폼으로, MCP 인터페이스를 통해 [프로젝트]/[작업] 두 차원으로
-// 서브도메인·웹 애플리케이션·서비스 등의 자산을 가져와 ARTEX 의 회사 + 자산 모델로 매핑한다.
+// 서브도메인·웹 애플리케이션·서비스 등의 자산을 가져와 BODA 의 회사 + 자산 모델로 매핑한다.
 // 데이터 소스 자체는 "ScopeSentry" 라는 이름의 http 전송 MCP 행이다(url + X-API-Key 헤더를 mcp_servers 에 저장).
 //
 // 에이전트 도구 계층과 달리, 여기서는 mcphttp.Client.Call 로 MCP 도구를 직접 호출해 원본 JSON 을 받고,
@@ -441,7 +441,7 @@ func (s *Server) ssPageAll(ctx context.Context, cl *mcphttp.Client, ssType strin
 	return items, truncated, nil
 }
 
-// ssIngest maps one ScopeSentry asset JSON to the ARTEX asset store and upserts it.
+// ssIngest maps one ScopeSentry asset JSON to the BODA asset store and upserts it.
 // Returns a non-empty error string on failure. synced is incremented per kind.
 func (s *Server) ssIngest(as *db.AssetStore, assetType string, raw json.RawMessage, synced map[string]int) string {
 	switch assetType {

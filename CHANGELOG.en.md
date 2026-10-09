@@ -2,9 +2,9 @@
 
 [한국어](CHANGELOG.md) · English · [中文 (upstream original)](CHANGELOG.zh.md)
 
-This document records the changes that the ARTEX Korean edition (this fork) adds on top of the upstream repository. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+This document records the changes that the BODA Korean edition (this fork) adds on top of the upstream repository. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-The upstream ARTEX project's per-version release history (0.3.x and earlier) and contributor list are preserved verbatim in Chinese in [`CHANGELOG.zh.md`](CHANGELOG.zh.md). As with `README.zh.md`, the original text is kept unchanged so that it stays easy to compare against upstream changes. The detailed content and rationale for each change can be found in the repository's commit history.
+The upstream BODA project's per-version release history (0.3.x and earlier) and contributor list are preserved verbatim in Chinese in [`CHANGELOG.zh.md`](CHANGELOG.zh.md). As with `README.zh.md`, the original text is kept unchanged so that it stays easy to compare against upstream changes. The detailed content and rationale for each change can be found in the repository's commit history.
 
 ## [Unreleased] · Korean edition changes
 
@@ -20,7 +20,7 @@ The upstream ARTEX project's per-version release history (0.3.x and earlier) and
 - **Added a defense and detection guide.** A Korean guide ([`docs/defense-ko.md`](docs/defense-ko.md)) and an English version with the same content ([`docs/defense-en.md`](docs/defense-en.md)) that cover how an autonomous AI attack differs from a traditional scanner, the fingerprints (IoCs) a defender can observe, entry points and hardening, detection rules, and incident response.
 - **Provides deployable detection rules.** The guide's fingerprints were turned into rules you can use directly. The host and log layer is covered by [Sigma](https://sigmahq.io) atomic and correlation rules ([`detections/sigma/`](detections/sigma/)), and the network layer by [Suricata](https://suricata.io) rules ([`detections/suricata/`](detections/suricata/)) that target the enrich prober and norma SDK WebFetch User-Agents.
 - **Visualized ATT&CK coverage.** The techniques that the rules tag were organized into a MITRE ATT&CK Navigator layer ([`detections/attack/`](detections/attack/)).
-- **Provides machine-readable indicators of compromise (IoCs) in standard formats.** The unique fingerprints that ARTEX emits were collected into a single CSV ([`detections/indicators/artex_indicators.csv`](detections/indicators/artex_indicators.csv)), along with a MISP event ([`detections/indicators/artex_indicators.misp.json`](detections/indicators/artex_indicators.misp.json)) carrying the same indicators that can be imported straight into a threat-intelligence platform. Indicators that a rule backs are marked with `to_ids`, while host-forensic ports are marked separately as triage clues.
+- **Provides machine-readable indicators of compromise (IoCs) in standard formats.** The unique fingerprints that BODA emits were collected into a single CSV ([`detections/indicators/boda_indicators.csv`](detections/indicators/boda_indicators.csv)), along with a MISP event ([`detections/indicators/boda_indicators.misp.json`](detections/indicators/boda_indicators.misp.json)) carrying the same indicators that can be imported straight into a threat-intelligence platform. Indicators that a rule backs are marked with `to_ids`, while host-forensic ports are marked separately as triage clues.
 - **Attached reproducible detection tests.** Eight test suites prove the rules by actually running them (Sigma structure and compilation checks, Sigma live event-matching, backend portability, SigmaHQ convention lint, Suricata load and firing, ATT&CK layer consistency, indicator-to-source matching, and MISP export ↔ CSV synchronization). A batch runner that runs them all at once and a pre-commit example were added and wired into the CI merge gate. Sigma live event-matching confirms that the rules not only compile but actually fire on malicious sample events and stay silent on benign ones, for both the atomic and the correlation rules.
 
 ### Repository hardening
@@ -35,4 +35,4 @@ The upstream ARTEX project's per-version release history (0.3.x and earlier) and
 
 ---
 
-The upstream ARTEX project's per-version release history and contributor list can be viewed verbatim in [`CHANGELOG.zh.md`](CHANGELOG.zh.md).
+The upstream BODA project's per-version release history and contributor list can be viewed verbatim in [`CHANGELOG.zh.md`](CHANGELOG.zh.md).

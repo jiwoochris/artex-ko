@@ -1,9 +1,9 @@
-# references base rule: ../artex_enrich_user_agent.yml (ARTEX Asset Enrichment Probe User-Agent)
-title: ARTEX Enrichment Fan-Out (One Source, Many Distinct Hosts)
+# references base rule: ../boda_enrich_user_agent.yml (BODA Asset Enrichment Probe User-Agent)
+title: BODA Enrichment Fan-Out (One Source, Many Distinct Hosts)
 id: 6fba3b7c-1dd9-4e18-bf55-d93fc1d2e2e0
 status: experimental
 description: |
-    Correlates a single client carrying the ARTEX enrichment User-Agent to many DISTINCT
+    Correlates a single client carrying the BODA enrichment User-Agent to many DISTINCT
     destination hosts within a short window (distinct count of cs-host). Autonomous enrichment
     fans out across an asset list at machine speed, so breadth — the number of different hosts
     touched, not just request volume — is what separates it from a person browsing a few pages.

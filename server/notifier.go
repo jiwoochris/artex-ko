@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/notify"
+	"github.com/quantum-decrypt-security/boda/db"
+	"github.com/quantum-decrypt-security/boda/notify"
 )
 
 // 全局设置键（存在 settings 键值表里，无需建表）。
@@ -18,7 +18,7 @@ const (
 	// 而不是功能的启用条件——真正的启用条件是「有没有配渠道」。
 	settingNotifyEnabled = "notify_enabled"
 	// settingNotifyPublicBaseURL 是生成漏洞详情回链的外部访问地址
-	// （如 https://artex.example.com）。留空则消息里不带回链按钮。
+	// （如 https://boda.example.com）。留空则消息里不带回链按钮。
 	// 项目里没有可复用的外部地址配置，所以这里新增一项。
 	settingNotifyPublicBaseURL = "notify_public_base_url"
 	// settingNotifyDigestMinutes 是汇总模式的周期（分钟）。
@@ -34,7 +34,7 @@ const (
 	// 직접 호출해 분배 결과를 결정론적으로 검증하는데, 3 초 주기의 백그라운드 루프가
 	// 같은 채널을 동시에 처리하면 집계가 타이밍에 따라 흔들린다. 이를 막기 위한
 	// 테스트 전용 스위치이며, 변수가 없으면 평소대로 기동한다(프로덕션 동작 불변).
-	notifyBackgroundDisabledEnv = "ARTEX_NOTIFY_BACKGROUND_DISABLED"
+	notifyBackgroundDisabledEnv = "BODA_NOTIFY_BACKGROUND_DISABLED"
 	// notifyLease 是领取投递时的租约时长。必须显著大于单次投递的最坏耗时
 	// （notify 包的 HTTP 客户端超时 15 秒），否则会出现同一行被两个
 	// dispatcher 同时投递。

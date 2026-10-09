@@ -12,7 +12,7 @@ import { getLocalStorageValue, setLocalStorageValue } from "@/lib/local-storage.
 // 여기서 옛 키 조합을 선택지로 되살린다.
 export type ChatSendMode = "enter" | "ctrl-enter";
 
-export const CHAT_SEND_MODE_KEY = "artex_chat_send_mode";
+export const CHAT_SEND_MODE_KEY = "boda_chat_send_mode";
 export const DEFAULT_CHAT_SEND_MODE: ChatSendMode = "enter";
 
 // 설정 화면의 전송 방식 드롭다운에 쓰는 선택지. 라벨은 로케일에 따라 달라지므로 모듈

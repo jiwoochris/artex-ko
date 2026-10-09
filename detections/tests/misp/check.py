@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 #
-# Consistency test for the MISP-format export of the ARTEX detection indicators.
+# Consistency test for the MISP-format export of the BODA detection indicators.
 # run.sh launches this inside a Python container with pymisp installed and the
 # detection tree plus the CI workflow mounted read-only under /repo. It proves
 # two properties the other detection tests do not touch:
 #
 #   1. the published MISP event
-#      (detections/indicators/artex_indicators.misp.json) is a *valid MISP
+#      (detections/indicators/boda_indicators.misp.json) is a *valid MISP
 #      document* — pymisp parses it and accepts every attribute type/category,
 #      so a defender can import it into MISP (or export it on to STIX from
 #      there) without hand-fixing the format; and
 #   2. that MISP event stays in sync with the source-of-truth CSV
-#      (detections/indicators/artex_indicators.csv) row for row — same values,
+#      (detections/indicators/boda_indicators.csv) row for row — same values,
 #      the intended MISP type/category for each CSV indicator type, and a
 #      to_ids / disable_correlation flag that faithfully encodes the CSV's own
 #      honesty (a row with a detection rule is an actionable indicator; a
@@ -33,9 +33,9 @@ import os
 import re
 import sys
 
-ROOT = os.environ.get("ARTEX_REPO_ROOT", "/repo")
-CSV_REL = "detections/indicators/artex_indicators.csv"
-MISP_REL = "detections/indicators/artex_indicators.misp.json"
+ROOT = os.environ.get("BODA_REPO_ROOT", "/repo")
+CSV_REL = "detections/indicators/boda_indicators.csv"
+MISP_REL = "detections/indicators/boda_indicators.misp.json"
 WORKFLOW_REL = ".github/workflows/detections.yml"
 
 # The indicators README states the CSV `type` values "map onto the equivalent
@@ -210,7 +210,7 @@ elif not extra:
 
 
 print("== 4/5  the non-ASCII guard marker is preserved verbatim ==")
-MARKER = "【ARTEX 平台管控·非目标防御】"
+MARKER = "【BODA 平台管控·非目标防御】"
 csv_has = any(r["value"] == MARKER for r in csv_rows)
 misp_has = MARKER in actual_values
 if csv_has and misp_has:

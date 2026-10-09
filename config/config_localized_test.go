@@ -38,14 +38,14 @@ func assertKorean(t *testing.T, label, s string) {
 }
 
 // TestPostgresDSNErrorLocalized pins the install-path startup message to Korean.
-// When neither ARTEX_PG_DSN nor a config file supplies a database, PostgresDSN
+// When neither BODA_PG_DSN nor a config file supplies a database, PostgresDSN
 // returns an error that propagates verbatim (db.DSN → server.NewManager → the
-// `log.Fatalf("open stores: %v", err)` in cmd/artex/main.go). An operator who
+// `log.Fatalf("open stores: %v", err)` in cmd/boda/main.go). An operator who
 // boots with missing config sees it first, so it must read as Korean.
 func TestPostgresDSNErrorLocalized(t *testing.T) {
 	dir := t.TempDir()
-	t.Setenv("ARTEX_PG_DSN", "")
-	t.Setenv("ARTEX_CONFIG", filepath.Join(dir, "nope.json"))
+	t.Setenv("BODA_PG_DSN", "")
+	t.Setenv("BODA_CONFIG", filepath.Join(dir, "nope.json"))
 
 	_, _, err := PostgresDSN()
 	if err == nil {
@@ -54,7 +54,7 @@ func TestPostgresDSNErrorLocalized(t *testing.T) {
 	assertKorean(t, "startup error", err.Error())
 
 	// The identifiers an operator must act on stay verbatim (not translated).
-	for _, want := range []string{"ARTEX_PG_DSN", "database", "dsn", "host/user/dbname"} {
+	for _, want := range []string{"BODA_PG_DSN", "database", "dsn", "host/user/dbname"} {
 		if !strings.Contains(err.Error(), want) {
 			t.Errorf("startup error should keep identifier %q verbatim: %q", want, err.Error())
 		}
@@ -73,8 +73,8 @@ func TestPostgresDSNSourceLocalized(t *testing.T) {
 	cfgPath := filepath.Join(dir, "config.json")
 
 	// env source
-	t.Setenv("ARTEX_CONFIG", filepath.Join(dir, "nope.json"))
-	t.Setenv("ARTEX_PG_DSN", "postgres://envwins/x")
+	t.Setenv("BODA_CONFIG", filepath.Join(dir, "nope.json"))
+	t.Setenv("BODA_PG_DSN", "postgres://envwins/x")
 	if _, source, err := PostgresDSN(); err != nil {
 		t.Fatalf("env source: %v", err)
 	} else {
@@ -82,11 +82,11 @@ func TestPostgresDSNSourceLocalized(t *testing.T) {
 	}
 
 	// config file dsn source
-	t.Setenv("ARTEX_PG_DSN", "")
+	t.Setenv("BODA_PG_DSN", "")
 	if err := os.WriteFile(cfgPath, []byte(`{"database":{"dsn":"postgres://full/dsn"}}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("ARTEX_CONFIG", cfgPath)
+	t.Setenv("BODA_CONFIG", cfgPath)
 	if _, source, err := PostgresDSN(); err != nil {
 		t.Fatalf("dsn source: %v", err)
 	} else {

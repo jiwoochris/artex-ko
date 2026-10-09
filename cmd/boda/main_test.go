@@ -9,7 +9,7 @@ import (
 	"testing"
 	"unicode"
 
-	"github.com/Autumn-27/artex/agent"
+	"github.com/quantum-decrypt-security/boda/agent"
 )
 
 func TestShutdownContextPreservesNamedCause(t *testing.T) {
@@ -25,7 +25,7 @@ func TestShutdownContextPreservesNamedCause(t *testing.T) {
 
 // TestPrintBannerLocalized verifies that the startup banner printed to stdout is
 // Korean and carries no leftover CJK Han characters. This is the first thing a
-// user sees when running ARTEX, so it must not stay in Chinese (backlog F11).
+// user sees when running BODA, so it must not stay in Chinese (backlog F11).
 // The "[config] ..." log lines in run() are intentionally out of scope — they
 // are logs, which the localization brief ranks lowest (backlog Z2).
 func TestPrintBannerLocalized(t *testing.T) {

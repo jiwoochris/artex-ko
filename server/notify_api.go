@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/notify"
+	"github.com/quantum-decrypt-security/boda/db"
+	"github.com/quantum-decrypt-security/boda/notify"
 )
 
 // 本文件是推送功能的 HTTP 接口。全部路由挂在 requireAuth 之后（见 Handler()），
@@ -39,7 +39,7 @@ const (
 const (
 	notifyTestName    = "테스트 메시지 · 채널 설정 정상"
 	notifyTestClass   = "연결 테스트"
-	notifyTestSummary = "ARTEX 알림 채널 테스트 메시지입니다. 이 메시지를 받으셨다면 채널 설정이 정상입니다."
+	notifyTestSummary = "BODA 알림 채널 테스트 메시지입니다. 이 메시지를 받으셨다면 채널 설정이 정상입니다."
 )
 
 // notifyChannelDTO 是渠道的对外表述。
@@ -476,7 +476,7 @@ func notifyTestMessage(baseURL string) notify.Message {
 			VulnClass: notifyTestClass,
 			Severity:  "low",
 			Summary:   notifyTestSummary,
-			Assets:    []string{"artex.example.com"},
+			Assets:    []string{"boda.example.com"},
 			DetailURL: baseURL,
 		}},
 		HomeURL: baseURL,

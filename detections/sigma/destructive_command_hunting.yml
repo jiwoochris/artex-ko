@@ -1,12 +1,12 @@
-title: Destructive Command Execution (ARTEX Guard-List Hunting)
+title: Destructive Command Execution (BODA Guard-List Hunting)
 id: f510564f-2958-4dc8-a188-3300a2f6f5a7
 status: experimental
 description: |
     Hunts for destructive shell and database commands on a host. The pattern set mirrors the
-    built-in deny rules the ARTEX guard ships with (db/db.go seed): because the guard blocks
+    built-in deny rules the BODA guard ships with (db/db.go seed): because the guard blocks
     these, they are the inverse image of the destructive actions an autonomous agent could
     attempt if the guard were disabled or bypassed. This is GENERIC destructive-command hunting
-    informed by that list, not an ARTEX-specific signature, and matches are expected from
+    informed by that list, not an BODA-specific signature, and matches are expected from
     legitimate administration. Tune and allow-list for your environment and treat a hit as a
     hunting lead, not a standalone alert. High-noise availability commands the guard also blocks
     (bare shutdown/reboot) are intentionally omitted here; hunt those separately. The database

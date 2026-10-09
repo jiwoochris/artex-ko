@@ -1,5 +1,5 @@
 <!--
-  이 PR 템플릿은 artex-ko(ARTEX 한국어판) 전용입니다.
+  이 PR 템플릿은 artex-ko(BODA 한국어판) 전용입니다.
   기여 방침과 현지화 원칙은 CONTRIBUTING.md 를 먼저 읽어 주십시오.
 -->
 

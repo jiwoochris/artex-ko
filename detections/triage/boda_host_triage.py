@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 #
-# ARTEX host triage — a read-only responder helper for a suspected ARTEX host.
+# BODA host triage — a read-only responder helper for a suspected BODA host.
 #
 # The rest of detections/ serves defenders who run a SIEM (Sigma), a network
 # sensor (Suricata), or a threat-intel platform (the MISP / CSV indicators). This
 # script serves the other responder: the one standing at a single suspect host's
-# shell, with no SIEM, who needs to answer "did ARTEX run here?" from local state.
+# shell, with no SIEM, who needs to answer "did BODA run here?" from local state.
 # It operationalizes the same indicators the rest of the directory ships, plus the
 # three host/DB indicators the indicator list deliberately carries WITHOUT a Sigma
 # rule because they are not log- or network-observable and can only be checked on
-# the box itself (see detections/indicators/artex_indicators.csv — the rows whose
+# the box itself (see detections/indicators/boda_indicators.csv — the rows whose
 # `rule` column is empty: server-listen-port, recording-proxy-endpoint,
 # postgres-exploration-schema).
 #
@@ -25,18 +25,18 @@
 # What it checks (each cites the source it is grounded in):
 #   1. Listening ports        :8787 (admin UI) and 127.0.0.1:8788 (recording proxy)
 #                             — defaults of the --addr / --proxy flags in
-#                               cmd/artex/main.go. Parsed from `ss`/`netstat`/`lsof`
+#                               cmd/boda/main.go. Parsed from `ss`/`netstat`/`lsof`
 #                               on the live host, or from --ports-from FILE.
 #   2. Recording-proxy MITM    <data-dir>/traffic/_ca/mitmproxy-ca-cert.pem and the
 #      CA + stores             sibling _index/index.sqlite and _blobs/ the recorder
 #                             writes on first start (traffic/traffic.go; the data
 #                               dir default is data/ next to the binary — see
-#                               cmd/artex/main.go). The CA is the trust anchor of an
+#                               cmd/boda/main.go). The CA is the trust anchor of an
 #                               adversary-in-the-middle traffic recorder (ATT&CK
 #                               T1557).
-#   3. Log markers            the enrichment prober UA `artex-enrich/1.0`
+#   3. Log markers            the enrichment prober UA `boda-enrich/1.0`
 #                               (enrich/enrich.go), the self-update egress UA
-#                               `artex-selfupdate` (selfupdate/github.go), and the
+#                               `boda-selfupdate` (selfupdate/github.go), and the
 #                               platform-guard audit marker (guard/guard.go) in the
 #                               log file(s) you point it at. Rotated logs that
 #                               logrotate compressed as .gz/.bz2/.xz are read
@@ -46,7 +46,7 @@
 #                               silently treated as clean.
 #   4. PostgreSQL schema      the dual-graph exploration tables (exploration_nodes /
 #                               _edges / _anchors with assets / companies / activity
-#                               and the agent_prompts seed) in the ARTEX store
+#                               and the agent_prompts seed) in the BODA store
 #                               (db/schema.sql). Run against a DSN with `psql` if
 #                               available; otherwise the script prints the exact
 #                               read-only query for you to run by hand.
@@ -55,7 +55,7 @@
 #                               together with a toolchain CA-trust var (SSL_CERT_FILE /
 #                               CURL_CA_BUNDLE / REQUESTS_CA_BUNDLE / GIT_SSL_CAINFO /
 #                               NODE_EXTRA_CA_CERTS) pointing at a mitmproxy-ca-cert.pem.
-#                               ARTEX injects exactly these into every worker tool it
+#                               BODA injects exactly these into every worker tool it
 #                               spawns (agent/worker.go proxyEnv, asserted by
 #                               agent/proxyenv_test.go). The variable NAMES are
 #                               hard-coded in the source, so this tell survives an
@@ -70,12 +70,12 @@
 # you own or are authorized in writing to inspect.
 #
 # Usage:
-#   detections/triage/artex_host_triage.py --data-dir /opt/artex/data \
-#       --log /var/log/syslog --log-dir /var/log/artex
-#   detections/triage/artex_host_triage.py --pg-dsn "$ARTEX_PG_DSN"
-#   detections/triage/artex_host_triage.py --proc-from proc_env_dump.txt  # offline
-#   detections/triage/artex_host_triage.py --self-test     # reproducible fixture test
-#   detections/triage/artex_host_triage.py --json          # machine-readable findings
+#   detections/triage/boda_host_triage.py --data-dir /opt/boda/data \
+#       --log /var/log/syslog --log-dir /var/log/boda
+#   detections/triage/boda_host_triage.py --pg-dsn "$BODA_PG_DSN"
+#   detections/triage/boda_host_triage.py --proc-from proc_env_dump.txt  # offline
+#   detections/triage/boda_host_triage.py --self-test     # reproducible fixture test
+#   detections/triage/boda_host_triage.py --json          # machine-readable findings
 #
 # Exit code: 0 by default (triage, not a gate). With --exit-code, exits 1 if any
 # finding fired. --self-test exits non-zero on any self-test failure.
@@ -94,7 +94,7 @@ import tempfile
 
 # --- grounded constants (every value is verified in this repository's source) ---
 
-# Default listen / recording-proxy ports (cmd/artex/main.go --addr / --proxy).
+# Default listen / recording-proxy ports (cmd/boda/main.go --addr / --proxy).
 SERVER_PORT = 8787
 PROXY_HOST = "127.0.0.1"
 PROXY_PORT = 8788
@@ -112,25 +112,25 @@ BLOBS_RELDIR = "_blobs"
 # greps for, and translating it would stop the match.
 LOG_MARKERS = [
     {
-        "value": "artex-enrich/1.0",
+        "value": "boda-enrich/1.0",
         "title": "enrichment prober User-Agent",
         "source": "enrich/enrich.go",
         "severity": "high",
         "caveat": "An operator can change the User-Agent; absence is not safety.",
     },
     {
-        "value": "artex-selfupdate",
+        "value": "boda-selfupdate",
         "title": "self-update egress User-Agent",
         "source": "selfupdate/github.go",
         "severity": "medium",
-        "caveat": "Seen in outbound logs from a host running ARTEX; the string is configurable.",
+        "caveat": "Seen in outbound logs from a host running BODA; the string is configurable.",
     },
     {
-        "value": "【ARTEX 平台管控·非目标防御】",
+        "value": "【BODA 平台管控·非目标防御】",
         "title": "platform-guard audit-log framing marker",
         "source": "guard/guard.go",
         "severity": "high",
-        "caveat": "Also appears in logs that merely quote this defense guide or the ARTEX source.",
+        "caveat": "Also appears in logs that merely quote this defense guide or the BODA source.",
     },
 ]
 
@@ -147,7 +147,7 @@ SCHEMA_TABLES = [
 ]
 
 # Recording-proxy environment injection into spawned worker tools (agent/worker.go
-# proxyEnv; asserted by agent/proxyenv_test.go). ARTEX routes every worker tool's
+# proxyEnv; asserted by agent/proxyenv_test.go). BODA routes every worker tool's
 # traffic through the recording MITM proxy and, when a CA is present, makes the
 # toolchain trust it — by setting these exact variables in the subprocess env. The
 # variable NAMES are hard-coded in worker.go (only the values are configurable), so
@@ -161,7 +161,7 @@ CA_ENV_VARS = (
     "SSL_CERT_FILE", "CURL_CA_BUNDLE", "REQUESTS_CA_BUNDLE", "GIT_SSL_CAINFO", "NODE_EXTRA_CA_CERTS",
 )
 CA_BASENAME = "mitmproxy-ca-cert.pem"  # basename of CA_RELPATH; the value a CA var points at
-# The recording-proxy default endpoint (cmd/artex/main.go --proxy). An operator can
+# The recording-proxy default endpoint (cmd/boda/main.go --proxy). An operator can
 # point --proxy elsewhere, so the CA var is the anchor and this is only the fallback.
 PROXY_DEFAULT_ENDPOINT = f"{PROXY_HOST}:{PROXY_PORT}"  # 127.0.0.1:8788
 
@@ -246,9 +246,9 @@ def check_listening_ports(listing):
                 Finding(
                     "listening-port",
                     "medium",
-                    "ARTEX default admin-UI port is listening",
-                    f"a process is listening on {host}:{port} (ARTEX --addr default :{SERVER_PORT})",
-                    "cmd/artex/main.go",
+                    "BODA default admin-UI port is listening",
+                    f"a process is listening on {host}:{port} (BODA --addr default :{SERVER_PORT})",
+                    "cmd/boda/main.go",
                     "The port is configurable; confirm the process with `ss -ltnp` / `lsof`.",
                 )
             )
@@ -257,9 +257,9 @@ def check_listening_ports(listing):
                 Finding(
                     "listening-port",
                     "high",
-                    "ARTEX recording-proxy loopback port is listening",
-                    f"a process is listening on {host}:{port} (ARTEX --proxy default {PROXY_HOST}:{PROXY_PORT})",
-                    "cmd/artex/main.go",
+                    "BODA recording-proxy loopback port is listening",
+                    f"a process is listening on {host}:{port} (BODA --proxy default {PROXY_HOST}:{PROXY_PORT})",
+                    "cmd/boda/main.go",
                     "Loopback-only and configurable; correlate with the MITM CA file under traffic/_ca/.",
                 )
             )
@@ -278,11 +278,11 @@ def check_recording_proxy_artifacts(data_dir):
             Finding(
                 "recording-proxy-ca",
                 "medium",
-                "ARTEX recording-proxy MITM CA certificate present",
+                "BODA recording-proxy MITM CA certificate present",
                 f"found {ca}",
                 "traffic/traffic.go",
                 "A bare mitmproxy-ca-cert.pem is shared with standalone mitmproxy; "
-                "the traffic/_ca/ layout narrows it to ARTEX.",
+                "the traffic/_ca/ layout narrows it to BODA.",
             )
         )
     index = os.path.join(traffic, INDEX_RELPATH)
@@ -291,7 +291,7 @@ def check_recording_proxy_artifacts(data_dir):
             Finding(
                 "recording-proxy-index",
                 "medium",
-                "ARTEX recording-proxy traffic index store present",
+                "BODA recording-proxy traffic index store present",
                 f"found {index}",
                 "traffic/traffic.go",
                 "The recorder's SQLite index of captured HTTP(S) exchanges; a forensic artifact of a run.",
@@ -303,7 +303,7 @@ def check_recording_proxy_artifacts(data_dir):
             Finding(
                 "recording-proxy-blobs",
                 "low",
-                "ARTEX recording-proxy body blob store present",
+                "BODA recording-proxy body blob store present",
                 f"found {blobs}/",
                 "traffic/traffic.go",
                 "Spilled response bodies from the traffic recorder; corroborates the index/CA.",
@@ -359,7 +359,7 @@ def iter_log_files(logs, log_dirs):
 
 
 def scan_logs(logs, log_dirs):
-    """Scan the log files/dirs for ARTEX markers. Returns (findings, skipped),
+    """Scan the log files/dirs for BODA markers. Returns (findings, skipped),
     where skipped lists paths in a compressed format with no stdlib codec
     (e.g. .zst/.lz4) that could not be read and so were NOT scanned."""
     findings = []
@@ -391,7 +391,7 @@ def scan_logs(logs, log_dirs):
                                 Finding(
                                     "log-marker",
                                     marker["severity"],
-                                    f"ARTEX {marker['title']} in log",
+                                    f"BODA {marker['title']} in log",
                                     f"{path!r} contains {marker['value']!r}",
                                     marker["source"],
                                     marker["caveat"],
@@ -423,7 +423,7 @@ def check_pg_schema(dsn):
     findings = []
     if not dsn:
         return findings, (
-            "PostgreSQL schema check skipped (no --pg-dsn / ARTEX_PG_DSN). "
+            "PostgreSQL schema check skipped (no --pg-dsn / BODA_PG_DSN). "
             "To check by hand, run this read-only query against the suspected store:\n"
             f"    psql <DSN> -c \"{SCHEMA_QUERY}\"\n"
             f"    (a count at or near {len(SCHEMA_TABLES)} of these tables together is the dual-graph tell; db/schema.sql)"
@@ -458,13 +458,13 @@ def check_pg_schema(dsn):
             Finding(
                 "postgres-schema",
                 "high" if n >= 6 else "medium",
-                "ARTEX dual-graph exploration schema present",
-                f"{n} of {len(SCHEMA_TABLES)} ARTEX exploration-graph tables found in the public schema",
+                "BODA dual-graph exploration schema present",
+                f"{n} of {len(SCHEMA_TABLES)} BODA exploration-graph tables found in the public schema",
                 "db/schema.sql",
                 "Inspect the database to confirm; a few table names overlap generic apps, the set does not.",
             )
         )
-    return findings, f"PostgreSQL schema check: {n} of {len(SCHEMA_TABLES)} ARTEX tables present."
+    return findings, f"PostgreSQL schema check: {n} of {len(SCHEMA_TABLES)} BODA tables present."
 
 
 # --- check 5: recording-proxy env injection in running processes --------------
@@ -492,7 +492,7 @@ def scan_process_env(label, env):
     """Findings for one process's environment dict. Pure function of its input so
     the self-test can feed synthetic env without reading /proc. The strongest tell
     is a proxy var AND a mitmproxy CA var together (the worker proxyEnv signature);
-    a mitmproxy CA alone, or the ARTEX default proxy endpoint alone, is a weaker
+    a mitmproxy CA alone, or the BODA default proxy endpoint alone, is a weaker
     lead. A corporate proxy with no mitmproxy CA is deliberately not flagged."""
     proxy = _proxy_env_hit(env)
     ca = _ca_env_hit(env)
@@ -501,12 +501,12 @@ def scan_process_env(label, env):
         cv, cval = ca
         return [Finding(
             "process-env-injection", "high",
-            "ARTEX recording-proxy env injection in a running process",
+            "BODA recording-proxy env injection in a running process",
             f"{label}: {pv}={pval} with {cv}={cval} — the worker proxyEnv signature "
             "(routes through a proxy and trusts a mitmproxy CA)",
             "agent/worker.go",
             "A standalone mitmproxy or a MITM test harness can set these too; a proxy "
-            "together with a trusted mitmproxy-ca-cert.pem matches ARTEX's worker "
+            "together with a trusted mitmproxy-ca-cert.pem matches BODA's worker "
             "injection. Capture can be disabled (--proxy ''), so absence is not safety.",
         )]
     if ca:
@@ -524,8 +524,8 @@ def scan_process_env(label, env):
         pv, pval = proxy
         return [Finding(
             "process-env-injection", "medium",
-            "A running process routes through the ARTEX recording-proxy default endpoint",
-            f"{label}: {pv}={pval} (ARTEX --proxy default {PROXY_DEFAULT_ENDPOINT})",
+            "A running process routes through the BODA recording-proxy default endpoint",
+            f"{label}: {pv}={pval} (BODA --proxy default {PROXY_DEFAULT_ENDPOINT})",
             "agent/worker.go",
             "The endpoint is the --proxy default and is configurable; correlate with "
             "the MITM CA under traffic/_ca/.",
@@ -646,7 +646,7 @@ def run_checks(args):
     else:
         notes.append(
             "recording-proxy artifact check skipped (no --data-dir; "
-            "ARTEX's default is data/ next to the binary — cmd/artex/main.go)."
+            "BODA's default is data/ next to the binary — cmd/boda/main.go)."
         )
 
     if args.log or args.log_dir:
@@ -657,13 +657,13 @@ def run_checks(args):
                 f"log-marker check could not read {len(skipped)} compressed log "
                 "file(s) with no standard-library codec (e.g. .zst/.lz4), so their "
                 "history was NOT scanned — decompress them first or grep them by "
-                "hand (e.g. `zstdcat FILE | grep -F artex-`): "
+                "hand (e.g. `zstdcat FILE | grep -F boda-`): "
                 + ", ".join(sorted(skipped))
             )
     else:
         notes.append("log-marker check skipped (no --log / --log-dir).")
 
-    pg_findings, pg_note = check_pg_schema(args.pg_dsn or os.environ.get("ARTEX_PG_DSN"))
+    pg_findings, pg_note = check_pg_schema(args.pg_dsn or os.environ.get("BODA_PG_DSN"))
     findings += pg_findings
     if pg_note:
         notes.append(pg_note)
@@ -695,7 +695,7 @@ def run_checks(args):
 
 
 def print_report(findings, notes):
-    print("ARTEX host triage — read-only; findings are triage leads, not attribution.")
+    print("BODA host triage — read-only; findings are triage leads, not attribution.")
     print("Use only on a host you own or are authorized in writing to inspect.\n")
     if findings:
         print(f"{len(findings)} indicator(s) fired:\n")
@@ -705,7 +705,7 @@ def print_report(findings, notes):
             print(f"           grounded in: {f.source}")
             print(f"           caveat: {f.caveat}\n")
     else:
-        print("No ARTEX indicators fired in the checks that ran.")
+        print("No BODA indicators fired in the checks that ran.")
         print("This is NOT a clean bill of health: an operator can rename the binary,")
         print("move the data directory, or change the ports. Absence is not safety.\n")
     if notes:
@@ -728,19 +728,19 @@ def self_test():
     # 1. parse_listen_endpoints across ss / netstat / lsof shapes.
     ss_out = (
         "State  Recv-Q Send-Q Local Address:Port Peer Address:Port Process\n"
-        "LISTEN 0      4096   *:8787            *:*               users:((\"artex\"))\n"
-        "LISTEN 0      4096   127.0.0.1:8788    0.0.0.0:*         users:((\"artex\"))\n"
+        "LISTEN 0      4096   *:8787            *:*               users:((\"boda\"))\n"
+        "LISTEN 0      4096   127.0.0.1:8788    0.0.0.0:*         users:((\"boda\"))\n"
         "LISTEN 0      128    127.0.0.1:5432    0.0.0.0:*         users:((\"postgres\"))\n"
     )
     eps = parse_listen_endpoints(ss_out)
     check("ports: ss output parses :8787 and 127.0.0.1:8788", ("*", 8787) in eps and ("127.0.0.1", 8788) in eps)
     pf = check_listening_ports(ss_out)
     checks_hit = {f.title for f in pf}
-    check("ports: both ARTEX listeners reported", len(pf) == 2)
+    check("ports: both BODA listeners reported", len(pf) == 2)
     check("ports: admin-UI listener reported", any("admin-UI" in t for t in checks_hit))
     check("ports: recording-proxy listener reported", any("recording-proxy" in t for t in checks_hit))
 
-    lsof_out = "artex 42 root 7u IPv4 TCP 127.0.0.1:8788 (LISTEN)\n"
+    lsof_out = "boda 42 root 7u IPv4 TCP 127.0.0.1:8788 (LISTEN)\n"
     check("ports: lsof shape parses the proxy listener", ("127.0.0.1", 8788) in parse_listen_endpoints(lsof_out))
 
     # a connected (non-LISTEN) session to :8787 must not be read as a local listener
@@ -763,28 +763,28 @@ def self_test():
         # 3. log markers
         logpath = os.path.join(tmp, "app.log")
         with open(logpath, "w", encoding="utf-8") as f:
-            f.write("GET / HTTP/1.1 artex-enrich/1.0\n")
-            f.write("outbound artex-selfupdate to release host\n")
+            f.write("GET / HTTP/1.1 boda-enrich/1.0\n")
+            f.write("outbound boda-selfupdate to release host\n")
             f.write("blocked: " + LOG_MARKERS[2]["value"] + " this operation is denied\n")
             f.write("a normal line with no markers\n")
         lf, _ = scan_logs([logpath], [])
         check("logs: all three markers fire", len(lf) == 3)
 
         # 3b. rotated (compressed) logs under a --log-dir are scanned too, not
-        # silently skipped. A responder pointing at /var/log/artex expects the
+        # silently skipped. A responder pointing at /var/log/boda expects the
         # rotated history to be covered; a plain read of the compressed bytes
         # would miss every marker inside. Plant one marker per container: a
         # plaintext current log, a .gz, a .bz2, and an .xz rotation.
         rot = os.path.join(tmp, "rotated")
         os.makedirs(rot)
-        with open(os.path.join(rot, "artex.log"), "w", encoding="utf-8") as f:
-            f.write("outbound artex-selfupdate to release host\n")
-        with gzip.open(os.path.join(rot, "artex.log.1.gz"), "wt", encoding="utf-8") as f:
-            f.write("GET / HTTP/1.1 artex-enrich/1.0\n")
-        with bz2.open(os.path.join(rot, "artex.log.2.bz2"), "wt", encoding="utf-8") as f:
+        with open(os.path.join(rot, "boda.log"), "w", encoding="utf-8") as f:
+            f.write("outbound boda-selfupdate to release host\n")
+        with gzip.open(os.path.join(rot, "boda.log.1.gz"), "wt", encoding="utf-8") as f:
+            f.write("GET / HTTP/1.1 boda-enrich/1.0\n")
+        with bz2.open(os.path.join(rot, "boda.log.2.bz2"), "wt", encoding="utf-8") as f:
             f.write("blocked: " + LOG_MARKERS[2]["value"] + " this operation is denied\n")
-        with lzma.open(os.path.join(rot, "artex.log.3.xz"), "wt", encoding="utf-8") as f:
-            f.write("another GET / artex-enrich/1.0 probe\n")
+        with lzma.open(os.path.join(rot, "boda.log.3.xz"), "wt", encoding="utf-8") as f:
+            f.write("another GET / boda-enrich/1.0 probe\n")
         rf, rskip = scan_logs([], [rot])
         rtitles = [f.title for f in rf]
         check("rotated: plaintext + .gz + .bz2 + .xz markers all fire via --log-dir", len(rf) == 4)
@@ -794,7 +794,7 @@ def self_test():
 
         # 3c. a format with no stdlib codec (.zst) is reported as skipped, never
         # silently treated as clean.
-        zstpath = os.path.join(rot, "artex.log.4.zst")
+        zstpath = os.path.join(rot, "boda.log.4.zst")
         with open(zstpath, "wb") as f:
             f.write(b"\x28\xb5\x2f\xfd and bytes a plain read would mis-handle")
         _rf2, rskip2 = scan_logs([], [rot])
@@ -821,7 +821,7 @@ def self_test():
         "PATH=/usr/bin\n"
         "HTTP_PROXY=127.0.0.1:8788\n"
         "HTTPS_PROXY=127.0.0.1:8788\n"
-        "REQUESTS_CA_BUNDLE=/opt/artex/data/traffic/_ca/mitmproxy-ca-cert.pem\n"
+        "REQUESTS_CA_BUNDLE=/opt/boda/data/traffic/_ca/mitmproxy-ca-cert.pem\n"
         "\n"
         "# pid 202 (nginx)\n"
         "PATH=/usr/sbin\n"
@@ -831,7 +831,7 @@ def self_test():
         "HTTP_PROXY=http://corp-proxy.local:3128\n"
         "\n"
         "# pid 404 (python)\n"
-        "REQUESTS_CA_BUNDLE=/opt/artex/data/traffic/_ca/mitmproxy-ca-cert.pem\n"
+        "REQUESTS_CA_BUNDLE=/opt/boda/data/traffic/_ca/mitmproxy-ca-cert.pem\n"
         "\n"
         "# pid 505 (wget)\n"
         "https_proxy=127.0.0.1:8788\n"
@@ -850,7 +850,7 @@ def self_test():
     check("procenv: a mitmproxy CA alone fires one MEDIUM finding",
           len(caonly) == 1 and caonly[0].severity == "medium")
     proxyonly = scan_process_env("pid 505 (wget)", by_label.get("pid 505 (wget)", {}))
-    check("procenv: the ARTEX default proxy endpoint alone fires one MEDIUM finding",
+    check("procenv: the BODA default proxy endpoint alone fires one MEDIUM finding",
           len(proxyonly) == 1 and proxyonly[0].severity == "medium")
 
     print()
@@ -863,19 +863,19 @@ def self_test():
 
 def build_parser():
     p = argparse.ArgumentParser(
-        description="Read-only host triage for a suspected ARTEX host (detections/triage).",
+        description="Read-only host triage for a suspected BODA host (detections/triage).",
     )
     p.add_argument("--data-dir", action="append", default=[], metavar="PATH",
-                   help="ARTEX data directory to check for recording-proxy artifacts (repeatable).")
+                   help="BODA data directory to check for recording-proxy artifacts (repeatable).")
     p.add_argument("--log", action="append", default=[], metavar="PATH",
-                   help="log file to scan for ARTEX markers (repeatable).")
+                   help="log file to scan for BODA markers (repeatable).")
     p.add_argument("--log-dir", action="append", default=[], metavar="PATH",
                    help="directory of log files to scan recursively; rotated "
                         ".gz/.bz2/.xz logs are decompressed and scanned too, while "
                         ".zst/.lz4 (no stdlib codec) are reported as skipped "
                         "(repeatable).")
     p.add_argument("--pg-dsn", default=None, metavar="DSN",
-                   help="PostgreSQL DSN to check for the exploration schema (defaults to $ARTEX_PG_DSN).")
+                   help="PostgreSQL DSN to check for the exploration schema (defaults to $BODA_PG_DSN).")
     p.add_argument("--ports-from", default=None, metavar="FILE",
                    help="read a port listing from FILE instead of running ss/netstat/lsof.")
     p.add_argument("--proc-from", default=None, metavar="FILE",

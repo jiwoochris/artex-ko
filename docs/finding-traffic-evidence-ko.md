@@ -1,6 +1,6 @@
 # 취약점 다중 트래픽 증거
 
-> 이 문서는 상류(원본) ARTEX 의 설계 문서를 한국어로 옮긴 것입니다. 취약점과 트래픽 증거를 연결하는
+> 이 문서는 상류(원본) BODA 의 설계 문서를 한국어로 옮긴 것입니다. 취약점과 트래픽 증거를 연결하는
 > 기능의 설계를 기여자·메인테이너를 위해 정리합니다. 원문(중국어)은
 > [`finding-traffic-evidence-zh.md`](finding-traffic-evidence-zh.md) 에 보존돼 있습니다.
 >
@@ -90,10 +90,10 @@ Markdown 은 상대 링크로 패킷을 참조합니다. 다운로드를 보내�
 
 ## 검증과 경계
 
-테스트 패키지마다 독립적으로 새로 만든 PostgreSQL 테스트 데이터베이스를 두고 `ARTEX_PG_DSN` 으로 지정해, 남아 있는 작업/모델 픽스처가 백그라운드 실행을 트리거하지 않게 합니다. 관련 패키지의 전체 테스트를 실행하고, 설정 누락 때문에 건너뛴 테스트가 없는지 확인합니다:
+테스트 패키지마다 독립적으로 새로 만든 PostgreSQL 테스트 데이터베이스를 두고 `BODA_PG_DSN` 으로 지정해, 남아 있는 작업/모델 픽스처가 백그라운드 실행을 트리거하지 않게 합니다. 관련 패키지의 전체 테스트를 실행하고, 설정 누락 때문에 건너뛴 테스트가 없는지 확인합니다:
 
 ```sh
-# 각 패키지를 실행하기 전에 ARTEX_PG_DSN 을 해당 독립 테스트 데이터베이스로 설정합니다. 명시적 설정이 실패하면 반드시 오류를 내야 합니다.
+# 각 패키지를 실행하기 전에 BODA_PG_DSN 을 해당 독립 테스트 데이터베이스로 설정합니다. 명시적 설정이 실패하면 반드시 오류를 내야 합니다.
 go test ./<package> -count=1
 go test -race -p 1 ./evidence ./db ./agent ./server -run 'TestEvidence|TestFindingTraffic|TestFindingEvidence|TestReportFindingAtomicContract|TestTaskArchive'
 ```

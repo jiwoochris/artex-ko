@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# In-container half of the ARTEX Sigma live event-matching test. run.sh launches
+# In-container half of the BODA Sigma live event-matching test. run.sh launches
 # this inside a Python container with the Sigma rule tree (atomic rules and the
 # correlation/ subtree) mounted read-only at /sigma and this directory at /src. It
 # installs a pinned pySigma, then hands off to check.py, which asserts that every

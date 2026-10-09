@@ -107,7 +107,7 @@ import type {
 
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("artex_token");
+  return localStorage.getItem("boda_token");
 }
 
 export async function http<T>(path: string, init?: RequestInit): Promise<T> {
@@ -123,8 +123,8 @@ export async function http<T>(path: string, init?: RequestInit): Promise<T> {
   });
   if (r.status === 401) {
     if (typeof window !== "undefined") {
-      localStorage.removeItem("artex_token");
-      document.cookie = "artex_token=; path=/; max-age=0";
+      localStorage.removeItem("boda_token");
+      document.cookie = "boda_token=; path=/; max-age=0";
       window.location.href = "/login";
     }
     throw new Error("인증되지 않았습니다");
@@ -164,7 +164,7 @@ export async function http<T>(path: string, init?: RequestInit): Promise<T> {
 // Token is appended as ?token= because SSE can't carry cookies cross-origin.
 // mockReport returns a canned Markdown report for the demo.
 function mockReport(_task?: string): string {
-  return `# ARTEX 침투 테스트 보고서: Acme Corp
+  return `# BODA 침투 테스트 보고서: Acme Corp
 
 ## 개요
 - 범위: acme.com (www / admin / api / shop / vpn 서브도메인 포함)

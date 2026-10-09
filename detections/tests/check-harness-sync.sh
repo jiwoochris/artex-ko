@@ -26,7 +26,7 @@ REPO="$(cd "$HERE/../.." && pwd)"
 PYTHON_IMAGE="${PYTHON_IMAGE:-python:3.12-slim}"
 
 docker run --rm \
-  -e ARTEX_REPO_ROOT=/repo \
+  -e BODA_REPO_ROOT=/repo \
   -v "$REPO/detections:/repo/detections:ro" \
   -v "$REPO/.github:/repo/.github:ro" \
   -v "$HERE:/src:ro" \

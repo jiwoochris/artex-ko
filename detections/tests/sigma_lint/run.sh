@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Reproducible SigmaHQ-convention lint for the ARTEX Sigma rules (../../sigma/).
+# Reproducible SigmaHQ-convention lint for the BODA Sigma rules (../../sigma/).
 # `sigma check` on its own runs only pySigma's core validators; this test runs
 # the full SigmaHQ convention set (the pySigma-validators-sigmahq plugin) against
 # the documented baseline in validators.yml, so the "passes sigma check cleanly"

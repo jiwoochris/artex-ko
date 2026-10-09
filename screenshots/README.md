@@ -5,7 +5,7 @@
 이 폴더에는 서로 다른 두 화면 모음이 들어 있습니다. 섞여 보이지 않도록 어느 쪽이
 무엇인지 먼저 밝힙니다.
 
-- **`ko/`: ARTEX 한국어판의 실제 UI 캡처.** 이 저장소가 전달하는 결과물입니다.
+- **`ko/`: BODA 한국어판의 실제 UI 캡처.** 이 저장소가 전달하는 결과물입니다.
   메인 문서 [`../README.md`](../README.md) 와 [`../README.en.md`](../README.en.md) 가
   이 이미지를 씁니다. 한국어판 화면만 보시려면 [`ko/`](ko/) 폴더를 여세요.
 - **루트의 `*.png`: 상류 원본(중국어판)의 UI 캡처.** 상류 저장소와 1:1 로 대조할 수
@@ -27,7 +27,7 @@
 This folder holds two separate sets of captures. To keep them from looking mixed, here
 is what each one is.
 
-- **`ko/` — real UI of the Korean edition of ARTEX.** This is what the fork delivers. The
+- **`ko/` — real UI of the Korean edition of BODA.** This is what the fork delivers. The
   main docs [`../README.md`](../README.md) and [`../README.en.md`](../README.en.md) use
   these images. For the Korean edition's screens, open [`ko/`](ko/).
 - **The `*.png` files in the root — upstream (Chinese edition) UI captures.** They are

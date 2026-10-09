@@ -12,12 +12,12 @@
       "submitting": "登录中...",
       "title": "登录",
       "username": "用户名",
-      "welcome": "欢迎回来，请输入密码以继续使用 ARTEX"
+      "welcome": "欢迎回来，请输入密码以继续使用 BODA"
     },
     "setup": {
       "confirmPassword": "确认密码",
       "confirmPlaceholder": "再次输入密码",
-      "desc": "首次使用 ARTEX，请为账户设置一个登录密码（至少 8 位）",
+      "desc": "首次使用 BODA，请为账户设置一个登录密码（至少 8 位）",
       "errorBackend": "无法连接到后端服务",
       "errorInit": "初始化失败",
       "errorMismatch": "两次输入的密码不一致",
@@ -29,7 +29,7 @@
       "title": "初始化密码"
     },
     "terms": {
-      "a1Body": "本软件（ARTEX）是一款基于 GNU Affero General Public License v3.0（AGPL-3.0）发布的开源程序。您可依据该协议自由使用、复制、修改和分发本软件；但任何衍生作品（包括通过网络向第三方提供的在线服务）均须同样以 AGPL-3.0 协议开源并向使用者公开对应的完整源代码。AGPL-3.0 完整条款以随附的 LICENSE 文件为准。",
+      "a1Body": "本软件（BODA）是一款基于 GNU Affero General Public License v3.0（AGPL-3.0）发布的开源程序。您可依据该协议自由使用、复制、修改和分发本软件；但任何衍生作品（包括通过网络向第三方提供的在线服务）均须同样以 AGPL-3.0 协议开源并向使用者公开对应的完整源代码。AGPL-3.0 完整条款以随附的 LICENSE 文件为准。",
       "a1Title": "第一条 · 定义与开源许可",
       "a2Body": "本软件仅供个人学习、代码研究、安全技术原理探讨，以及在您自行搭建的本地隔离环境中进行技术验证之用，适用于学习、学术研究、代码审阅等非攻击性、非破坏性用途。除本条明确许可的情形外，您不得将本软件用于任何其他目的。",
       "a2Title": "第二条 · 授权使用范围",
@@ -53,10 +53,10 @@
       "agreeButton": "我已阅读并同意全部条款",
       "footerNotRead": "请将条款滚动至底部后再确认",
       "footerRead": "您已浏览全部条款",
-      "intro": "本《使用须知与免责声明》（以下简称\"本声明\"）是您与 ARTEX 项目作者及贡献者之间就使用本软件所达成的约定。请您在使用前审慎阅读、充分理解各条款内容，特别是以粗体或色块标注的免责、责任限制及禁止性条款。",
+      "intro": "本《使用须知与免责声明》（以下简称\"本声明\"）是您与 BODA 项目作者及贡献者之间就使用本软件所达成的约定。请您在使用前审慎阅读、充分理解各条款内容，特别是以粗体或色块标注的免责、责任限制及禁止性条款。",
       "introEmphasis": "一旦您下载、安装、访问或以任何方式使用本软件，即视为您已阅读、理解并同意接受本声明的全部约束。",
       "meta": "版本 v1.0 · 生效日期 2026-09-18 · 请在登录前完整阅读以下全部条款",
-      "title": "ARTEX 使用须知与免责声明"
+      "title": "BODA 使用须知与免责声明"
     }
   },
   "dashboard": {
@@ -2112,7 +2112,7 @@
   },
   "changePasswordDialog": {
     "title": "修改密码",
-    "description": "用户名固定为 <b>ARTEX</b>。需先输入当前密码验证；修改后已签发的登录 token 仍有效直至过期。",
+    "description": "用户名固定为 <b>BODA</b>。需先输入当前密码验证；修改后已签发的登录 token 仍有效直至过期。",
     "currentPassword": "当前密码",
     "newPassword": "新密码",
     "confirmPassword": "确认新密码",
@@ -3181,19 +3181,19 @@
       "willDownloadSize": "（{size}）",
       "willDownloadSuffix": "，校验 SHA256 并冒烟测试后才会替换，失败自动保留当前版本。",
       "upToDate": "当前已是最新版本。",
-      "dockerNote": "Docker 下的更新只替换程序本身，不更新镜像里的 playwright / nmap 等工具链，且<code>docker compose up -d</code>重建容器后会退回镜像自带的版本。需要连镜像一起升级请执行<code>docker compose pull artex && docker compose up -d artex</code>。",
+      "dockerNote": "Docker 下的更新只替换程序本身，不更新镜像里的 playwright / nmap 等工具链，且<code>docker compose up -d</code>重建容器后会退回镜像自带的版本。需要连镜像一起升级请执行<code>docker compose pull boda && docker compose up -d boda</code>。",
       "restarting": "正在重启并应用新版本，请稍候（页面会自动刷新）…",
       "check": "检查更新",
       "updateToVersion": "更新到 {latest}",
       "updateNow": "立即更新",
       "rollback": "回滚到上一版本",
-      "footer": "一键更新依赖守护脚本重启程序。请通过 <code>start.sh</code>（Windows 为 <code>start.bat</code>）启动 ARTEX；直接运行 artex 本体时，程序退出后不会被自动拉起。",
+      "footer": "一键更新依赖守护脚本重启程序。请通过 <code>start.sh</code>（Windows 为 <code>start.bat</code>）启动 BODA；直接运行 boda 本体时，程序退出后不会被自动拉起。",
       "toast": {
         "checkFailed": "检查更新失败：{error}",
         "found": "发现新版本 {latest}",
         "upToDate": "当前已是最新版本",
         "updated": "已更新到 {version}，正在重新加载页面",
-        "restartTimeout": "等待服务重启超时。请检查后端日志，或确认 artex 是通过 start.sh / start.bat 启动的。",
+        "restartTimeout": "等待服务重启超时。请检查后端日志，或确认 boda 是通过 start.sh / start.bat 启动的。",
         "updateFailed": "更新失败：{error}",
         "startFailed": "启动更新失败：{error}",
         "rollbackSwitched": "已切换到上一版本，正在重启…",

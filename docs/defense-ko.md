@@ -1,6 +1,6 @@
 # 자율 AI 공격 방어·탐지 가이드
 
-> 이 문서는 ARTEX 와 같은 **자율 AI 침투 에이전트**가 어떻게 동작하는지 방어하는 쪽에서 이해하고, 그 공격을 **탐지하고 차단하는 역량**을 기르기 위한 자료입니다. 공격 방법을 안내하는 문서가 아닙니다. 모든 내용은 자신이 소유하거나 서면으로 명시적 허가를 받은 시스템을 지키는 목적에만 사용하십시오. 권한 없이 타인의 정보통신망을 점검·공격하는 행위는 그 자체로 범죄입니다([상위 README 의 보안·오남용 경고](../README.md) 참조).
+> 이 문서는 BODA 와 같은 **자율 AI 침투 에이전트**가 어떻게 동작하는지 방어하는 쪽에서 이해하고, 그 공격을 **탐지하고 차단하는 역량**을 기르기 위한 자료입니다. 공격 방법을 안내하는 문서가 아닙니다. 모든 내용은 자신이 소유하거나 서면으로 명시적 허가를 받은 시스템을 지키는 목적에만 사용하십시오. 권한 없이 타인의 정보통신망을 점검·공격하는 행위는 그 자체로 범죄입니다([상위 README 의 보안·오남용 경고](../README.md) 참조).
 >
 > English: **[Defense and Detection Guide (defense-en.md)](defense-en.md)**.
 
@@ -10,7 +10,7 @@
 
 ## 1. 자율 AI 공격은 기존 스캐너와 무엇이 다른가
 
-전통적인 취약점 스캐너(예: 고정 시그니처 기반 도구)는 미리 정해진 점검 항목을 순서대로 던지고 끝납니다. ARTEX 류의 자율 에이전트는 구조가 다릅니다. [시스템 아키텍처](../README.md#시스템-아키텍처)에서 설명하듯, 다음 요소가 결합해 **사람 개입 없이 여러 단계의 공격 체인을 완주**합니다.
+전통적인 취약점 스캐너(예: 고정 시그니처 기반 도구)는 미리 정해진 점검 항목을 순서대로 던지고 끝납니다. BODA 류의 자율 에이전트는 구조가 다릅니다. [시스템 아키텍처](../README.md#시스템-아키텍처)에서 설명하듯, 다음 요소가 결합해 **사람 개입 없이 여러 단계의 공격 체인을 완주**합니다.
 
 - **역할이 나뉜 멀티 에이전트.** 목표를 분해하는 `goals`, 다음 방향을 판정해 의도(intent)를 내보내는 `planner`, 의도 하나를 실제 도구로 실행하는 `worker` 여러 개, 사람이 끼어드는 `mainagent` 로 나뉩니다. planner 가 유일한 의도 생성자이고, worker 들이 그 의도를 병렬로 수행합니다.
 - **이중 그래프에 상태를 축적.** "무엇이 있는가"(자산 그래프)와 "어디까지 테스트했는가"(탐색 그래프)를 따로 쌓고 앵커로 연결합니다. 그래서 공격이 **점진적으로 깊어지고**, 같은 자산을 다른 각도에서 재방문하며, 앞선 관찰 위에 다음 단계를 세웁니다.
@@ -36,32 +36,32 @@
 
 ## 2. 방어자가 관측할 수 있는 지문 (IoC·시그니처)
 
-지문을 두 관점으로 나눠 봅니다. **(가) 대상(피공격자) 관점**은 내 시스템을 향한 ARTEX 트래픽에서 볼 수 있는 것이고, **(나) 운영자·포렌식 관점**은 ARTEX 가 실제로 돌아간(또는 침해된 중계) 호스트에서 볼 수 있는 것입니다. 둘을 섞지 않는 것이 중요합니다. 대상 쪽에서 보이는 정적 지문은 제한적이고, 행동 지문이 핵심입니다.
+지문을 두 관점으로 나눠 봅니다. **(가) 대상(피공격자) 관점**은 내 시스템을 향한 BODA 트래픽에서 볼 수 있는 것이고, **(나) 운영자·포렌식 관점**은 BODA 가 실제로 돌아간(또는 침해된 중계) 호스트에서 볼 수 있는 것입니다. 둘을 섞지 않는 것이 중요합니다. 대상 쪽에서 보이는 정적 지문은 제한적이고, 행동 지문이 핵심입니다.
 
 ### (가) 대상 관점: 내 시스템을 향한 트래픽
 
-- **보강(enrich) 조회의 User-Agent `artex-enrich/1.0`.** ARTEX 는 자산을 자동으로 보강(DNS·HTTP 확인)할 때 이 User-Agent 로 대상에 직접 `GET` 을 보냅니다(`enrich/enrich.go`). 이 경로는 LLM 과 무관하게 ARTEX 가 스스로 생성하며, **리다이렉트를 따라가지 않고, keep-alive 를 끄며, 응답 앞부분만 읽어 `<title>` 을 뽑는** 특징이 있습니다. 기본 동시성은 4 입니다. 따라서 `artex-enrich/1.0` UA 로 **짧은 연결·단발 GET·제목만 읽고 끊는** 조회가 여러 자산에 동시에 들어오면 ARTEX 계열 보강 트래픽을 강하게 시사합니다. 다만 운영자가 UA 를 바꿀 수 있으므로 **부재가 안전을 뜻하지는 않습니다.**
-- **본 공격 트래픽은 도구 기본 지문을 따릅니다.** worker 는 실제 도구(Bash 로 실행하는 외부 도구·HTTP)로 요청을 보냅니다. ARTEX 는 이 트래픽을 자체 기록 프록시로 경유시키려고 서브프로세스 환경변수에 `HTTP_PROXY`·프록시 CA 경로를 주입할 뿐, **공격 트래픽에 ARTEX 고유 User-Agent 를 강제하지 않습니다.** 그래서 대상이 보는 User-Agent·헤더는 **그때 실행된 도구의 기본값**(각종 커맨드라인 도구의 기본 UA)입니다. 운영자가 커스텀하지 않았다면 흔한 자동화 도구 지문이 남고, 커스텀했다면 정상 브라우저처럼 위장될 수도 있습니다. 따라서 **단일 UA 매칭에 의존하지 말고 행동 기반 탐지와 결합**해야 합니다.
-- **worker 내장 WebFetch 도구는 `norma/0.4` User-Agent 를 남깁니다.** 위의 Bash 실행 외부 도구와 달리, ARTEX 가 norma SDK(`github.com/Autumn-27/norma`)로 직접 수행하는 HTTP 조회(WebFetch 도구)는 그 SDK 의 기본 User-Agent `norma/0.4` 를 공격 단계에 싣습니다. 평문 HTTP 로 오갈 때(또는 TLS 종단 지점에서) 네트워크 선에서 관측되며, [Suricata 규칙 sid 1000003](../detections/suricata/README.ko.md)이 이 접두사(`norma/`)를 잡습니다. 다만 이 UA 는 ARTEX 고유가 아니라 norma SDK 를 쓰는 다른 도구도 함께 쓰므로, `artex-enrich/1.0` 과 마찬가지로 단독 증거가 아니라 보조 단서이고, Bash 로 실행된 도구는 각자의 UA 를 쓰므로 **부재가 안전을 뜻하지 않습니다.**
-- **내장 레이트리밋이 없습니다.** ARTEX 자체에는 대상 트래픽 전용 속도 제한이 없고, 요청 속도는 LLM 이 돌리는 외부 도구가 결정합니다. 대신 태스크당 worker 는 기본 3개가 병렬로 돌아, 한 대상에 **여러 의도가 동시에** 진행될 수 있습니다. 즉 "느린 단일 세션"으로도, "여러 각도의 동시 진행"으로도 나타날 수 있어, 고정 임계값 하나로는 잡기 어렵습니다.
+- **보강(enrich) 조회의 User-Agent `boda-enrich/1.0`.** BODA 는 자산을 자동으로 보강(DNS·HTTP 확인)할 때 이 User-Agent 로 대상에 직접 `GET` 을 보냅니다(`enrich/enrich.go`). 이 경로는 LLM 과 무관하게 BODA 가 스스로 생성하며, **리다이렉트를 따라가지 않고, keep-alive 를 끄며, 응답 앞부분만 읽어 `<title>` 을 뽑는** 특징이 있습니다. 기본 동시성은 4 입니다. 따라서 `boda-enrich/1.0` UA 로 **짧은 연결·단발 GET·제목만 읽고 끊는** 조회가 여러 자산에 동시에 들어오면 BODA 계열 보강 트래픽을 강하게 시사합니다. 다만 운영자가 UA 를 바꿀 수 있으므로 **부재가 안전을 뜻하지는 않습니다.**
+- **본 공격 트래픽은 도구 기본 지문을 따릅니다.** worker 는 실제 도구(Bash 로 실행하는 외부 도구·HTTP)로 요청을 보냅니다. BODA 는 이 트래픽을 자체 기록 프록시로 경유시키려고 서브프로세스 환경변수에 `HTTP_PROXY`·프록시 CA 경로를 주입할 뿐, **공격 트래픽에 BODA 고유 User-Agent 를 강제하지 않습니다.** 그래서 대상이 보는 User-Agent·헤더는 **그때 실행된 도구의 기본값**(각종 커맨드라인 도구의 기본 UA)입니다. 운영자가 커스텀하지 않았다면 흔한 자동화 도구 지문이 남고, 커스텀했다면 정상 브라우저처럼 위장될 수도 있습니다. 따라서 **단일 UA 매칭에 의존하지 말고 행동 기반 탐지와 결합**해야 합니다.
+- **worker 내장 WebFetch 도구는 `norma/0.4` User-Agent 를 남깁니다.** 위의 Bash 실행 외부 도구와 달리, BODA 가 norma SDK(`github.com/Autumn-27/norma`)로 직접 수행하는 HTTP 조회(WebFetch 도구)는 그 SDK 의 기본 User-Agent `norma/0.4` 를 공격 단계에 싣습니다. 평문 HTTP 로 오갈 때(또는 TLS 종단 지점에서) 네트워크 선에서 관측되며, [Suricata 규칙 sid 1000003](../detections/suricata/README.ko.md)이 이 접두사(`norma/`)를 잡습니다. 다만 이 UA 는 BODA 고유가 아니라 norma SDK 를 쓰는 다른 도구도 함께 쓰므로, `boda-enrich/1.0` 과 마찬가지로 단독 증거가 아니라 보조 단서이고, Bash 로 실행된 도구는 각자의 UA 를 쓰므로 **부재가 안전을 뜻하지 않습니다.**
+- **내장 레이트리밋이 없습니다.** BODA 자체에는 대상 트래픽 전용 속도 제한이 없고, 요청 속도는 LLM 이 돌리는 외부 도구가 결정합니다. 대신 태스크당 worker 는 기본 3개가 병렬로 돌아, 한 대상에 **여러 의도가 동시에** 진행될 수 있습니다. 즉 "느린 단일 세션"으로도, "여러 각도의 동시 진행"으로도 나타날 수 있어, 고정 임계값 하나로는 잡기 어렵습니다.
 - **행동 시그니처(가장 중요).** 아래 패턴의 **동시 출현**이 자율 에이전트를 가리킵니다.
   - 한 출처(또는 소수의 회전 출처)에서 **정찰 → 디렉터리·엔드포인트 열거 → 파라미터 탐침 → 인증·주입 시도**가 **짧은 간격으로 연쇄**.
   - 같은 엔드포인트로 보내되 **응답 코드·길이에 반응해 체계적으로 변형하는** 연속 요청(무작위 퍼징이 아니라 적응적).
   - 사람 운영 시간대를 벗어나 **장시간 끊김 없이** 이어지는 세션.
   - 실패(401/403/429) 이후에도 멈추지 않고 **우회 변형**을 시도하는 끈질김.
 
-### (나) 운영자·포렌식 관점: ARTEX 가 돌아간 호스트
+### (나) 운영자·포렌식 관점: BODA 가 돌아간 호스트
 
-침해 조사에서 중계·경유 호스트에 ARTEX 가 설치·실행된 흔적을 찾을 때 참고합니다.
+침해 조사에서 중계·경유 호스트에 BODA 가 설치·실행된 흔적을 찾을 때 참고합니다.
 
-- **기본 리스닝 포트 `:8787`.** ARTEX 서버의 기본 HTTP 수신 주소입니다(`cmd/artex/main.go`, `--addr` 로 변경 가능). 내부망 호스트가 이 포트에 관리 UI(대시보드·작업·자산 그래프)를 열고 있으면 ARTEX 인스턴스를 의심할 근거입니다.
-- **기록형 MITM 프록시 `127.0.0.1:8788`.** worker 의 Bash·HTTP 실행을 가로채 전 과정을 기록하는 로컬 프록시의 기본 주소입니다(`cmd/artex/main.go` 의 `--proxy` 기본값, 루프백 전용). 자체 CA 를 생성해 TLS 를 복호화·기록하므로(`mitmproxy-ca-cert.pem`), 호스트에 **ARTEX 가 설치한 신뢰 CA 인증서**가 있는지, 그리고 서브프로세스에 `HTTP_PROXY`·프록시 CA 경로 환경변수를 주입하는 흔적이 있는지가 단서가 됩니다. 이 주입은 ARTEX 가 생성하는 모든 worker 도구에 들어가고 변수 이름이 소스에 하드코딩이라(`agent/worker.go`), **실행 중인 프로세스가 프록시 변수와 mitmproxy CA 신뢰 변수를 함께 지니는지**는 포트 하나보다 특이적인 지문입니다. [호스트 분류 도구](../detections/triage/README.ko.md)가 `/proc`(또는 포렌식 이미지에서는 캡처한 환경변수 덤프)에서 이 조합을 확인합니다.
-- **self-update 콜백 `artex-selfupdate`.** 자가 업데이트가 GitHub 릴리스를 조회할 때 쓰는 User-Agent 입니다(`selfupdate/`). 송신(egress) 로그에서 이 UA 로 코드 저장소 호스트에 나가는 요청이 보이면 ARTEX 바이너리의 존재를 시사합니다.
-- **PostgreSQL 상의 이중 그래프.** `exploration_nodes`·`assets`·`companies`·`activity` 같은 테이블과 `agent_prompts` 시드가 있는 DB 는 ARTEX 데이터 저장소의 특징입니다.
-- **DB 기반 정규식 승인 규칙과 감사 로그.** 도구 호출을 평가하는 intercept 규칙이 DB 에 저장되고 우선순위대로 정규식으로 평가됩니다(`intercept/`). 차단된 호출은 감사 로그(`GET /api/audit`)에 `【ARTEX 平台管控·非目标防御】` 로 시작하는 통제 프레이밍과 함께 남으므로, 침해 호스트의 감사 기록에서 이 문자열이 보이면 ARTEX 실행을 뒷받침합니다.
-- **파괴적 명령 헌팅 지표.** ARTEX 자체 가드가 차단 대상으로 내장한 명령 패턴은 곧 자율 에이전트가 **시도할 수 있는** 명령군의 역상입니다. 호스트 명령 감사에서 아래를 헌팅 지표로 삼으십시오: `rm -rf`, `mkfs`, `dd of=/dev/`, `shred`/`wipe`, SQL `DROP DATABASE`/`DROP TABLE`/`TRUNCATE`, MongoDB `drop`/`dropDatabase`, Redis `FLUSHALL`/`FLUSHDB`, `curl`/`wget` 의 `-X DELETE`, 그리고 `curl … | nc …` 류의 데이터 반출 파이프. 다만 맨 끝의 데이터 반출 파이프는 데이터를 파괴하는 명령이 아니라 밖으로 빼내는 유출 신호라 성격이 다릅니다. 앞의 파괴 패턴과 달리 ARTEX 가드도 이 규칙만은 기본값으로 꺼 둔 채 내장하는데(정상적인 점검용 리버스셸이나 데이터 전송 파이프에 오탐이 잦기 때문입니다), 배포용 파괴 명령 헌팅 규칙([`destructive_command_hunting.yml`](../detections/sigma/destructive_command_hunting.yml))도 파괴 범위에만 한정돼 이 패턴을 포함하지 않으므로, 반출 파이프는 곧바로 차단하지 말고 별도 헌팅 지표로 두어 환경에 맞게 조정하십시오.
+- **기본 리스닝 포트 `:8787`.** BODA 서버의 기본 HTTP 수신 주소입니다(`cmd/boda/main.go`, `--addr` 로 변경 가능). 내부망 호스트가 이 포트에 관리 UI(대시보드·작업·자산 그래프)를 열고 있으면 BODA 인스턴스를 의심할 근거입니다.
+- **기록형 MITM 프록시 `127.0.0.1:8788`.** worker 의 Bash·HTTP 실행을 가로채 전 과정을 기록하는 로컬 프록시의 기본 주소입니다(`cmd/boda/main.go` 의 `--proxy` 기본값, 루프백 전용). 자체 CA 를 생성해 TLS 를 복호화·기록하므로(`mitmproxy-ca-cert.pem`), 호스트에 **BODA 가 설치한 신뢰 CA 인증서**가 있는지, 그리고 서브프로세스에 `HTTP_PROXY`·프록시 CA 경로 환경변수를 주입하는 흔적이 있는지가 단서가 됩니다. 이 주입은 BODA 가 생성하는 모든 worker 도구에 들어가고 변수 이름이 소스에 하드코딩이라(`agent/worker.go`), **실행 중인 프로세스가 프록시 변수와 mitmproxy CA 신뢰 변수를 함께 지니는지**는 포트 하나보다 특이적인 지문입니다. [호스트 분류 도구](../detections/triage/README.ko.md)가 `/proc`(또는 포렌식 이미지에서는 캡처한 환경변수 덤프)에서 이 조합을 확인합니다.
+- **self-update 콜백 `boda-selfupdate`.** 자가 업데이트가 GitHub 릴리스를 조회할 때 쓰는 User-Agent 입니다(`selfupdate/`). 송신(egress) 로그에서 이 UA 로 코드 저장소 호스트에 나가는 요청이 보이면 BODA 바이너리의 존재를 시사합니다.
+- **PostgreSQL 상의 이중 그래프.** `exploration_nodes`·`assets`·`companies`·`activity` 같은 테이블과 `agent_prompts` 시드가 있는 DB 는 BODA 데이터 저장소의 특징입니다.
+- **DB 기반 정규식 승인 규칙과 감사 로그.** 도구 호출을 평가하는 intercept 규칙이 DB 에 저장되고 우선순위대로 정규식으로 평가됩니다(`intercept/`). 차단된 호출은 감사 로그(`GET /api/audit`)에 `【BODA 平台管控·非目标防御】` 로 시작하는 통제 프레이밍과 함께 남으므로, 침해 호스트의 감사 기록에서 이 문자열이 보이면 BODA 실행을 뒷받침합니다.
+- **파괴적 명령 헌팅 지표.** BODA 자체 가드가 차단 대상으로 내장한 명령 패턴은 곧 자율 에이전트가 **시도할 수 있는** 명령군의 역상입니다. 호스트 명령 감사에서 아래를 헌팅 지표로 삼으십시오: `rm -rf`, `mkfs`, `dd of=/dev/`, `shred`/`wipe`, SQL `DROP DATABASE`/`DROP TABLE`/`TRUNCATE`, MongoDB `drop`/`dropDatabase`, Redis `FLUSHALL`/`FLUSHDB`, `curl`/`wget` 의 `-X DELETE`, 그리고 `curl … | nc …` 류의 데이터 반출 파이프. 다만 맨 끝의 데이터 반출 파이프는 데이터를 파괴하는 명령이 아니라 밖으로 빼내는 유출 신호라 성격이 다릅니다. 앞의 파괴 패턴과 달리 BODA 가드도 이 규칙만은 기본값으로 꺼 둔 채 내장하는데(정상적인 점검용 리버스셸이나 데이터 전송 파이프에 오탐이 잦기 때문입니다), 배포용 파괴 명령 헌팅 규칙([`destructive_command_hunting.yml`](../detections/sigma/destructive_command_hunting.yml))도 파괴 범위에만 한정돼 이 패턴을 포함하지 않으므로, 반출 파이프는 곧바로 차단하지 말고 별도 헌팅 지표로 두어 환경에 맞게 조정하십시오.
 
-> 정리: **대상 쪽 방어는 행동 지문에 걸고, 정적 UA(`artex-enrich/1.0`·`norma/0.4` 등)는 보조 단서로만** 씁니다. 운영자·포렌식 지문(`:8787`·`127.0.0.1:8788`·`artex-selfupdate`·DB 스키마·감사 로그 프레이밍)은 **침해된 경유 호스트를 조사할 때** 유효합니다.
+> 정리: **대상 쪽 방어는 행동 지문에 걸고, 정적 UA(`boda-enrich/1.0`·`norma/0.4` 등)는 보조 단서로만** 씁니다. 운영자·포렌식 지문(`:8787`·`127.0.0.1:8788`·`boda-selfupdate`·DB 스키마·감사 로그 프레이밍)은 **침해된 경유 호스트를 조사할 때** 유효합니다.
 
 ### IP 주소 차단은 왜 약한 1차 방어인가
 
@@ -121,13 +121,13 @@ IP 차단 자체가 쓸모없다는 뜻은 아닙니다. **공식 침해지표(I
 
 ## 4. 탐지 규칙·로그 패턴 (실무)
 
-특정 제품에 종속되지 않는 **의사 규칙** 형태로 적습니다. 자신의 WAF·IPS·SIEM 문법으로 옮겨 쓰십시오. 아래 규칙 가운데 정적 지문에 기반한 것은 바로 배포할 수 있는 [Sigma 규칙(`detections/sigma/`)](../detections/README.ko.md)으로 제공합니다. 핵심인 행동·상관 탐지(4.1·4.2)도 단일 규칙으로 환원되지는 않지만, 이 가운데 ARTEX 코드로 근거를 확인한 행동 지표는 배포 가능한 [Sigma 상관 규칙(`detections/sigma/correlation/`)](../detections/README.ko.md)으로 제공합니다(보강 조회 속도·보강 조회 대상 수·가드 차단 버스트·가드 마커와 파괴적 명령의 동일 호스트 동시 발생). 다만 그 순수 웹 다단계 상관(열거 → 탐침 → 인증)의 트래픽은 단일 ARTEX 고유 UA 로 환원되지 않으므로, 환경별 베이스 규칙이 필요합니다. 이 상관은 아래 4.2 에 바로 배포해 볼 수 있는 일반 행동 기반 Sigma 베이스 템플릿으로 실어 두었으니, 자신의 SIEM 과 기준선에 맞게 조정해 출발점으로 쓰십시오. 네트워크 계층에서 평문 HTTP 로 오갈 때(또는 TLS 종단 지점에서) 관측되는 ARTEX User-Agent 는 두 가지이고, 둘 다 [Suricata 규칙(`detections/suricata/`)](../detections/suricata/README.ko.md)으로 제공합니다. 하나는 enrich 프로브의 `artex-enrich/1.0`(존재 시그니처 sid 1000001·고속 열거 변형 sid 1000002)이고, 다른 하나는 norma SDK WebFetch 도구가 공격 단계에 보내는 `norma/0.4`(sid 1000003)입니다.
+특정 제품에 종속되지 않는 **의사 규칙** 형태로 적습니다. 자신의 WAF·IPS·SIEM 문법으로 옮겨 쓰십시오. 아래 규칙 가운데 정적 지문에 기반한 것은 바로 배포할 수 있는 [Sigma 규칙(`detections/sigma/`)](../detections/README.ko.md)으로 제공합니다. 핵심인 행동·상관 탐지(4.1·4.2)도 단일 규칙으로 환원되지는 않지만, 이 가운데 BODA 코드로 근거를 확인한 행동 지표는 배포 가능한 [Sigma 상관 규칙(`detections/sigma/correlation/`)](../detections/README.ko.md)으로 제공합니다(보강 조회 속도·보강 조회 대상 수·가드 차단 버스트·가드 마커와 파괴적 명령의 동일 호스트 동시 발생). 다만 그 순수 웹 다단계 상관(열거 → 탐침 → 인증)의 트래픽은 단일 BODA 고유 UA 로 환원되지 않으므로, 환경별 베이스 규칙이 필요합니다. 이 상관은 아래 4.2 에 바로 배포해 볼 수 있는 일반 행동 기반 Sigma 베이스 템플릿으로 실어 두었으니, 자신의 SIEM 과 기준선에 맞게 조정해 출발점으로 쓰십시오. 네트워크 계층에서 평문 HTTP 로 오갈 때(또는 TLS 종단 지점에서) 관측되는 BODA User-Agent 는 두 가지이고, 둘 다 [Suricata 규칙(`detections/suricata/`)](../detections/suricata/README.ko.md)으로 제공합니다. 하나는 enrich 프로브의 `boda-enrich/1.0`(존재 시그니처 sid 1000001·고속 열거 변형 sid 1000002)이고, 다른 하나는 norma SDK WebFetch 도구가 공격 단계에 보내는 `norma/0.4`(sid 1000003)입니다.
 
 ### 4.1 WAF·IPS (행동 기반)
 
 - 단일 출처에서 **서로 다른 성격의 요청군**(정적 자원 요청 비중은 낮고, 열거·파라미터 탐침·인증 시도 비중이 높음)이 **한 세션으로** 이어지면 점수를 올립니다.
 - 응답 코드·본문 길이에 **반응해 변형되는 연속 요청**(엔트로피는 높되 무작위가 아닌 적응 패턴)을 가중합니다.
-- `artex-enrich/1.0` 같은 알려진 자동화 UA 는 **즉시 고위험**으로 태깅하되, UA 부재를 안전으로 해석하지 않습니다.
+- `boda-enrich/1.0` 같은 알려진 자동화 UA 는 **즉시 고위험**으로 태깅하되, UA 부재를 안전으로 해석하지 않습니다.
 
 ### 4.2 SIEM 상관 규칙
 
@@ -135,13 +135,13 @@ IP 차단 자체가 쓸모없다는 뜻은 아닙니다. **공식 침해지표(I
 - **시간대 이상**: 서비스의 정상 트래픽 분포를 벗어나 **장시간 끊김 없이** 이어지는 단일 세션.
 - **실패 후 지속**: 403/429 를 받고도 멈추지 않고 **우회 변형**을 이어 가는 출처.
 
-위 **동일 출처 다단계 상관**을 바로 배포해 볼 수 있는 베이스 템플릿을 아래에 둡니다. 공격 트래픽에는 ARTEX 고유 User-Agent 가 없으므로, 이 템플릿은 `detections/sigma/` 의 ARTEX 소스 기반 규칙과 달리 **일반 행동 기반 규칙**입니다. 특정 공격 도구의 지문이 아니라 "한 출처가 짧은 창 안에서 열거·탐침·인증을 모두 수행한다"는 행동만 봅니다. 세 하위 규칙과, 한 클라이언트가 시간 창 안에서 셋을 모두 충족할 때만 발화하는 temporal 상관 규칙을 한 파일에 담았습니다.
+위 **동일 출처 다단계 상관**을 바로 배포해 볼 수 있는 베이스 템플릿을 아래에 둡니다. 공격 트래픽에는 BODA 고유 User-Agent 가 없으므로, 이 템플릿은 `detections/sigma/` 의 BODA 소스 기반 규칙과 달리 **일반 행동 기반 규칙**입니다. 특정 공격 도구의 지문이 아니라 "한 출처가 짧은 창 안에서 열거·탐침·인증을 모두 수행한다"는 행동만 봅니다. 세 하위 규칙과, 한 클라이언트가 시간 창 안에서 셋을 모두 충족할 때만 발화하는 temporal 상관 규칙을 한 파일에 담았습니다.
 
 ```yaml
-# ── 일반 행동 기반 템플릿 (ARTEX 고유 시그니처가 아님) ──
+# ── 일반 행동 기반 템플릿 (BODA 고유 시그니처가 아님) ──
 # 방어 가이드 4.2절의 동일 출처 다단계 웹 패턴(열거 → 탐침 → 인증)입니다.
-# ARTEX 공격 트래픽에는 ARTEX 지문이 없으므로, detections/sigma/ 의 규칙과 달리
-# ARTEX 소스로 근거를 고정하지 않은 일반 행동 기반 출발점입니다. 필드 이름(SigmaHQ
+# BODA 공격 트래픽에는 BODA 지문이 없으므로, detections/sigma/ 의 규칙과 달리
+# BODA 소스로 근거를 고정하지 않은 일반 행동 기반 출발점입니다. 필드 이름(SigmaHQ
 # 웹서버 분류)과 임계값·시간 창은 자신의 로그와 기준선에 맞게 반드시 조정하십시오.
 # 자족형: 세 하위 규칙 + 한 클라이언트가 창 안에서 셋을 모두 충족할 때만 발화하는
 # temporal 상관 규칙.
@@ -149,9 +149,9 @@ title: Web Endpoint Enumeration Burst From One Source
 id: f03c360c-dc33-4a8a-afa8-821b1ff5c4e3
 status: experimental
 description: |
-    Stage 1 of the same-source multi-stage pattern in the ARTEX defense guide section 4.2: a
+    Stage 1 of the same-source multi-stage pattern in the BODA defense guide section 4.2: a
     burst of endpoint or directory enumeration from a single client, seen as a high rate of 404
-    and 400 responses in a short window. This is generic behaviour, not an ARTEX-specific
+    and 400 responses in a short window. This is generic behaviour, not an BODA-specific
     signature; tune the count and window to your own baseline. On its own this leg is low signal
     and earns weight only inside the correlation below.
 references:
@@ -247,12 +247,12 @@ title: Same-Source Multi-Stage Web Attack (Enumeration, Probe, Auth)
 id: 9b7c7b86-702f-42b8-be99-3e60a188ec5b
 status: experimental
 description: |
-    The behaviour-based core of ARTEX defense guide section 4.2 as a deployable template: one
+    The behaviour-based core of BODA defense guide section 4.2 as a deployable template: one
     client runs endpoint enumeration, parameter or path probing, and an authentication or
     identity-verification attempt within the same short window. This is the pattern an autonomous
     agent drives at machine speed and keeps driving past 403 and 429 responses. It is UA-free and
-    carries no ARTEX fingerprint, so it is a GENERIC behavioural rule, not one of the
-    ARTEX-source-grounded rules under detections/sigma/. Normalise the client field (c-ip, or a
+    carries no BODA fingerprint, so it is a GENERIC behavioural rule, not one of the
+    BODA-source-grounded rules under detections/sigma/. Normalise the client field (c-ip, or a
     session identifier if you have one) and tune the window to your baseline. If three legs are
     too strict and miss cases, relax to any two of the three.
 references:
@@ -279,7 +279,7 @@ level: high
 
 이 템플릿을 쓸 때 유의할 점입니다.
 
-- 이 블록은 탐지 팩이 쓰는 것과 같은 도구로 검증했습니다. `sigma check` 를 SigmaHQ 규약 전수로 돌려 오류·이슈 0 으로 통과하고, `sigma convert -t splunk` 로 질의가 생성됩니다(세 하위 규칙을 10분 창에서 `c-ip` 로 묶어 셋을 모두 충족하면 발화). 다만 ARTEX 소스로 근거를 고정할 수 없어 `detections/` 의 테스트되는 규칙 트리에는 넣지 않았습니다. 그 트리의 "추정이 아니라 소스에서 확인한 것만 싣는다"는 원칙을 지키기 위함입니다.
+- 이 블록은 탐지 팩이 쓰는 것과 같은 도구로 검증했습니다. `sigma check` 를 SigmaHQ 규약 전수로 돌려 오류·이슈 0 으로 통과하고, `sigma convert -t splunk` 로 질의가 생성됩니다(세 하위 규칙을 10분 창에서 `c-ip` 로 묶어 셋을 모두 충족하면 발화). 다만 BODA 소스로 근거를 고정할 수 없어 `detections/` 의 테스트되는 규칙 트리에는 넣지 않았습니다. 그 트리의 "추정이 아니라 소스에서 확인한 것만 싣는다"는 원칙을 지키기 위함입니다.
 - 이 템플릿은 상관(correlation) 규칙이라, `sigma convert` 가 템플릿 전체를 내보내는지 아니면 세 하위 규칙만 내보내는지는 백엔드가 Sigma 상관 변환을 지원하는지에 달려 있습니다. 같은 고정 버전(`sigma-cli` 3.1.0)으로 실측하면, 템플릿 전체는 Splunk(`-t splunk`)·Elasticsearch EQL(`-t eql`)·Grafana Loki(`-t loki`)에서 변환됩니다. 반면 Microsoft `kusto` 백엔드(Sentinel·Defender)와 Elasticsearch Lucene(`-t lucene`)에서는 상관 규칙이 변환되지 않으므로(`Backend does not support correlation rules`), 이때는 세 하위 규칙만 변환하고 "10분 창·동일 `c-ip`" 상관은 제품에서 직접 표현하십시오(예: Sentinel 예약 분석 규칙의 `summarize ... by bin(TimeGenerated, 10m), <클라이언트>`). 이는 탐지 팩이 문서화한 이식성과 같으며, 실측 지원 표는 [Sigma 백엔드 이식성](../detections/README.ko.md#sigma-백엔드-이식성)에 정리돼 있습니다.
 - 2단계(탐침)는 주입·순회 마커 목록에 기대는 거친 신호라 단독으로는 오탐이 많습니다. 그래서 세 하위 규칙의 `level` 은 낮게 두고, 셋이 한 출처에서 함께 나타나는 상관 규칙에서만 높은 경보가 되게 했습니다.
 - 클라이언트는 `c-ip` 로 묶었습니다. 프록시·CDN 뒤라면 `X-Forwarded-For` 로 복원한 실제 클라이언트 주소나 세션 식별자로 바꾸십시오. 세 단계를 모두 요구하는 것이 너무 엄격해 놓치는 사례가 있으면, 셋 중 둘만 충족해도 발화하도록 완화하십시오.
@@ -291,9 +291,9 @@ level: high
 
 ### 4.4 송신(egress)·포렌식
 
-- 내부 호스트에서 `artex-selfupdate` UA 로 코드 저장소 호스트에 나가는 요청.
+- 내부 호스트에서 `boda-selfupdate` UA 로 코드 저장소 호스트에 나가는 요청.
 - 내부에서 `:8787`(관리 UI)·`127.0.0.1:8788`(기록 프록시)로 바인딩된 프로세스.
-- `artex-enrich/1.0` UA 로 짧은 시간에 대량의 외부 자산을 조회하는 DNS·HTTP 보강 패턴.
+- `boda-enrich/1.0` UA 로 짧은 시간에 대량의 외부 자산을 조회하는 DNS·HTTP 보강 패턴.
 
 ---
 
@@ -328,26 +328,26 @@ level: high
 
 ### 6.1 의심 호스트·트래픽 분류(triage) 절차
 
-ARTEX 연루가 의심될 때 가장 먼저 확인할 것을 순서로 정리합니다. 2절에서 지문을 두 관점으로 나눈 것과 같이, 분류도 **(가) 내 서비스가 표적이 됐는지**와 **(나) 특정 호스트에서 ARTEX 가 돌았는지**로 나눠 봅니다. 어느 단계든 적중 하나만으로 단정하지 말고, 여러 지표와 행동 신호가 함께 나타나는지로 판단합니다. 정적 지표가 전부 없더라도 행동 신호가 보이면 조사를 이어 갑니다.
+BODA 연루가 의심될 때 가장 먼저 확인할 것을 순서로 정리합니다. 2절에서 지문을 두 관점으로 나눈 것과 같이, 분류도 **(가) 내 서비스가 표적이 됐는지**와 **(나) 특정 호스트에서 BODA 가 돌았는지**로 나눠 봅니다. 어느 단계든 적중 하나만으로 단정하지 말고, 여러 지표와 행동 신호가 함께 나타나는지로 판단합니다. 정적 지표가 전부 없더라도 행동 신호가 보이면 조사를 이어 갑니다.
 
-**(가) 대상 측: 내 서비스가 ARTEX 표적이 됐는지**
+**(가) 대상 측: 내 서비스가 BODA 표적이 됐는지**
 
-1. 접근·인증 로그에서 보강 조회 User-Agent `artex-enrich/1.0` 을 조회합니다. 리다이렉트를 따라가지 않는 단발 `GET` 조회가 짧은 간격으로 여러 자산에 동시에 들어왔는지 확인합니다(2절 (가)). 운영자가 User-Agent 를 바꿀 수 있으므로, 걸리지 않아도 다음 단계로 넘어갑니다.
+1. 접근·인증 로그에서 보강 조회 User-Agent `boda-enrich/1.0` 을 조회합니다. 리다이렉트를 따라가지 않는 단발 `GET` 조회가 짧은 간격으로 여러 자산에 동시에 들어왔는지 확인합니다(2절 (가)). 운영자가 User-Agent 를 바꿀 수 있으므로, 걸리지 않아도 다음 단계로 넘어갑니다.
 2. 동일 출처(또는 소수의 회전 출처)에서 나오는 **다단계 연쇄**를 찾습니다. 정찰에서 엔드포인트 열거, 파라미터 탐침, 인증·주입 시도로 짧은 간격에 이어지고, 응답 코드·길이에 적응하며, 401·403·429 이후에도 우회 변형을 멈추지 않는 양상입니다. 이 행동 신호가 정적 User-Agent 보다 오래 남습니다(2절 (가) 행동 시그니처).
 3. SIEM 을 운용한다면 이 행동을 [Sigma 상관 규칙](../detections/README.ko.md)(보강 조회 속도·대상 수·가드 차단 버스트·가드 마커와 파괴 명령의 동시 발생)으로 걸어 두고, 걸린 출처를 위 "자동 차단을 선제로" 원칙에 따라 격리·세션 무효화 대상으로 올립니다.
 
-**(나) 호스트 포렌식: 특정 호스트에서 ARTEX 가 돌았는지**
+**(나) 호스트 포렌식: 특정 호스트에서 BODA 가 돌았는지**
 
-의심 호스트에서 다음을 확인합니다. 지표의 근거는 2절 (나)와 기계가 읽는 [침해지표 목록](../detections/indicators/artex_indicators.csv)에 있습니다. 아래 다섯 가지 읽기 전용 점검 가운데 앞의 네 가지(리스닝 포트·송신 로그·감사 로그·상태·기록 저장소)는 [호스트 분류 스크립트](../detections/triage/)(`detections/triage/artex_host_triage.py`)가 한 번에 대신 돌려 줍니다. 다섯 번째 명령 감사는 파괴적 명령이 ARTEX 고유 지문이 아니라 정당한 관리자도 쓰는 헌팅 단서여서 자동 지표로 싣지 않으므로, 스크립트가 대신 돌리지 않고 호스트 명령 이력에서 직접 대조합니다. SIEM 없이 셸 접근만 있을 때 먼저 돌려 보고, 각 적중은 아래 설명대로 단서로만 다룹니다.
+의심 호스트에서 다음을 확인합니다. 지표의 근거는 2절 (나)와 기계가 읽는 [침해지표 목록](../detections/indicators/boda_indicators.csv)에 있습니다. 아래 다섯 가지 읽기 전용 점검 가운데 앞의 네 가지(리스닝 포트·송신 로그·감사 로그·상태·기록 저장소)는 [호스트 분류 스크립트](../detections/triage/)(`detections/triage/boda_host_triage.py`)가 한 번에 대신 돌려 줍니다. 다섯 번째 명령 감사는 파괴적 명령이 BODA 고유 지문이 아니라 정당한 관리자도 쓰는 헌팅 단서여서 자동 지표로 싣지 않으므로, 스크립트가 대신 돌리지 않고 호스트 명령 이력에서 직접 대조합니다. SIEM 없이 셸 접근만 있을 때 먼저 돌려 보고, 각 적중은 아래 설명대로 단서로만 다룹니다.
 
 1. **리스닝 포트.** 기본 서버 포트 `:8787` 과 루프백 기록 프록시 `127.0.0.1:8788` 이 열려 있는지 호스트에서 직접 확인합니다.
    ```sh
    ss -ltnp | grep -E ':8787|:8788'   # ss 가 없으면 netstat -ltnp 를 씁니다
    ```
    두 포트는 `--addr`·`--proxy` 플래그로 바뀔 수 있으므로, 이 조회가 비어도 열린 포트 전체와 내부 관리 UI 가 떠 있는지를 함께 봅니다.
-2. **송신 로그.** 자가 업데이트 User-Agent `artex-selfupdate` 로 코드 저장소 호스트(GitHub 릴리스)에 나간 요청이 송신 로그에 있는지 확인합니다(`selfupdate/`). 이 호스트에서 ARTEX 바이너리가 돌았음을 시사합니다.
-3. **감사 로그.** 가드 통제 마커 `【ARTEX 平台管控·非目标防御】` 가 감사 기록에 있으면 ARTEX 실행을 뒷받침합니다(`guard/guard.go`). 차단된 도구 호출마다 이 프레이밍으로 남습니다.
-4. **상태·기록 저장소.** ARTEX 는 PostgreSQL 에 탐색 그래프를 두고(`exploration_nodes`·`assets`·`companies`·`activity` 테이블과 `agent_prompts` 시드), 실행 파일 옆 데이터 디렉터리(`cmd/artex/main.go` 의 `--data` 기본값)에 상태와 기록을 남깁니다. 이 디렉터리 바로 아래에는 작업별 산출물을 담는 `tasks/` 와 대화 기록을 담는 `transcripts/` 하위 디렉터리가 있고, 기록 프록시의 산출물은 그 안의 `traffic/` 하위 디렉터리에 따로 모입니다(`server/manager.go` 가 데이터 디렉터리 아래 `traffic/` 를 기록 프록시 저장소로 엽니다). 그래서 신뢰 CA 인증서는 `traffic/_ca/mitmproxy-ca-cert.pem`, 트래픽 색인은 `traffic/_index/index.sqlite`, 기록한 요청·응답 본문은 `traffic/_blobs/` 에 있습니다. 이 셋이 `tasks/`·`transcripts/` 와 함께 보이면 기록 프록시가 실제로 돌았다는 정황이 강해집니다.
+2. **송신 로그.** 자가 업데이트 User-Agent `boda-selfupdate` 로 코드 저장소 호스트(GitHub 릴리스)에 나간 요청이 송신 로그에 있는지 확인합니다(`selfupdate/`). 이 호스트에서 BODA 바이너리가 돌았음을 시사합니다.
+3. **감사 로그.** 가드 통제 마커 `【BODA 平台管控·非目标防御】` 가 감사 기록에 있으면 BODA 실행을 뒷받침합니다(`guard/guard.go`). 차단된 도구 호출마다 이 프레이밍으로 남습니다.
+4. **상태·기록 저장소.** BODA 는 PostgreSQL 에 탐색 그래프를 두고(`exploration_nodes`·`assets`·`companies`·`activity` 테이블과 `agent_prompts` 시드), 실행 파일 옆 데이터 디렉터리(`cmd/boda/main.go` 의 `--data` 기본값)에 상태와 기록을 남깁니다. 이 디렉터리 바로 아래에는 작업별 산출물을 담는 `tasks/` 와 대화 기록을 담는 `transcripts/` 하위 디렉터리가 있고, 기록 프록시의 산출물은 그 안의 `traffic/` 하위 디렉터리에 따로 모입니다(`server/manager.go` 가 데이터 디렉터리 아래 `traffic/` 를 기록 프록시 저장소로 엽니다). 그래서 신뢰 CA 인증서는 `traffic/_ca/mitmproxy-ca-cert.pem`, 트래픽 색인은 `traffic/_index/index.sqlite`, 기록한 요청·응답 본문은 `traffic/_blobs/` 에 있습니다. 이 셋이 `tasks/`·`transcripts/` 와 함께 보이면 기록 프록시가 실제로 돌았다는 정황이 강해집니다.
 5. **명령 감사.** 파괴적 명령 헌팅 지표(2절 (나) 끝의 `rm -rf`·`DROP DATABASE`·`FLUSHALL`·반출 파이프 등)를 호스트 명령 이력과 대조합니다. 정당한 관리자도 같은 명령을 쓰므로 단서로만 다룹니다.
 
 정적 지표(포트·User-Agent·마커)는 운영자가 바꾸거나 지울 수 있습니다. 따라서 **부재가 안전을 뜻하지 않으며**, (가)의 행동 신호와 (나)의 호스트 흔적을 함께 모아 판단하는 것이 자율 AI 공격 분류의 핵심입니다.

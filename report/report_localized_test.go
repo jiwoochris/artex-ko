@@ -7,7 +7,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/quantum-decrypt-security/boda/db"
 )
 
 // containsHan 은 문자열에 CJK 한자(중국어)가 섞여 있으면 true 를 돌려준다.

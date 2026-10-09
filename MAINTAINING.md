@@ -15,7 +15,7 @@
 
 ## 1. 현지화 구조 한눈에 보기
 
-이 저장소는 상류 ARTEX 를 **포크**해서 그 이력 위에 한국어 현지화 커밋을 쌓은 구조입니다.
+이 저장소는 상류 BODA 를 **포크**해서 그 이력 위에 한국어 현지화 커밋을 쌓은 구조입니다.
 상류 `main` 의 모든 커밋이 이 저장소의 이력에 포함되어 있고, 그 위에 현지화 커밋이 더해져
 있습니다. 따라서 상류 변경을 가져오는 일은 "상류 `main` 과의 차이를 확인하고, 보존할 것과
 번역할 것을 가려서 반영하는 일"이 됩니다.
@@ -99,8 +99,8 @@ git log --name-status --oneline d003372..upstream/main
   `web/messages/zh.json`(원문)과 `web/messages/ko.json`(번역)에 같은 키로 추가합니다.
 - **탐지 규칙이 고정한 상류 지표**(`enrich/enrich.go` 의 프로버 User-Agent, `selfupdate/` 의
   자가 갱신 User-Agent, `guard/guard.go` 의 감사 마커, `db/db.go` 의 파괴명령 deny 목록,
-  `cmd/artex/main.go` 의 기본 리슨·기록 프록시 포트)가 바뀌었다면 → `detections/` 의
-  Sigma·Suricata 규칙과 ATT&CK 레이어, 그리고 `detections/indicators/artex_indicators.csv` 의
+  `cmd/boda/main.go` 의 기본 리슨·기록 프록시 포트)가 바뀌었다면 → `detections/` 의
+  Sigma·Suricata 규칙과 ATT&CK 레이어, 그리고 `detections/indicators/boda_indicators.csv` 의
   값도 새 값으로 맞춥니다. 이 지표는 번역 대상이 아니라 **탐지의 근거**라, 상류가 값을 바꾸면
   규칙이 조용히 낡습니다. 5.4 의 지표 일치 테스트가 이 어긋남을 자동으로 잡습니다.
 
@@ -193,7 +193,7 @@ detections/tests/indicators/run.sh   # Docker 로 격리 실행, RESULT: PASS �
 CI([`.github/workflows/detections.yml`](.github/workflows/detections.yml))에서도 규칙 트리나
 위 상류 소스 파일이 바뀐 푸시·PR 마다 자동으로 돌아, 재동기화 드리프트를 머지 게이트에서 잡습니다.
 
-새 지표를 추가하면서 **새 상류 소스 파일을 고정했다면**(예: `cmd/artex/main.go` 의 포트 지표를
+새 지표를 추가하면서 **새 상류 소스 파일을 고정했다면**(예: `cmd/boda/main.go` 의 포트 지표를
 넣을 때처럼), 그 파일을 반드시 위 워크플로의 `push`·`pull_request` `paths` 필터에도 추가합니다.
 빠뜨리면 그 소스만 바꾼 PR 은 지표 테스트를 발화시키지 못해, 드리프트가 머지 게이트를 조용히
 통과합니다. 이 동기화 자체도 지표 테스트가 자동으로 확인합니다(다섯 번째 검사 "CI triggers this
@@ -220,7 +220,7 @@ test when any pinned source changes"): 테스트가 읽는 모든 비 `detection
 
 ```bash
 docker run --rm -v "$PWD":/src -w /src \
-  -v artexko-gomod:/go/pkg/mod -v artexko-gocache:/root/.cache/go-build \
+  -v bodako-gomod:/go/pkg/mod -v bodako-gocache:/root/.cache/go-build \
   golang:1.26 sh -c 'go build ./... && go vet ./... && go test ./... -count=1'
 ```
 
@@ -254,7 +254,7 @@ chore(upstream): 상류 d003372..b55ceb1 반영 (intercept 토큰 계량) + 신�
 
 ### 8.1 저장소 CI 상태는 저장소를 지정해서 확인합니다
 
-이 저장소는 상류 ARTEX 의 포크라서, 로컬 `git remote` 에 `origin`(jiwoochris/artex-ko)과
+이 저장소는 상류 BODA 의 포크라서, 로컬 `git remote` 에 `origin`(jiwoochris/artex-ko)과
 `upstream`(Autumn-27/ARTEX)이 함께 등록되어 있습니다(3절 참조). 이 상태에서 `gh` 명령에
 저장소를 지정하지 않으면, `gh` 가 **상류 저장소를 기본값으로 골라** 우리 워크플로가 없는
 상류의 실행 결과를 보여 줍니다. 그러면 상류 CI 가 초록인 것을 보고 **우리 CI 가 통과했다고
@@ -349,7 +349,7 @@ git push origin v0.3.15
 - **frontend.** 프런트엔드를 정적으로 한 번 내보내고(`web/out`) 그 산출물을 `web-dist`
   아티팩트로 올립니다. 아래 binaries 잡이 대상마다 이 산출물을 다시 받아 재사용합니다.
 - **binaries.** 다섯 대상(linux amd64·arm64, darwin amd64·arm64, windows amd64)을 교차
-  컴파일하고 대상마다 zip 으로 묶습니다. linux amd64 바이너리에는 `artex -h` 스모크 테스트를
+  컴파일하고 대상마다 zip 으로 묶습니다. linux amd64 바이너리에는 `boda -h` 스모크 테스트를
   돌려 바이너리가 실제로 실행되는지 확인합니다.
 - **release.** 모든 zip 을 모아 `SHA256SUMS` 체크섬을 만들고, GitHub Release 를 생성해 zip 과
   체크섬을 첨부합니다.
@@ -367,14 +367,14 @@ git push origin v0.3.15
 - **프런트엔드 임베드.** frontend 잡이 올린 `web-dist`(= `web/out` 의 내용)를 binaries 잡이
   `server/webui/dist` 로 받고, `server/webui_embed.go` 의 `//go:embed all:webui/dist` 가 그 자리를
   바이너리에 임베드합니다. 그래서 binaries 잡은 프런트엔드를 다시 빌드하지 않고
-  `ARTEX_SKIP_FRONTEND=1` 로 [`build.sh`](build.sh) 를 호출합니다.
-- **바이너리·패키지 경로.** `build.sh --target <os>/<arch>` 는 `dist/artex-<os>-<arch>/artex`
+  `BODA_SKIP_FRONTEND=1` 로 [`build.sh`](build.sh) 를 호출합니다.
+- **바이너리·패키지 경로.** `build.sh --target <os>/<arch>` 는 `dist/boda-<os>-<arch>/boda`
   바이너리와 `dist/` 아래 zip 패키지를 만듭니다. zip 에는 바이너리와 함께 시작 스크립트(리눅스·
   macOS 는 `start.sh`, 윈도우는 `start.bat`), `skills/`, `config.example.json`, `README.md` 가
   들어갑니다.
 - **Docker 이미지의 바이너리 복사.** binaries 잡은 linux 바이너리를 `bin-linux-<arch>`
-  아티팩트로 따로 올리고, docker 잡이 이것을 `dist/<arch>/artex` 로 받습니다.
-  [`Dockerfile`](Dockerfile) 의 `COPY dist/${TARGETARCH}/artex` 가, 멀티아키텍처 빌드에서 buildx
+  아티팩트로 따로 올리고, docker 잡이 이것을 `dist/<arch>/boda` 로 받습니다.
+  [`Dockerfile`](Dockerfile) 의 `COPY dist/${TARGETARCH}/boda` 가, 멀티아키텍처 빌드에서 buildx
   가 각 플랫폼에 맞춰 채워 주는 `TARGETARCH` 로 그 경로를 집습니다.
   [`.dockerignore`](.dockerignore) 는 `dist/` 를 제외하지 않으므로 바이너리가 빌드 컨텍스트에
   포함됩니다.
@@ -398,13 +398,13 @@ cd web && npm ci && npm run build:static && cd ..
 rm -rf server/webui/dist && mkdir -p server/webui/dist && cp -a web/out/. server/webui/dist/
 # 3) 한 대상만 binaries 잡과 같은 환경으로 빌드
 docker run --rm -v "$PWD":/app -w /app \
-  -e ARTEX_SKIP_FRONTEND=1 -e ARTEX_SKIP_NPM_CI=1 \
-  -e ARTEX_COMPRESS=0 -e ARTEX_PACKAGE=1 -e ARTEX_PACKAGE_DIR=dist \
-  -e ARTEX_BUILD_VERSION=v0.0.0-local \
+  -e BODA_SKIP_FRONTEND=1 -e BODA_SKIP_NPM_CI=1 \
+  -e BODA_COMPRESS=0 -e BODA_PACKAGE=1 -e BODA_PACKAGE_DIR=dist \
+  -e BODA_BUILD_VERSION=v0.0.0-local \
   golang:1.26 bash -c 'apt-get update && apt-get install -y zip && ./build.sh --target linux/amd64'
-# 4) 산출물 확인: dist/artex-linux-amd64/artex · dist/*.zip · dist/SHA256SUMS
+# 4) 산출물 확인: dist/boda-linux-amd64/boda · dist/*.zip · dist/SHA256SUMS
 ```
 
-`dist/artex-linux-amd64/artex` 는 정적 링크된 ELF 이고, `-h` 를 주면 사용법을 출력한 뒤 종료
+`dist/boda-linux-amd64/boda` 는 정적 링크된 ELF 이고, `-h` 를 주면 사용법을 출력한 뒤 종료
 코드 0 으로 끝납니다. 이것이 binaries 잡의 스모크 테스트가 확인하는 동작입니다. 빌드 산출물
 (`dist/`·`server/webui/dist/`)은 저장소에 커밋하지 않습니다(`.gitignore` 로 제외됩니다).

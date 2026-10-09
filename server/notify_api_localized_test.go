@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/quantum-decrypt-security/boda/db"
 )
 
 // notify_api.go 의 알림 설정 API 응답 문구와 테스트 메시지를 한국어로 유지하는 회귀 방어
@@ -53,7 +53,7 @@ func TestNotifyChannelLookupErrLocalized(t *testing.T) {
 // TestNotifyTestMessageLocalized 는 채널 연결 점검용 테스트 메시지를 순수 함수로 조립해
 // 사용자에게 발송되는 본문(제목·분류·요약)이 한국어임을 검사한다. DB·네트워크가 필요 없다.
 func TestNotifyTestMessageLocalized(t *testing.T) {
-	const base = "https://artex.example.test"
+	const base = "https://boda.example.test"
 	msg := notifyTestMessage(base)
 	if len(msg.Items) != 1 {
 		t.Fatalf("테스트 메시지 항목 수 = %d, 기대 = 1", len(msg.Items))
