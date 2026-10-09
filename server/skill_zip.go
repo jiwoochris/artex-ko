@@ -127,7 +127,7 @@ func zipEntryName(f *zip.File) string {
 func checkSkillZipMethods(entries []skillZipEntry) error {
 	for _, e := range entries {
 		if e.f.Flags&0x1 != 0 || e.f.Method == zipMethodAES {
-			return fmt.Errorf(errSkillZipEncrypted, e.name)
+			return fmt.Errorf(trMsg(errSkillZipEncrypted), e.name)
 		}
 		switch e.f.Method {
 		case zipMethodStore, zipMethodDeflate, zipMethodBzip2, zipMethodZstd, zipMethodZstdPKW:

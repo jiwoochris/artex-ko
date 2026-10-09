@@ -2,7 +2,15 @@
 
 import * as React from "react";
 
-import { CpuIcon, FlaskConicalIcon, KeyboardIcon, RadioTowerIcon, SearchIcon, ShieldAlertIcon } from "lucide-react";
+import {
+  CpuIcon,
+  FlaskConicalIcon,
+  KeyboardIcon,
+  LanguagesIcon,
+  RadioTowerIcon,
+  SearchIcon,
+  ShieldAlertIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -13,6 +21,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { api } from "@/lib/api";
+import { type Locale, LOCALE_LABELS, LOCALES } from "@/i18n/config";
+import { setActiveLocale, useActiveLocale } from "@/i18n/locale-store";
 import { type ChatSendMode, setChatSendMode, useChatSendMode, useChatSendModeOptions } from "@/lib/chat-send-mode";
 import type { Settings } from "@/lib/types";
 
@@ -53,6 +63,8 @@ export default function SystemSettingsPage() {
   // 纯前端偏好：不走 /api/settings，直接读写 localStorage。
   const sendMode = useChatSendMode();
   const sendModeOptions = useChatSendModeOptions();
+  // 표시 언어도 순수 프런트엔드 환경설정이라 /api/settings 를 거치지 않고 쿠키·localStorage 로만 둔다.
+  const activeLocale = useActiveLocale();
 
   const apply = React.useCallback((s: Settings) => {
     setTrafficCapture(!!s.traffic_capture);
@@ -105,6 +117,17 @@ export default function SystemSettingsPage() {
       .then((r) => setPyInterp(r.python_interpreter))
       .catch(() => undefined)
       .finally(() => setSaving(false));
+  };
+  // 표시 언어 변경: UI 는 브라우저 로컬 설정이라 즉시 전환하고, 에이전트가 생성하는
+  // 리포트·요약·대화 응답의 언어(서버 설정 output_language)도 같은 값으로 맞춘다. 서버
+  // 저장이 실패해도 UI 전환은 그대로 유지하고 오류만 알린다.
+  const changeLanguage = (v: string) => {
+    const loc = v as Locale;
+    setActiveLocale(loc);
+    api
+      .setSettings({ output_language: loc })
+      .then(apply)
+      .catch((e) => toast.error(t("toast.saveFailed", { error: (e as Error).message })));
   };
 
   React.useEffect(() => {
@@ -624,6 +647,33 @@ export default function SystemSettingsPage() {
                 {t("save")}
               </Button>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mb-4 break-inside-avoid md:mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <LanguagesIcon className="size-4" />
+              {t("language.title")}
+            </CardTitle>
+            <CardDescription>{t("language.desc")}</CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between gap-4">
+            <Label htmlFor="ui-language" className="text-sm font-normal text-muted-foreground">
+              {t("language.label")}
+            </Label>
+            <Select value={activeLocale} onValueChange={changeLanguage}>
+              <SelectTrigger id="ui-language" className="w-72">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LOCALES.map((loc) => (
+                  <SelectItem key={loc} value={loc}>
+                    {LOCALE_LABELS[loc]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </CardContent>
         </Card>
 

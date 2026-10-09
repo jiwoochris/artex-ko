@@ -42,47 +42,55 @@ var severityRank = map[string]int{
 // SeverityRank 返回级别的序数；未知级别返回 0。
 func SeverityRank(severity string) int { return severityRank[severity] }
 
-// SeverityLabel 返回带 emoji 的中文级别名，用于消息标题与卡片配色。
-// 未知级别原样回显，不臆造。
-func SeverityLabel(severity string) string {
-	switch severity {
-	case "critical":
-		return "🔴 심각"
-	case "high":
-		return "🟠 높음"
-	case "medium":
-		return "🟡 중간"
-	case "low":
-		return "🔵 낮음"
-	default:
-		return severity
+// Lang, when wired by the server, returns the active user-facing output language
+// ("en"/"ko"/"zh"/"es") for the strings this leaf package renders into push /
+// email messages (severity and status labels). Kept as an injected func so the
+// package stays standard-library-only: it does not import config/db/server. nil
+// (unit tests / standalone) → labelLang falls back to "ko", preserving the Korean
+// localization golden tests.
+var Lang func() string
+
+func labelLang() string {
+	if Lang != nil {
+		switch v := Lang(); v {
+		case "en", "ko", "zh", "es":
+			return v
+		}
 	}
+	return "ko"
 }
 
-// StatusLabel 把处置状态翻译成中文，用于状态变更消息。
-func StatusLabel(status string) string {
-	switch status {
-	case "pending":
-		return "처리 대기"
-	case "in_progress":
-		return "처리 중"
-	case "confirmed":
-		return "확인됨"
-	case "resolved":
-		return "처리됨"
-	case "fixed":
-		return "수정됨"
-	case "false_positive":
-		return "오탐"
-	case "ignored":
-		return "무시"
-	case "duplicate":
-		return "중복"
-	case "risk_accepted":
-		return "위험 수용"
-	default:
-		return status
+// severityLabels / statusLabels hold the per-language display strings. "ko" keeps
+// the exact Korean values the localization golden tests pin.
+var severityLabels = map[string]map[string]string{
+	"ko": {"critical": "🔴 심각", "high": "🟠 높음", "medium": "🟡 중간", "low": "🔵 낮음"},
+	"en": {"critical": "🔴 Critical", "high": "🟠 High", "medium": "🟡 Medium", "low": "🔵 Low"},
+	"zh": {"critical": "🔴 严重", "high": "🟠 高危", "medium": "🟡 中危", "low": "🔵 低危"},
+	"es": {"critical": "🔴 Crítico", "high": "🟠 Alto", "medium": "🟡 Medio", "low": "🔵 Bajo"},
+}
+
+var statusLabels = map[string]map[string]string{
+	"ko": {"pending": "처리 대기", "in_progress": "처리 중", "confirmed": "확인됨", "resolved": "처리됨", "fixed": "수정됨", "false_positive": "오탐", "ignored": "무시", "duplicate": "중복", "risk_accepted": "위험 수용"},
+	"en": {"pending": "Pending", "in_progress": "In progress", "confirmed": "Confirmed", "resolved": "Resolved", "fixed": "Fixed", "false_positive": "False positive", "ignored": "Ignored", "duplicate": "Duplicate", "risk_accepted": "Risk accepted"},
+	"zh": {"pending": "待处理", "in_progress": "处理中", "confirmed": "已确认", "resolved": "已处理", "fixed": "已修复", "false_positive": "误报", "ignored": "忽略", "duplicate": "重复", "risk_accepted": "接受风险"},
+	"es": {"pending": "Pendiente", "in_progress": "En curso", "confirmed": "Confirmado", "resolved": "Resuelto", "fixed": "Corregido", "false_positive": "Falso positivo", "ignored": "Ignorado", "duplicate": "Duplicado", "risk_accepted": "Riesgo aceptado"},
+}
+
+// SeverityLabel 返回带 emoji 的级别名(按当前输出语言)，用于消息标题与卡片配色。
+// 未知级别原样回显，不臆造。
+func SeverityLabel(severity string) string {
+	if v, ok := severityLabels[labelLang()][severity]; ok {
+		return v
 	}
+	return severity
+}
+
+// StatusLabel 把处置状态翻译成当前输出语言，用于状态变更消息。未知状态原样回显。
+func StatusLabel(status string) string {
+	if v, ok := statusLabels[labelLang()][status]; ok {
+		return v
+	}
+	return status
 }
 
 // AtLeast 判断 severity 是否达到 min 门槛。min 为空表示不设门槛，一律通过。

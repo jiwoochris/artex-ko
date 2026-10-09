@@ -58,7 +58,7 @@ func (s *Server) updateTaskMetadata(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if utf8.RuneCountInString(name) > maxTaskNameRunes {
-			writeErr(w, http.StatusBadRequest, fmt.Sprintf(errTaskMetaNameTooLongFmt, maxTaskNameRunes))
+			writeErr(w, http.StatusBadRequest, fmt.Sprintf(trMsg(errTaskMetaNameTooLongFmt), maxTaskNameRunes))
 			return
 		}
 		request.Name = &name

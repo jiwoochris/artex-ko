@@ -76,7 +76,7 @@ func loadOrCreateJWTKey(keyDir, dataDir string) ([]byte, error) {
 			if data, rerr := os.ReadFile(legacy); rerr == nil {
 				if werr := os.WriteFile(path, data, 0o600); werr == nil {
 					_ = os.Remove(legacy)
-					log.Printf("[auth] JWT 키를 %s 에서 %s 로 이전(탐색 가능한 워크스페이스 밖으로 이동)", legacy, path)
+					log.Printf(logT("[auth] JWT 키를 %s 에서 %s 로 이전(탐색 가능한 워크스페이스 밖으로 이동)"), legacy, path)
 				}
 			}
 		}
@@ -91,7 +91,7 @@ func loadOrCreateJWTKey(keyDir, dataDir string) ([]byte, error) {
 	if err := os.WriteFile(path, []byte(key), 0600); err != nil {
 		return nil, fmt.Errorf("write jwt key: %w", err)
 	}
-	log.Printf("[auth] 새 JWT 키를 %s 에 기록", path)
+	log.Printf(logT("[auth] 새 JWT 키를 %s 에 기록"), path)
 	return []byte(key), nil
 }
 
@@ -218,14 +218,14 @@ func (s *Server) bootstrapAuth() {
 	}
 	if pw := os.Getenv(adminPasswordEnv); pw != "" {
 		if utf8.RuneCountInString(pw) < minPasswordLen {
-			log.Printf("[auth] %s 가 %d자 미만이라 무시합니다. 설정 토큰 방식으로 초기화하세요", adminPasswordEnv, minPasswordLen)
+			log.Printf(logT("[auth] %s 가 %d자 미만이라 무시합니다. 설정 토큰 방식으로 초기화하세요"), adminPasswordEnv, minPasswordLen)
 		} else if h, err := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost); err != nil {
-			log.Printf("[auth] %s 해시 생성 실패: %v", adminPasswordEnv, err)
+			log.Printf(logT("[auth] %s 해시 생성 실패: %v"), adminPasswordEnv, err)
 		} else if err := s.m.pg.SetSetting(authPassKey, string(h)); err != nil {
-			log.Printf("[auth] %s 저장 실패: %v", adminPasswordEnv, err)
+			log.Printf(logT("[auth] %s 저장 실패: %v"), adminPasswordEnv, err)
 		} else {
 			s.setPassHash(string(h))
-			log.Printf("[auth] 환경 변수 %s 로 관리자 비밀번호를 초기화했습니다(사용자 이름 ARTEX)", adminPasswordEnv)
+			log.Printf(logT("[auth] 환경 변수 %s 로 관리자 비밀번호를 초기화했습니다(사용자 이름 ARTEX)"), adminPasswordEnv)
 			return
 		}
 	}
@@ -243,17 +243,17 @@ func (s *Server) currentSetupToken() string {
 	}
 	if v := strings.TrimSpace(os.Getenv(setupTokenEnv)); v != "" {
 		s.setupToken = v
-		log.Printf("[auth] 관리자 비밀번호가 아직 설정되지 않았습니다. 설정 토큰은 환경 변수 %s 값입니다(로그에 출력하지 않음)", setupTokenEnv)
+		log.Printf(logT("[auth] 관리자 비밀번호가 아직 설정되지 않았습니다. 설정 토큰은 환경 변수 %s 값입니다(로그에 출력하지 않음)"), setupTokenEnv)
 		return s.setupToken
 	}
 	tok, err := randomToken(setupTokenLen)
 	if err != nil {
-		log.Printf("[auth] 설정 토큰 생성 실패: %v", err)
+		log.Printf(logT("[auth] 설정 토큰 생성 실패: %v"), err)
 		return ""
 	}
 	s.setupToken = tok
-	log.Printf("[auth] 관리자 비밀번호가 아직 설정되지 않았습니다. 설정 토큰: %s", tok)
-	log.Print("[auth] 첫 화면(/setup)의 \"설정 토큰\" 칸에 위 값을 입력하거나 POST /api/auth/init 본문의 setup_token 으로 보내십시오. 이 토큰은 네트워크로 전달되지 않으며 이 콘솔 로그에서만 확인할 수 있습니다")
+	log.Printf(logT("[auth] 관리자 비밀번호가 아직 설정되지 않았습니다. 설정 토큰: %s"), tok)
+	log.Print(logT("[auth] 첫 화면(/setup)의 \"설정 토큰\" 칸에 위 값을 입력하거나 POST /api/auth/init 본문의 setup_token 으로 보내십시오. 이 토큰은 네트워크로 전달되지 않으며 이 콘솔 로그에서만 확인할 수 있습니다"))
 	return s.setupToken
 }
 
@@ -397,7 +397,7 @@ func (s *Server) WarnIfExposed(addr string) {
 	if s.m == nil || s.m.pg == nil || s.cachedPassHash() != "" || isLoopbackAddr(addr) {
 		return
 	}
-	log.Printf("[auth] 경고: 관리자 비밀번호가 아직 설정되지 않았는데 서버가 %q 에 바인딩되어 다른 호스트에서도 접속할 수 있습니다. 설정 토큰 없이는 초기화할 수 없지만, 초기 설정을 마칠 때까지 이 포트를 외부 네트워크에 노출하지 마십시오(기본값 127.0.0.1:8787)", addr)
+	log.Printf(logT("[auth] 경고: 관리자 비밀번호가 아직 설정되지 않았는데 서버가 %q 에 바인딩되어 다른 호스트에서도 접속할 수 있습니다. 설정 토큰 없이는 초기화할 수 없지만, 초기 설정을 마칠 때까지 이 포트를 외부 네트워크에 노출하지 마십시오(기본값 127.0.0.1:8787)"), addr)
 }
 
 // extractToken reads the JWT from Authorization: Bearer header,
@@ -481,7 +481,7 @@ func (s *Server) authInit(w http.ResponseWriter, r *http.Request) {
 	}
 	if !s.checkSetupToken(req.SetupToken) {
 		s.limiter().fail(key)
-		log.Printf("[auth] 초기 설정 거부: 설정 토큰 불일치 (client=%s)", clientLogID(r))
+		log.Printf(logT("[auth] 초기 설정 거부: 설정 토큰 불일치 (client=%s)"), clientLogID(r))
 		writeErr(w, 403, authErrSetupTokenInvalid)
 		return
 	}
@@ -510,7 +510,7 @@ func (s *Server) authInit(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 500, authErrTokenGen)
 		return
 	}
-	log.Printf("[auth] 관리자 비밀번호를 초기화했습니다 (client=%s)", clientLogID(r))
+	log.Printf(logT("[auth] 관리자 비밀번호를 초기화했습니다 (client=%s)"), clientLogID(r))
 	writeJSON(w, 200, map[string]any{"token": tok})
 }
 
@@ -556,7 +556,7 @@ func (s *Server) authChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(req.OldPassword)); err != nil {
 		s.limiter().fail(key)
-		log.Printf("[auth] 비밀번호 변경 거부: 현재 비밀번호 불일치 (client=%s)", clientLogID(r))
+		log.Printf(logT("[auth] 비밀번호 변경 거부: 현재 비밀번호 불일치 (client=%s)"), clientLogID(r))
 		writeErr(w, 401, authErrCurrentPasswordWrong)
 		return
 	}
@@ -576,7 +576,7 @@ func (s *Server) authChangePassword(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 500, authErrTokenGen)
 		return
 	}
-	log.Printf("[auth] 관리자 비밀번호를 변경했습니다. 기존 세션은 모두 무효화됩니다 (client=%s)", clientLogID(r))
+	log.Printf(logT("[auth] 관리자 비밀번호를 변경했습니다. 기존 세션은 모두 무효화됩니다 (client=%s)"), clientLogID(r))
 	writeJSON(w, 200, map[string]any{"ok": true, "token": tok})
 }
 
@@ -609,7 +609,7 @@ func (s *Server) authLogin(w http.ResponseWriter, r *http.Request) {
 	pwErr := bcrypt.CompareHashAndPassword([]byte(hash), []byte(req.Password))
 	if req.Username != "ARTEX" || pwErr != nil {
 		s.limiter().fail(key)
-		log.Printf("[auth] 로그인 실패 (client=%s)", clientLogID(r))
+		log.Printf(logT("[auth] 로그인 실패 (client=%s)"), clientLogID(r))
 		writeErr(w, 401, authErrBadCredential)
 		return
 	}

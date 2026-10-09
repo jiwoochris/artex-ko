@@ -1,0 +1,3703 @@
+{
+  "auth": {
+    "login": {
+      "agree": "I have read and agree to the <terms>Usage Notice</terms>",
+      "checking": "Checking login status…",
+      "errorAgree": "Please read and agree to the Usage Notice first",
+      "errorBackend": "Can't connect to the backend service",
+      "errorCredential": "Incorrect username or password",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "submit": "Log in",
+      "submitting": "Logging in…",
+      "title": "Log in",
+      "username": "Username",
+      "welcome": "Welcome back. Enter your password to continue using ARTEX."
+    },
+    "setup": {
+      "confirmPassword": "Confirm password",
+      "confirmPlaceholder": "Re-enter your password",
+      "desc": "This is your first time using ARTEX. Set a login password for your account (at least 8 characters).",
+      "errorBackend": "Can't connect to the backend service",
+      "errorInit": "Initialization failed",
+      "errorMismatch": "The two passwords don't match",
+      "errorTooShort": "The password must be at least 8 characters",
+      "newPassword": "New password",
+      "newPasswordPlaceholder": "At least 8 characters",
+      "submit": "Set password and log in",
+      "submitting": "Saving…",
+      "title": "Set up password",
+      "setupToken": "Setup token",
+      "setupTokenPlaceholder": "The 32-character token printed on the [auth] line of the server console log",
+      "setupTokenHelp": "To stop anyone else from claiming the admin account first, enter the setup token that is printed only in the terminal running the server (for Docker: docker compose logs artex).",
+      "errorTokenEmpty": "Enter the setup token"
+    },
+    "terms": {
+      "a1Body": "This software (ARTEX) is an open-source program distributed under the GNU Affero General Public License v3.0 (AGPL-3.0). Under this license you are free to use, copy, modify, and distribute the software. However, all derivative works (including online services provided to third parties over a network) must likewise be released under AGPL-3.0, and you must make the corresponding complete source code available to users. The full terms of AGPL-3.0 are governed by the LICENSE file distributed with the software.",
+      "a1Title": "Article 1 · Definitions and Open-Source License",
+      "a2Body": "This software is provided solely for personal learning, code study, exploration of security-technology principles, and technical verification in a locally isolated environment that you have built yourself; it is suited to non-offensive, non-destructive purposes such as learning, academic research, and code review. Except as expressly permitted in this article, you must not use the software for any other purpose.",
+      "a2Title": "Article 2 · Permitted Scope of Use",
+      "a3Item1": "Strictly prohibited: performing scanning, probing, exploitation, or attacks against any website, online service, or network-connected system owned by others or third parties (regardless of authorization or whether the asset is your own).",
+      "a3Item2": "Strictly prohibited: using this software in real penetration testing, offense-defense exercises, red/blue team exercises, or production environments.",
+      "a3Item3": "Strictly prohibited: using this software for unlawful intrusion, data theft, extortion, denial of service (DoS/DDoS), or any other destructive or criminal activity.",
+      "a3Item4": "Strictly prohibited: removing, altering, or circumventing the copyright, license, or security-notice information contained in this software and its outputs.",
+      "a3Item5": "Strictly prohibited: any conduct that violates the laws, regulations, and rules of your country or region.",
+      "a3Title": "Article 3 · Prohibited Conduct",
+      "a4Body": "Copyright and related intellectual property rights in this software belong to the project's authors and contributors, who grant you those rights within the scope set by the AGPL-3.0 license. Except for the rights expressly granted by that license, this notice grants you no other rights, whether express or implied.",
+      "a4Title": "Article 4 · Intellectual Property",
+      "a5Body": "This software is an open-source program that you can deploy yourself; the authors operate no centralized service and do not collect or upload your usage data. All data you create, process, or access while using it is managed by you alone, and you are responsible for its legality and security. You bear all consequences arising from improper handling of data.",
+      "a5Title": "Article 5 · Data and Privacy",
+      "a6Body": "You must comply on your own with all laws and regulations of your country or region regarding network security, data security and privacy protection, computer crime, and the like (in the Republic of Korea, including but not limited to the Act on Promotion of Information and Communications Network Utilization and Information Protection and the Personal Information Protection Act).",
+      "a6Emphasis": "All legal liability and consequences arising from your violation of the above laws and regulations or of the terms of this notice are borne by you alone and have no connection to the authors or contributors of this software.",
+      "a6Title": "Article 6 · Compliance and Legal Responsibility",
+      "a7Body": "This software is provided \"AS IS\" and \"AS AVAILABLE,\" without any warranty of any kind, whether express or implied, including warranties of merchantability, fitness for a particular purpose, accuracy, and non-infringement. To the maximum extent permitted by applicable law, the authors and contributors of this software shall not be liable for any direct, indirect, incidental, special, or consequential damages arising from the use or inability to use this software (regardless of whether it was used appropriately), including but not limited to data loss, system damage, business interruption, loss of profits, and legal disputes.",
+      "a7Title": "Article 7 · Disclaimer and Limitation of Liability",
+      "a8Body": "The authors may update this notice from time to time in response to laws and regulations or the project's development needs; the updated version is distributed with the project and takes effect from its date of publication. Your continued use of this software is deemed acceptance of the revised terms. To the extent permitted by law, the project's authors hold the right of final interpretation of this notice. If any provision of this notice is held invalid, the validity of the remaining provisions is unaffected.",
+      "a8Title": "Article 8 · Changes to Terms and Final Interpretation",
+      "agreeButton": "I have read and agree to all the terms",
+      "footerNotRead": "Please scroll to the end of the terms before confirming",
+      "footerRead": "You've reviewed all the terms",
+      "intro": "This \"Usage Notice and Disclaimer\" (the \"Notice\") is an agreement between you and the authors and contributors of the ARTEX project regarding your use of this software. Please read and fully understand each article carefully before use, paying particular attention to the disclaimer, limitation-of-liability, and prohibition clauses marked in bold or in colored blocks.",
+      "introEmphasis": "The moment you download, install, access, or in any way use this software, you are deemed to have read and understood all of this Notice and to agree to and be bound by all of it.",
+      "meta": "Version v1.0 · Effective 2026-09-18 · Please read all the terms below to the end before logging in",
+      "title": "ARTEX Usage Notice and Disclaimer"
+    }
+  },
+  "dashboard": {
+    "activeModel": "Active model",
+    "activeTasks": "Active tasks",
+    "activityStream": "Activity stream",
+    "ago": "{value} ago",
+    "all": "All",
+    "assetDistribution": "Asset distribution",
+    "assetNodes": "Asset nodes",
+    "assetType": {
+      "app": "App",
+      "endpoint": "Endpoint",
+      "ip": "IP",
+      "root_domain": "Root domain",
+      "service": "Service",
+      "subdomain": "Subdomain"
+    },
+    "byType": "By type",
+    "cacheHit": "Cache hit",
+    "cacheHitRate": "Cache hit rate",
+    "captureOff": "Capture off",
+    "chartCacheRead": "Cache read",
+    "chartInput": "Input",
+    "chartOutput": "Output",
+    "colEngine": "Engine",
+    "colGoalProgress": "Goal progress",
+    "colInFlight": "In flight",
+    "colLastActivity": "Last activity",
+    "colStatus": "Status",
+    "colTask": "Task",
+    "confirmedFindings": "Confirmed findings",
+    "configured": "Configured",
+    "crossTaskShared": "Shared across tasks",
+    "default": "Default",
+    "eventCount": "{count} events",
+    "findings": "Findings",
+    "inputUncached": "Input (uncached)",
+    "llmConfig": "LLM config",
+    "morePending": "+{count} more…",
+    "noActivity": "No activity",
+    "noAssetData": "No asset data",
+    "noData": "No data",
+    "noFindings": "No findings",
+    "noPendingIntercepts": "No intercepts awaiting approval",
+    "noTasks": "No tasks",
+    "noTrafficData": "No traffic data",
+    "notConfigured": "Not configured",
+    "off": "Off",
+    "on": "On",
+    "output": "Output",
+    "pendingApprovals": "Pending approvals ({count})",
+    "range7": "7 days",
+    "range30": "30 days",
+    "range90": "3 months",
+    "range180": "6 months",
+    "range365": "1 year",
+    "recentRequests": "Recent requests",
+    "recording": "Recording",
+    "requestCount": "{count} requests",
+    "srcNew": "Metering ledger",
+    "srcOld": "Activity stats",
+    "statDone": "Done",
+    "statExplore": "Exploring",
+    "statPaused": "Paused",
+    "statTokenDetail": "Input {input} ({cache} cached) · output {output}",
+    "subtitle": "System-wide status · live updates",
+    "systemStatus": "System status",
+    "taskCount": "{count} tasks",
+    "tasks": "Tasks",
+    "title": "Overview",
+    "tokenConsumption": "LLM token consumption",
+    "tokenUsage": "Token usage",
+    "tooltipNew": "New version: pulled from the llm_usage metering ledger, accurate per call and including interrupted consumption. Only data from after the feature was enabled is counted.",
+    "tooltipOld": "Old version: pulled from activity stats, covering past tasks too, but it misses interrupted consumption and isn't accurate down to the model level.",
+    "totalInOut": "Total (input + output)",
+    "totalNodes": "{count} nodes total",
+    "trafficCapture": "Traffic capture",
+    "trafficExchanges": "Traffic exchanges",
+    "trafficStatusCodes": "Traffic status codes",
+    "verNew": "New",
+    "verOld": "Old",
+    "viewTasks": "View tasks"
+  },
+  "header": {
+    "updateBadge": "New version {latest}",
+    "updateBadgeShort": "New version",
+    "updateTitle": "New version {latest} found. Click to go to the update.",
+    "version": "Version · {version}"
+  },
+  "nav": {
+    "group": {
+      "function": "Features",
+      "system": "System"
+    },
+    "item": {
+      "agents": "Agents",
+      "approvals": "Approvals",
+      "asset-intercept": "Asset blocking",
+      "assets": "Assets",
+      "chat": "Chat",
+      "commands": "Tool runs",
+      "dashboard": "Dashboard",
+      "findings": "Findings",
+      "intercept": "Intercept rules",
+      "llm": "LLM",
+      "llm-records": "LLM records",
+      "logs": "Logs",
+      "mcp": "MCP",
+      "notify": "Notifications",
+      "settings": "System settings",
+      "skills": "Skills",
+      "sync": "Asset sync",
+      "tasks": "Tasks",
+      "tools": "Tools",
+      "traffic": "Traffic",
+      "workspace": "Workspace"
+    }
+  },
+  "notFound": {
+    "back": "Back to home",
+    "description": "The page you're looking for doesn't exist.",
+    "title": "Page not found."
+  },
+  "search": {
+    "button": "Search",
+    "empty": "No search results.",
+    "placeholder": "Search dashboards, users, and more…"
+  },
+  "status": {
+    "audit": {
+      "allow": "Allow",
+      "block": "Block"
+    },
+    "delivery": {
+      "failed": "Failed",
+      "pending": "Pending",
+      "sending": "Sending",
+      "sent": "Delivered",
+      "skipped": "Skipped"
+    },
+    "engine": {
+      "exploring": "Exploring",
+      "idle": "Idle",
+      "paused": "Paused",
+      "stalled": "Stalled"
+    },
+    "finding": {
+      "confirmed": "Confirmed",
+      "duplicate": "Duplicate",
+      "false_positive": "False positive",
+      "fixed": "Fixed",
+      "ignored": "Ignored",
+      "in_progress": "In progress",
+      "pending": "Pending",
+      "resolved": "Resolved",
+      "risk_accepted": "Risk accepted"
+    },
+    "goal": {
+      "abandoned": "Abandoned",
+      "met": "Met",
+      "open": "In progress"
+    },
+    "intent": {
+      "blocked": "Execution error",
+      "deleted": "Deleted",
+      "done": "Done",
+      "exhausted": "Budget exhausted",
+      "open": "Pending",
+      "paused": "Paused",
+      "running": "Running",
+      "stopped": "Stopped"
+    },
+    "node": {
+      "confirmed": "Confirmed",
+      "observed": "Observed",
+      "tombstoned": "Tombstoned"
+    },
+    "severity": {
+      "critical": "Critical",
+      "high": "High",
+      "low": "Low",
+      "medium": "Medium"
+    },
+    "task": {
+      "created": "Created",
+      "done": "Done",
+      "failed": "Failed",
+      "paused": "Paused",
+      "queued": "Queued",
+      "running": "Running",
+      "timeout": "Timed out"
+    }
+  },
+  "userMenu": {
+    "changePassword": "Change password",
+    "logout": "Log out"
+  },
+  "taskDetail": {
+    "report": {
+      "title": "Penetration Test Report (Markdown)",
+      "copy": "Copy",
+      "loading": "Loading…",
+      "empty": "No report available",
+      "copySuccess": "Markdown copied",
+      "copyError": "Copy failed. Select the text manually and copy it"
+    },
+    "findings": {
+      "columnFinding": "Finding",
+      "sortTime": "Discovery time",
+      "orderAsc": "Ascending",
+      "orderDesc": "Descending",
+      "sortAria": "Discovery time is currently {order}; click to change sort direction",
+      "unclassified": "Unclassified",
+      "sourceReadonly": "Source #{id} · read-only",
+      "trafficEvidence": "{count} traffic evidence entries",
+      "viewDetail": "View finding details",
+      "detail": "Details",
+      "evidencePoc": "Evidence / PoC",
+      "markedAs": "Marked as “{label}”",
+      "updateFailed": "Update failed: {message}",
+      "empty": "No confirmed findings in this task or directly related tasks."
+    },
+    "retests": {
+      "loadError": "Failed to load task findings: {error}",
+      "retry": "Retry",
+      "selectTitle": "Select finding",
+      "selectDesc": "View retest history for this task's findings or start a new retest.",
+      "selectAria": "Select finding: {name}",
+      "emptyTitle": "No findings to retest",
+      "emptyDesc": "Once findings are discovered in this task, you can start a retest here.",
+      "prevPage": "Previous findings page",
+      "nextPage": "Next findings page",
+      "pageIndicator": "Page {page} / {total}",
+      "findingDetail": "Finding details"
+    },
+    "tabs": {
+      "sessions": "Sessions",
+      "overview": "Overview",
+      "graph": "Exploration path",
+      "broadcast": "Broadcast",
+      "findings": "Findings",
+      "retests": "Retests",
+      "assets": "Test assets",
+      "coverage": "Asset coverage graph",
+      "intercept": "Intercept approval",
+      "report": "Report"
+    },
+    "header": {
+      "notFound": "Task {id} not found. It may have been deleted, archived, or never existed.",
+      "loading": "Loading…",
+      "backToList": "Back to task list"
+    },
+    "control": {
+      "pause": "Pause",
+      "resume": "Resume",
+      "completed": "Completed",
+      "ended": "Ended",
+      "paused": "Exploration paused",
+      "resumed": "Exploration resumed",
+      "failed": "Control failed: {message}"
+    },
+    "archive": {
+      "queued": "Task added to the archive queue",
+      "failed": "Archive failed: {message}",
+      "disabledQueued": "Queued tasks must be paused first",
+      "disabledRunning": "Running tasks must be paused first",
+      "disabledInherited": "Unarchived task #{id} directly inherits this task; archive the dependent task first",
+      "triggerAria": "Archive task",
+      "dialogTitle": "Archive task #{id}?",
+      "dialogDesc": "The task graph, related records, dedicated assets and traffic, task files, and LLM logs will be compressed to cold storage. Once archiving completes, you can restore it from the “Archived” page in the task list.",
+      "cancel": "Cancel",
+      "confirm": "Archive"
+    },
+    "llm": {
+      "controlAria": "View or switch task LLM configuration",
+      "exhausted": "All configurations in the chain are exhausted",
+      "profileRef": "Config #{id}",
+      "followDefault": "Follow default configuration",
+      "backupCount": "{count} backups",
+      "editorDescription": "Changes to the order or current configuration take effect from the next LLM call.",
+      "editorDescriptionTerminal": "The task has already ended, so changes affect only subsequent main agent conversations.",
+      "save": "Save",
+      "saveReset": "Save and reset",
+      "saving": "Saving",
+      "chainTitle": "Task LLM configuration chain",
+      "exhaustedTitle": "All configuration chain quota exhausted",
+      "exhaustedDesc": "All selected configurations were judged to be out of quota. Saving the configuration chain resets the failure state.",
+      "close": "Close",
+      "updated": "LLM configuration updated",
+      "updatedWithReopened": "LLM configuration updated and {count} intents blocked by quota overrun recovered",
+      "updateFailed": "Update failed: {message}"
+    },
+    "coverageGraph": {
+      "kind": {
+        "company": "Company",
+        "root_domain": "Root domain",
+        "subdomain": "Subdomain",
+        "ip": "IP",
+        "service": "Service",
+        "app": "App",
+        "endpoint": "Endpoint"
+      },
+      "graph": {
+        "moreCount": "{count} more {kind}",
+        "scopeIn": "In scope",
+        "tested": "Tested",
+        "loading": "Loading…",
+        "empty": "No in-scope assets (define the task scope first)",
+        "refresh": "Refresh",
+        "legendTested": "Tested (highlighted)",
+        "legendUntested": "Untested",
+        "legendOutOfScope": "Out of scope",
+        "hint": "Force-directed layout. Drag nodes and scroll to zoom. Gray “⋯” marks collapsed nodes; click to expand further."
+      },
+      "sheet": {
+        "attributes": "Attributes",
+        "attrType": "Type",
+        "attrTestState": "Test state",
+        "tested": "Tested",
+        "untested": "Untested",
+        "outOfScope": "Out of scope (linked node)",
+        "attrDomain": "Domain",
+        "attrRootDomain": "Root domain",
+        "attrPort": "Port",
+        "attrTitle": "Title",
+        "attrStatusCode": "Status code",
+        "attrApp": "App",
+        "attrAssetId": "Asset ID",
+        "refIntents": "Related intents",
+        "refFacts": "Related facts",
+        "refFindings": "Related findings",
+        "rawData": "Raw data",
+        "refSource": "Source #{id} · read-only",
+        "foldTitle": "Hidden {kind} ({count})",
+        "foldHint": "Tested items are shown first. Click “Show more” to load the next batch into the graph.",
+        "showMore": "Show more (+{step})"
+      }
+    },
+    "assetsTab": {
+      "title": "Test assets",
+      "totalAll": "{count} assets linked to the current task",
+      "add": "Add test asset",
+      "empty": "No test assets in this category",
+      "loadError": "Failed to load task assets: {message}",
+      "kind": {
+        "root_domain": "Root domain",
+        "ip": "IP",
+        "subdomain": "Subdomain",
+        "app": "App",
+        "service": "Service",
+        "endpoint": "Endpoint"
+      },
+      "col": {
+        "domain": "Domain",
+        "icp": "ICP registration",
+        "source": "Source",
+        "action": "Action",
+        "cSegment": "C segment",
+        "boundDomains": "Linked domains",
+        "openPorts": "Open ports",
+        "rootDomain": "Root domain",
+        "recordType": "Record type",
+        "recordValue": "Record value",
+        "app": "App",
+        "address": "Address",
+        "category": "Category",
+        "title": "Title",
+        "fingerprint": "Fingerprint",
+        "addressService": "Address / service",
+        "statusCode": "Status code",
+        "responseLength": "Response length",
+        "auth": "Auth",
+        "method": "Method",
+        "fullAddress": "Full address",
+        "params": "Parameters"
+      },
+      "source": {
+        "label": {
+          "agent": "Agent discovery",
+          "anchor": "Blackboard anchor",
+          "api": "Asset API",
+          "company": "Company association",
+          "legacy": "Legacy association",
+          "manual": "Manual add",
+          "system": "System association",
+          "task": "Task initialization"
+        },
+        "node": "Source node #{id}",
+        "legacySummary": "Migrated from a legacy task asset link, so no detailed source description is available"
+      },
+      "remove": {
+        "aria": "Remove asset {label} from task",
+        "title": "Remove from task",
+        "confirmTitle": "Remove from the current task?",
+        "confirmBody": "Removes “{label}” from the current task's test assets.",
+        "keep": "Global assets, linked traffic, and past blackboard anchors are preserved.",
+        "cancel": "Cancel",
+        "removing": "Removing",
+        "confirm": "Confirm removal",
+        "success": "Removed {label} from the current task",
+        "error": "Removal failed: {message}"
+      },
+      "addSheet": {
+        "title": "Add test asset",
+        "description": "Enter the test scope directly. Domains and IPs create or reuse global assets; CIDR, ICP, and keywords serve as agent scope context.",
+        "editorLabel": "Test assets and scope",
+        "editorDescription": "Enter one per line; domains, IPs, CIDRs, ICP registrations, and keywords are detected automatically.",
+        "cancel": "Cancel",
+        "submitN": "Register {count}",
+        "submit": "Register",
+        "success": "Registered {requested} scope entries, linked {assetSummary} domain/IP assets",
+        "error": "Add failed: {message}"
+      }
+    },
+    "broadcastTab": {
+      "kind": {
+        "begin": "Start point",
+        "task": "Root task",
+        "goal": "Goal",
+        "intent": "Intent",
+        "fact": "Fact",
+        "finding": "Finding",
+        "hint": "Hint",
+        "digest": "Digest"
+      },
+      "rel": {
+        "spawns": "Spawns",
+        "derived_from": "Intent chain",
+        "yields": "Yields",
+        "proves": "Proves",
+        "covers": "Covers"
+      },
+      "state": {
+        "fact": {
+          "origin": "Origin",
+          "confirmed": "Confirmed",
+          "dismissed": "Disproven"
+        },
+        "finding": {
+          "confirmed": "Confirmed",
+          "dismissed": "Dismissed"
+        },
+        "hint": {
+          "active": "Pending adoption",
+          "consumed": "Adopted"
+        },
+        "digest": {
+          "active": "Active",
+          "superseded": "Superseded"
+        }
+      },
+      "assetType": {
+        "app": "App",
+        "endpoint": "Endpoint",
+        "ip": "IP",
+        "root_domain": "Root domain",
+        "service": "Service",
+        "subdomain": "Subdomain"
+      },
+      "relTime": {
+        "now": "Just now",
+        "minutes": "{count} min ago",
+        "hours": "{count} hr ago",
+        "days": "{count} days ago"
+      },
+      "node": "Node",
+      "nodeRef": "Node #{id}",
+      "fieldType": "Type {label}",
+      "fieldSource": "Source {origin}",
+      "noSummary": "(no summary)",
+      "noPayload": "(no payload)",
+      "assets": "Related assets · {count}",
+      "deleteReason": "Deletion reason",
+      "upstream": "Upstream · origin of this node",
+      "downstream": "Downstream · derived from this node",
+      "fresh": "New",
+      "unknownDay": "Unknown date",
+      "emptyFiltered": "No broadcasts match the filter.",
+      "emptyNoNodes": "This task hasn't generated any exploration nodes yet.",
+      "pending": "{count} new broadcasts · jump to latest",
+      "toolbar": {
+        "searchPlaceholder": "Search content / source / node id",
+        "searchAria": "Search broadcasts",
+        "clear": "Clear",
+        "orderDescAria": "Currently newest first; click to switch to oldest first",
+        "orderAscAria": "Currently oldest first; click to switch to newest first",
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "pauseAria": "Pause auto-refresh",
+        "resumeAria": "Resume auto-refresh",
+        "live": "Auto-refresh",
+        "paused": "Paused"
+      }
+    },
+    "overviewTab": {
+      "add": "Add",
+      "addFailed": "Add failed",
+      "saveFailed": "Save failed",
+      "desc": {
+        "title": "Task description and goals",
+        "descLabel": "Description",
+        "goalLabel": "Goal"
+      },
+      "goals": {
+        "title": "Goal management",
+        "hint": "(Final verifiable goals, {count} total · adding or editing notifies the planner and resumes the task)",
+        "addPlaceholder": "Add a goal, e.g. “Gain privilege-bypass access to an admin account”",
+        "vulnPlaceholder": "Finding type (optional)",
+        "empty": "No goals. Once added, the planner uses them to assign exploration intents and judge whether they're met."
+      },
+      "constraints": {
+        "title": "Action constraints",
+        "hint": "(Sets the exploration boundaries for planner/worker. {count} total · changes apply from the next planning cycle)",
+        "deny": "Deny",
+        "allow": "Allow",
+        "addPlaceholder": "One action constraint, e.g. “Test only the current port and don't scan others”",
+        "empty": "No action constraints. They're extracted automatically from the description and goals at task creation, and you can also add, edit, or delete them here to set which actions to allow or deny."
+      },
+      "coverage": {
+        "title": "Asset test coverage",
+        "rough": "(Rough estimate, for reference only)",
+        "testedOf": "Tested {tested} / in scope {total}"
+      },
+      "tokens": {
+        "title": "LLM token usage",
+        "hint": "(By model{calls, plural, =0 {} other { · # calls total}})",
+        "input": "Input",
+        "output": "Output",
+        "cacheRead": "Cache read",
+        "cacheHitRate": "Cache hit rate",
+        "colModel": "Model",
+        "colCalls": "Calls",
+        "colHitRate": "Hit rate",
+        "empty": "No LLM usage (the task hasn't made any calls yet, or records are still being written)."
+      },
+      "scope": {
+        "title": "Test scope",
+        "hint": "(Coverage denominator + authorized boundary, {count} total)",
+        "kind": {
+          "company": "Company",
+          "root_domain": "Root domain",
+          "subdomain": "Subdomain",
+          "ip": "IP",
+          "cidr": "Range",
+          "icp": "ICP",
+          "keyword": "Keyword"
+        },
+        "source": {
+          "auto": "Auto",
+          "agent": "Agent",
+          "manual": "Manual"
+        },
+        "placeholder": {
+          "company": "Company name or id",
+          "ipCidr": "e.g. 10.0.0.1 or 10.0.0.0/24",
+          "icp": "e.g. ICP registration number",
+          "keyword": "e.g. company name keyword",
+          "domain": "e.g. example.com"
+        },
+        "companyFallback": "Company #{id}",
+        "inherited": "Inherited",
+        "empty": "No test scope. Once added, it can serve as the denominator for asset coverage."
+      },
+      "heartbeat": {
+        "title": "Heartbeat",
+        "engineState": "Engine state",
+        "runningWorker": "Running Worker",
+        "lastActivity": "Last activity",
+        "goals": "Goals {met}/{total}",
+        "completedAt": "Completed at"
+      },
+      "running": {
+        "title": "Active intents",
+        "empty": "No active intents"
+      },
+      "attention": {
+        "title": "Needs attention",
+        "confirmedVuln": "Confirmed findings",
+        "executing": "Executing",
+        "frontierPending": "Frontier pending",
+        "blockedIntent": "Blocked intents"
+      },
+      "recent": {
+        "title": "Recent findings",
+        "empty": "No findings"
+      },
+      "blocked": {
+        "title": "Blocked / errored intents",
+        "hint": "({count} total · can be rerun)",
+        "rerunAll": "Rerun all",
+        "rerun": "Rerun",
+        "truncated": "Showing the first 20 only. Click “Rerun all” to process the remaining {rest}."
+      },
+      "stat": {
+        "pending": "Pending intents",
+        "pendingSub": "Frontier open",
+        "confirmed": "Confirmed findings",
+        "confirmedSub": "Current task",
+        "total": "Total intents",
+        "totalSub": "All intents in the current task"
+      },
+      "rule": {
+        "title": "Task-level asset intercept / allow",
+        "hint": "(Applies only to the current task, not globally. Intercept is applied first, then allow · {count} total)",
+        "block": "Intercept",
+        "allow": "Allow",
+        "notePlaceholder": "Note (optional)",
+        "empty": "No task-level rules. A match on “Intercept” blocks testing; “Allow” is a whitelist. If set, the current task tests only assets matching an allow rule (if unset, no whitelist is applied).",
+        "kind": {
+          "exact_domain": "Domain (exact match)",
+          "exact_ip": "IP (exact match)",
+          "exact_url": "URL (exact match)",
+          "fuzzy_domain": "Domain (partial match)",
+          "fuzzy_ip": "IP (partial match)",
+          "fuzzy_url": "URL (partial match)",
+          "cidr": "CIDR range"
+        }
+      }
+    }
+  },
+  "retest": {
+    "panel": {
+      "title": "Finding retest",
+      "desc": "Verify the current state in an independent session; each retest preserves its conclusion and evidence.",
+      "viewRunning": "View running retest session",
+      "start": "Start retest",
+      "loadError": "Failed to load retest history: {error}",
+      "retry": "Retry",
+      "emptyTitle": "No retest history",
+      "emptyDesc": "After deploying a fix, start a retest to compare before-and-after evidence.",
+      "viewSession": "View session",
+      "sessionDeleted": "Session deleted",
+      "notes": "Additional notes: {notes}",
+      "evidence": "Retest evidence",
+      "status": {
+        "pending": "Pending start",
+        "running": "Retesting",
+        "completed": "Completed",
+        "failed": "Retest failed",
+        "stopped": "Stopped"
+      },
+      "verdict": {
+        "reproduced": "Reproduced",
+        "fixed": "Fixed",
+        "inconclusive": "Inconclusive"
+      }
+    },
+    "dialog": {
+      "startedNew": "Retest started. Click “Retesting” to view the session",
+      "alreadyRunning": "This finding is already being retested. Check the existing session",
+      "startFailed": "Failed to start retest: {message}",
+      "title": "Finding retest #{id}",
+      "desc": "The retest agent reads the original evidence and test constraints and performs targeted verification in an independent session. If the retest completes successfully and the fix is confirmed, the finding status automatically changes to “Fixed”; any other conclusion keeps the existing status.",
+      "notesLabel": "Additional notes (optional)",
+      "notesPlaceholder": "e.g. Verify the original endpoint with the original test account. The fixed version is v2.",
+      "notesDesc": "You can add the fix version, test conditions, or constraints for this run.",
+      "cancel": "Cancel",
+      "submit": "Start retest",
+      "submitting": "Creating…"
+    }
+  },
+  "llmChain": {
+    "current": "Current",
+    "skippedTitle": "Profiles before the current cursor aren't chosen as automatic failover targets",
+    "skipped": "Skipped",
+    "backup": "Backup {n}",
+    "profileRef": "Profile #{id}",
+    "searchPlaceholder": "Search for an LLM profile to add",
+    "noProfiles": "No LLM profiles available",
+    "noMatch": "No matching LLM profiles",
+    "activeSuffix": "(active)",
+    "emptyHint": "If no profile is specified, the task follows the agent's or the global active profile.",
+    "unavailable": "Profile unavailable",
+    "moveUp": "Move profile up",
+    "moveDown": "Move profile down",
+    "remove": "Remove profile",
+    "currentProfile": "Current profile"
+  },
+  "sideQuestion": {
+    "button": "Side question",
+    "buttonTitle": "/btw Side question",
+    "title": "Side question",
+    "panelLabel": "Side question panel",
+    "clearHistory": "Clear side question history",
+    "closePanel": "Close side question panel",
+    "contextUpdatedAt": "Context updated: {time}",
+    "firstRunHint": "You can ask once the main agent has run for the first time",
+    "loadEarlier": "Load earlier side questions",
+    "emptyTitle": "Ask anytime",
+    "emptyDesc": "Answers are based on the current agent's context, while the main task keeps running.",
+    "recentExchanges": "{count} most recent Q&A, verbatim",
+    "historySummarized": "Includes a summary of earlier Q&A",
+    "snapshotSummarized": "Using a summary of the main context",
+    "contextTime": "Context {time}",
+    "questionAria": "Side question input",
+    "askPlaceholder": "Ask about the current context…",
+    "independentNote": "Independent Q&A · no tool execution",
+    "stopAnswer": "Stop the side question answer",
+    "sendQuestion": "Send side question",
+    "clearConfirmTitle": "Clear side question history?",
+    "clearConfirmDesc": "This deletes the current agent's side-question Q&A and stops any answer being generated. The main conversation and context snapshot are kept.",
+    "cancel": "Cancel",
+    "clearConfirm": "Clear history",
+    "drawerDesc": "Independent Q&A for {label}",
+    "parseError": "Could not parse the side question data. Please reopen the panel.",
+    "status": {
+      "running": "Answering",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Stopped",
+      "interrupted": "Interrupted"
+    },
+    "phase": {
+      "preparing": "Preparing the context…",
+      "summarizing_history": "Summarizing earlier side-question Q&A…",
+      "compressing_snapshot": "Compressing the side-question context copy…",
+      "retrying": "Exceeded the model's context limit; retrying after trimming…",
+      "answering": "Answering…"
+    }
+  },
+  "approval": {
+    "title": {
+      "task": "Interception Approval",
+      "history": "Approval History"
+    },
+    "refresh": "Refresh",
+    "intro": "Expand a record to see the tool request, the approval verdict, and the context and execution result at that time.",
+    "pendingBadge": "{count} pending approval",
+    "loadError": "Failed to load",
+    "recordLoadError": "Failed to load records: {error}. Click Refresh to try again.",
+    "pendingLoadError": "Failed to load the pending approval list: {error}. Click Refresh to try again.",
+    "filter": {
+      "label": "Approval history filter",
+      "status": "Approval status",
+      "source": "Verdict source",
+      "clear": "Clear filters",
+      "statusAll": "All statuses",
+      "sourceAll": "All sources"
+    },
+    "status": {
+      "pending": "Pending",
+      "allowed": "Allowed",
+      "denied": "Denied",
+      "timeout": "Timed out"
+    },
+    "sourceOption": {
+      "model": "Model verdict",
+      "rule": "Rule verdict",
+      "unknown": "Unknown source"
+    },
+    "pendingSection": "Awaiting action ({count})",
+    "pendingHint": "Expand, then allow or deny",
+    "pendingTableLabel": "Approvals awaiting action",
+    "filteredResults": "Filtered results",
+    "allRecords": "All records",
+    "emptyFiltered": "No approval records match the filters",
+    "emptyTitle": "No approval records yet",
+    "emptyFilteredDesc": "Change the approval status or verdict source, or clear the filters to view all records.",
+    "emptyDesc": "When a rule or the model makes an approval decision, the record appears here.",
+    "historyTableLabel": "Approval history list",
+    "table": {
+      "expandDetail": "Expand details",
+      "tool": "Tool",
+      "source": "Source",
+      "matchRule": "Matched rule",
+      "params": "Parameters",
+      "status": "Status"
+    },
+    "row": {
+      "toggleAria": "Approval #{id} {action}"
+    },
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "detailAria": "Approval details #{id}",
+    "conversationRef": "Conversation #{id}",
+    "taskRef": "Task {id}",
+    "ruleRef": "Rule #{id}",
+    "locateSourceAria": "Go to the source of approval #{id}: {label}",
+    "locateFailed": "Can't navigate to that execution",
+    "modelDecision": "Model verdict",
+    "ruleMissing": "The rule was not recorded or has been deleted",
+    "noReason": "No reason was recorded",
+    "copied": "Copied",
+    "copyFailed": "Copy failed. Select the content manually to copy it",
+    "copyAria": "Copy {label}",
+    "notRecorded": "Not recorded",
+    "truncatedNote": "The content was truncated. The above is the saved portion.",
+    "allow": "Allow",
+    "deny": "Deny",
+    "allowedExecution": "Execution allowed",
+    "deniedExecution": "Execution denied",
+    "detailLoadFailed": "Failed to load details",
+    "detailLoadFailedWith": "Failed to load details: {error}",
+    "retryDetail": "Retry details",
+    "noDetailSnapshot": "This record didn't save an approval detail snapshot, so the context, the model's initial verdict, and the execution output from that time can't be restored.",
+    "collapseContext": "Collapse context",
+    "viewContextAndResult": "View context and execution result",
+    "digestOnlyNote": "This record stores only the review input fingerprint, not the raw input, so the context sent to the model at the time can't be restored. This doesn't mean there was no context during review; newly created model verdicts preserve an input snapshot.",
+    "noModelInputNote": "No model review input was saved for this record. A rule may have decided directly, an error may have occurred before the model was called, or the record may have been created by an older version.",
+    "viewAuditFragmentNotSent": "View conversation audit fragment (not sent to the model)",
+    "viewAuditFragment": "View conversation audit fragment",
+    "auditCurrentTurn": "Current turn input of the conversation (audit fragment)",
+    "visibleContext": "Viewable conversation context",
+    "savedContextNote": "A portion of the conversation record saved at {time}. For what the model actually used, refer to the model review input.",
+    "contextTruncated": "Only recent context is kept, and some content was truncated.",
+    "errorTag": "Error",
+    "noRelatedContext": "No linkable context was recorded",
+    "executionOutput": "Execution output",
+    "toolNotExecuted": "The tool was not executed.",
+    "noOutputYet": "No execution output yet",
+    "ambiguousCorrelation": "Concurrent calls with the same parameters mean the tool call can't be uniquely correlated. This record doesn't show an inferred execution result.",
+    "noUniqueToolId": "No tool call ID that allows a unique correlation was recorded.",
+    "toolCallId": "Tool call ID",
+    "inputDigest": "Parameter digest SHA-256",
+    "configDigest": "Review config fingerprint SHA-256",
+    "modelInputDigest": "Model review input SHA-256",
+    "resultRecordedAt": "Result recorded at",
+    "toolRequest": "{agent} · Tool request",
+    "agentFallback": "Agent",
+    "viewCommand": "View command content",
+    "commandContent": "Command content",
+    "executionResult": "Execution result",
+    "loading": "Loading…",
+    "reviewStatus": "Review status",
+    "approvalVerdict": "Approval verdict",
+    "noApprovalReason": "No approval reason was recorded",
+    "finalAction": "Final action",
+    "sourceLabel": "Source",
+    "requestedAt": "Requested at",
+    "decidedAt": "Decided at",
+    "ruleSnapshot": "Rule snapshot",
+    "approvalModelProfile": "Approval model profile",
+    "modelInitial": "Model initial verdict",
+    "ruleInitial": "Rule initial verdict",
+    "modelFallback": "Model error fallback",
+    "action": {
+      "allow": "Allow",
+      "ask": "Ask",
+      "deny": "Deny"
+    },
+    "execution": {
+      "not_started": "Not started yet",
+      "not_executed": "Not executed",
+      "awaiting_result": "Allowed, awaiting execution result",
+      "succeeded": "Execution succeeded",
+      "failed": "Execution failed",
+      "unknown": "Execution result unknown",
+      "notCorrelated": "Couldn't correlate execution result"
+    },
+    "context": {
+      "user": "User message",
+      "assistant": "Agent message",
+      "text": "Agent message",
+      "tool_use": "Tool request",
+      "tool_result": "Tool output"
+    },
+    "review": {
+      "context": "Model review context",
+      "snapshotNote": "Below is a snapshot of the input actually sent to the review model this time. The background is only for understanding the current action; the basis for the verdict is the review policy.",
+      "legacyInput": "This record uses legacy input and preserves exactly what was sent at the time.",
+      "currentCall": "Current call awaiting review",
+      "bgUser": "Background · User message",
+      "bgWorkerLegacy": "Background · Worker intent summary (legacy)",
+      "bgUserNote": "Taken from the current user message.",
+      "bgWorkerNote": "The Worker intent summary that older versions sent. The new version's Worker review no longer sends this.",
+      "noBg": "There are no background messages for this review.",
+      "turnInputLegacy": "Current turn input (legacy)",
+      "taskDescLegacy": "Task description (legacy)",
+      "taskGoalLegacy": "Task goal (legacy)",
+      "taskConstraintsLegacy": "Task constraints (legacy)",
+      "workerIntentLegacy": "Worker intent (legacy)",
+      "workingDir": "Working directory",
+      "noHistory": "No past calls or execution results were sent for this review.",
+      "historyTitleLegacy": "Past calls provided to the model at the time (legacy)",
+      "histSucceeded": "Succeeded",
+      "histFailed": "Failed (some side effects may have occurred)",
+      "histArgs": "Past call parameters",
+      "histResult": "Past execution result",
+      "noPairable": "There are no pairable past tool execution records this time.",
+      "histTruncated": "Only a limited range of past records is kept, and some content was truncated.",
+      "viewFullJson": "View full model review input JSON",
+      "modelInput": "Model review input"
+    }
+  },
+  "agentEditor": {
+    "tab": {
+      "prompt": "Settings & prompt",
+      "wrapup": "Wrap-up prompt",
+      "triggers": "Triggers"
+    },
+    "notFound": "Agent not found: {key}",
+    "llm": {
+      "label": "Default model (LLM config)",
+      "follow": "Follow task / global active config",
+      "defaultSuffix": " · default",
+      "hint": "Binds a fixed LLM config to this agent (applies only after you click \"Save settings\"). Priority: agent binding > task/session setting > global active."
+    },
+    "config": {
+      "maxTurns": "Max turns (0 = unlimited)",
+      "runSeconds": "Run time (seconds, 0 = unlimited)",
+      "save": "Save settings"
+    },
+    "webSearch": {
+      "label": "Web search",
+      "onHint": "When enabled for this agent (applies after you click Save above), it can use web_search to search the internet",
+      "offHint": "You must first enable web search and configure the backend in \"System settings\" before you can enable it here"
+    },
+    "shell": {
+      "label": "Interactive shell",
+      "hint": "When enabled for this agent (applies after you click Save above), it can drive interactive programs like msfconsole/ssh/REPL via persistent PTY session tools (shell_open/send/read/close/list)"
+    },
+    "prompt": {
+      "varsLabel": "Variables (click to insert a placeholder, which is replaced with runtime data at render time)",
+      "example": "Example: {example}",
+      "noVars": "(no variables)",
+      "placeholder": "Leave blank to use the built-in default prompt",
+      "previewBtn": "Preview render",
+      "saveVersion": "Save as new version",
+      "resetDefault": "Restore default"
+    },
+    "preview": {
+      "title": "Preview render",
+      "descPrefix": "All",
+      "descSuffix": "were replaced by the backend with example values.",
+      "renderError": "Render error: {error}",
+      "failed": "Preview failed: {error}"
+    },
+    "version": {
+      "historyLabel": "Version history",
+      "current": "Current",
+      "none": "(no saved versions yet; using the built-in default)",
+      "noNote": "(no note)",
+      "empty": "(empty)",
+      "compareCurrent": "Compare with current version",
+      "loadToEditor": "Load into editor"
+    },
+    "diff": {
+      "title": "Version comparison: v{from} → v{to} (current)",
+      "removed": "- Removed",
+      "added": "+ Added"
+    },
+    "wrapup": {
+      "desc": "When this agent ends due to <b>timeout</b> or <b>running out of steps</b>, the system injects this \"wrap-up prompt\" and runs one final round. It first re-records anything identified but not yet saved, then outputs a one-sentence summary (to avoid leaving things unfinished). Leave blank to use the built-in default.",
+      "bodyLabel": "Wrap-up prompt body",
+      "custom": "Custom",
+      "useDefault": "Use built-in default",
+      "placeholder": "Leave blank to use the built-in default wrap-up prompt",
+      "turnsLabel": "Wrap-up rounds (how many rounds the wrap-up phase runs on its own at most; 0 = built-in default of {default} rounds)",
+      "save": "Save",
+      "resetDefault": "Restore default",
+      "defaultLabel": "Built-in default (read-only, for reference)"
+    },
+    "taskTimeout": {
+      "desc": "<b>Task timeout wrap-up</b> (a <b>separate set</b> from the per-run wrap-up above): injected when the <b>entire task</b> reaches its timeout limit and is about to end. Its intent is often the opposite of per-run. For example, in per-run a planner says \"don't stop, keep planning,\" but on task timeout it says \"stop on time and make a final judgment.\" Leave blank to use the built-in default.",
+      "bodyLabel": "Task timeout wrap-up prompt body",
+      "placeholder": "Leave blank to use the built-in default task timeout wrap-up prompt",
+      "turnsLabel": "Wrap-up rounds (0 = built-in default of {default} rounds)"
+    },
+    "toast": {
+      "savedVersion": "Saved as version v{version}",
+      "saveFailed": "Save failed: {error}",
+      "resetToDefaultVersion": "Restored to built-in default (v{version})",
+      "resetToDefault": "Restored to built-in default",
+      "resetFailed": "Restore failed: {error}",
+      "wrapupSaved": "Wrap-up settings saved (applies from the next run)",
+      "wrapupCleared": "Cleared; using the built-in default",
+      "taskTimeoutWrapupSaved": "Task timeout wrap-up settings saved (applies from the next run)",
+      "configSaved": "Run settings saved (applied immediately)",
+      "mcpVisOn": "Enabled display of MCP \"{name}\"",
+      "mcpVisOff": "Disabled display of MCP \"{name}\"",
+      "skillVisOn": "Enabled display of Skill \"{name}\"",
+      "skillVisOff": "Disabled display of Skill \"{name}\"",
+      "toolBound": "Bound tool \"{key}\"",
+      "toolUnbound": "Unbound tool \"{key}\"",
+      "toolBindFailed": "Failed to save tool binding: {error}",
+      "loadedToEditor": "Loaded v{version} into the editor. Review it, then click \"Save as new version\""
+    },
+    "mcp": {
+      "desc": "Select the MCP servers to show for this agent.",
+      "none": "(no MCP)"
+    },
+    "skill": {
+      "desc": "Select the Skills to show for this agent.",
+      "none": "(no Skills)"
+    },
+    "tools": {
+      "desc": "Select the built-in tools to bind to this agent.",
+      "trafficBadge": "Traffic",
+      "disabledBadge": "Disabled",
+      "needCapture": "Traffic capture must be enabled",
+      "none": "(no tools)"
+    },
+    "triggers": {
+      "desc": "Triggers run this custom agent automatically. Each time one fires, it <b>creates and runs a new session</b> (visible on the \"Conversations\" page). You can select multiple trigger conditions, and the system automatically appends \"the reason it fired this time + the related task/vulnerability/goal\" after the base message you wrote.",
+      "policyLabel": "Post-trigger handling policy (determines how triggers are queued, merged, and run)",
+      "runMode": "Run mode",
+      "serial": "Serial (queued, one at a time)",
+      "parallel": "Parallel (concurrent sessions each)",
+      "mergeMode": "Merge mode",
+      "mergeByTask": "Merge by task",
+      "mergeAll": "Merge all into one",
+      "mergeNone": "No merging",
+      "maxParallel": "Max concurrent runs (0 = unlimited)",
+      "policyParallel": "Parallel: each trigger immediately opens its own session and runs concurrently, with no merging. Triggers beyond the max concurrent runs wait in the queue for a free slot.",
+      "policyByTask": "Serial, merge by task: the same agent runs only one at a time, and event triggers for the same task are merged into one session in the queue.",
+      "policyAll": "Serial, merge all: the same agent runs only one at a time, and when the queue is dequeued, all currently waiting triggers are merged into one session.",
+      "policyNone": "Serial, no merging: the same agent runs only one at a time, and each trigger opens its own session.",
+      "editTitle": "Edit trigger #{id} (after editing, click \"Save changes\")",
+      "addTitle": "Add trigger (you can write a separate user message for each condition)",
+      "onInterval": "Scheduled trigger",
+      "every": "Every",
+      "seconds": "seconds",
+      "intervalPlaceholder": "Message to send the agent on a scheduled trigger, e.g., check all tasks",
+      "onFinding": "Trigger on vulnerability found",
+      "findingPlaceholder": "Message to send the agent when a vulnerability is found (the system attaches the task and vulnerability details)",
+      "onGoalMet": "Trigger on goal met",
+      "goalPlaceholder": "Message to send the agent when a goal is met (the system attaches the task and the goal reached)",
+      "onTaskTimeout": "Trigger on task timeout",
+      "taskTimeoutPlaceholder": "Message to send the agent on task timeout (the system attaches the task number and goal)",
+      "onToolCall": "Trigger on tool call",
+      "toolSelectHint": "Select the tools to watch (at least one). During task execution, a trigger fires each time these tools <b>finish a call</b>. {count} selected.",
+      "toolListEmpty": "(the tool list is empty)",
+      "toolCallPlaceholder": "Message to send the agent when a tool is called (the system attaches the task info, tool input arguments, and return value)",
+      "onTaskCreate": "Trigger on task creation",
+      "taskCreatePlaceholder": "Message to send the agent when a task is created (the system attaches the task number and goal)",
+      "saveEdit": "Save changes",
+      "add": "Add trigger",
+      "cancelEdit": "Cancel editing",
+      "existing": "Existing triggers",
+      "existingNone": "(none)",
+      "edit": "Edit",
+      "delete": "Delete",
+      "errNoCondition": "Select at least one trigger condition",
+      "errNoTool": "For a tool-call trigger, select at least one tool",
+      "savedEdit": "Changes saved",
+      "added": "Trigger added",
+      "saveEditFailed": "Save failed: {error}",
+      "addFailed": "Add failed: {error}",
+      "savePolicyFailed": "Failed to save policy: {error}",
+      "deleteFailed": "Delete failed: {error}",
+      "cond": {
+        "everyN": "Every {sec}s",
+        "finding": "Vulnerability found",
+        "goalMet": "Goal met",
+        "taskTimeout": "Task timeout",
+        "toolCall": "Tool call ({count})",
+        "taskCreate": "Task created",
+        "none": "(no condition)"
+      },
+      "detail": {
+        "interval": "Scheduled: {msg}",
+        "finding": "Vulnerability: {msg}",
+        "goal": "Goal: {msg}",
+        "timeout": "Timeout: {msg}",
+        "taskCreate": "Task created: {msg}",
+        "tools": "Tools: {tools}",
+        "toolsNone": "(none selected)",
+        "message": "Message: {msg}"
+      }
+    }
+  },
+  "assetSearch": {
+    "placeholder": "DSL search: domain=example AND status_code>=400",
+    "loading": "Searching…",
+    "found": "{count} results",
+    "field": {
+      "domain": "Domain (root / subdomain / service domain)",
+      "ip": "IPv4/IPv6 address",
+      "url": "Full URL (service / endpoint)",
+      "root_domain": "Root domain",
+      "page_title": "Page title (HTTP service)",
+      "icp": "ICP registration number",
+      "service_name": "Service name (non-HTTP services)",
+      "app_name": "App name",
+      "bundle_id": "App Bundle ID",
+      "category": "App category",
+      "app_icp": "App ICP registration",
+      "method": "HTTP method GET/POST/PUT/…",
+      "service_type": "Service type: http | other",
+      "record_type": "DNS record type A/CNAME/MX/…",
+      "technology": "Technology fingerprint (array field)",
+      "port": "Port number (integer)",
+      "status_code": "HTTP status code (integer)",
+      "company_id": "Owning company ID (integer)",
+      "task_id": "Source task ID (integer)"
+    },
+    "op": {
+      "fuzzy": "Partial match",
+      "exact": "Exact match",
+      "exclude": "Exclude",
+      "eq": "Equals",
+      "ne": "Not equal",
+      "gt": "Greater than",
+      "gte": "Greater than or equal",
+      "lt": "Less than",
+      "lte": "Less than or equal"
+    },
+    "logic": {
+      "and": "AND (both conditions met)",
+      "or": "OR (either condition met)"
+    }
+  },
+  "taskTemplate": {
+    "picker": {
+      "label": "Task template",
+      "manage": "Manage templates",
+      "saveAs": "Save as template",
+      "loading": "Loading templates",
+      "empty": "No task templates",
+      "search": "Search and select a task template",
+      "noMatch": "No matching templates",
+      "hint": "Selecting one copies the template's description, goal, category, and task-level rules; it does not keep a link to the template.",
+      "loadError": "Failed to load template: {error}"
+    },
+    "apply": {
+      "title": "Use the \"{name}\" template?",
+      "description": "The description and goal you entered will be overwritten with the template's content.",
+      "cancel": "Cancel",
+      "confirm": "Overwrite and use"
+    },
+    "manager": {
+      "title": "Manage task templates",
+      "description": "Templates store the description, goal, category, and task-level block/allow rules. Editing a template does not affect tasks already created.",
+      "new": "New template",
+      "noTemplates": "No templates",
+      "nameLabel": "Template name",
+      "namePlaceholder": "e.g., External web pentest",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Test target and background",
+      "goalLabel": "Goal",
+      "goalPlaceholder": "The goal the task should achieve",
+      "categoryLabel": "Task category",
+      "categoryUnclassified": "Unclassified",
+      "categoryHint": "Prefills this category when the template is applied (you can change it again).",
+      "rulesLabel": "Task-level block / allow rules",
+      "rulesHint": "Prefills these task-level rules when the template is applied (block/allow; applies only to new tasks and is not reflected globally).",
+      "delete": "Delete template",
+      "close": "Close",
+      "create": "Create template",
+      "saveChanges": "Save changes",
+      "saving": "Saving",
+      "validation": "Enter the template name, description, and goal",
+      "created": "Template created",
+      "updated": "Template updated",
+      "deleted": "Template deleted",
+      "saveError": "Failed to save: {error}",
+      "deleteError": "Failed to delete: {error}"
+    },
+    "deleteDialog": {
+      "title": "Delete the \"{name}\" template?",
+      "untitled": "Untitled template",
+      "description": "Tasks created from this template are not affected.",
+      "cancel": "Cancel",
+      "deleting": "Deleting",
+      "delete": "Delete"
+    }
+  },
+  "explorationGraph": {
+    "kind": {
+      "task": "Root task",
+      "begin": "Start point",
+      "goal": "Goal",
+      "hint": "Hint",
+      "intent": "Intent",
+      "fact": "Fact",
+      "finding": "Finding",
+      "digest": "Digest"
+    },
+    "rel": {
+      "spawns": "Spawns",
+      "derived_from": "Intent chain",
+      "yields": "Yields",
+      "proves": "Proves"
+    },
+    "detail": {
+      "attributes": "Attributes",
+      "type": "Type",
+      "state": "State",
+      "priority": "Priority",
+      "origin": "Origin",
+      "sourceTask": "Source task",
+      "time": "Time",
+      "digestConclusion": "Digest conclusion",
+      "members": "Nodes in digest ({count})",
+      "membersNotLoaded": "{count} member nodes are not loaded in the current graph",
+      "raw": "Raw data",
+      "copy": "Copy",
+      "copied": "Copied",
+      "sourceBadge": "Source #{id}",
+      "sourceTaskBadge": "Source task #{id} · read-only",
+      "inheritedTooltip": "Inherited from task #{id}, read-only",
+      "inheritedReadOnly": "#{id} (inherited, read-only)"
+    },
+    "emptyHint": "No exploration data yet",
+    "lineage": {
+      "empty": "No path to show (there are no exploration nodes linked to this finding, or the task was deleted).",
+      "emptyHint": "No path",
+      "loading": "Loading…"
+    }
+  },
+  "pagination": {
+    "perPage": "per page",
+    "range": "{from}–{to} of {total}",
+    "empty": "0 total",
+    "prev": "Previous page",
+    "next": "Next page"
+  },
+  "findings": {
+    "title": "Vulnerabilities",
+    "subtitle": "Vulnerabilities aggregated across all tasks",
+    "view": {
+      "flat": "All vulnerabilities",
+      "grouped": "By task",
+      "asset": "By asset"
+    },
+    "stat": {
+      "total": "Total vulnerabilities",
+      "pending": "Pending"
+    },
+    "search": {
+      "placeholder": "Search vulnerability content"
+    },
+    "severity": {
+      "all": "All",
+      "critical": "Critical",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low",
+      "ariaFilter": "Filter by {label} severity"
+    },
+    "status": {
+      "placeholder": "Status",
+      "all": "All statuses"
+    },
+    "vulnclass": {
+      "placeholder": "Vulnerability type",
+      "all": "All types"
+    },
+    "task": {
+      "placeholder": "Task",
+      "all": "All tasks",
+      "unassigned": "Unlinked / deleted task",
+      "deletedShort": "Task #{id} (deleted)"
+    },
+    "sort": {
+      "severity": "By severity",
+      "time": "By time"
+    },
+    "selectedCount": "{count} selected",
+    "export": "Export",
+    "selectAllPage": "Select all on current page",
+    "selectAllGroup": "Select all in this group on current page",
+    "asset": {
+      "all": "All assets",
+      "totalCount": "{count} total"
+    },
+    "group": {
+      "withName": "{name} (Task #{id})",
+      "taskOnly": "Task #{id}",
+      "sourceUnavailable": "Source task unavailable",
+      "viewTask": "View Task #{id}"
+    },
+    "empty": "No matching vulnerabilities.",
+    "deepen": {
+      "title": "Deep-dive on vulnerability",
+      "description": "Creates a priority-10 Worker intent on the original Task #{id} to run secondary verification based on the current vulnerability: {name}",
+      "label": "Attack description",
+      "placeholder": "Describe the attack path, boundary conditions, goal, or expected evidence to verify",
+      "hint": "The new intent inherits this vulnerability's asset anchor.",
+      "submit": "Create deep-dive intent"
+    },
+    "exportDialog": {
+      "title": "Export vulnerabilities",
+      "description": "Choose the export scope and format. Once generated, your browser will download it automatically.",
+      "scopeLabel": "Export scope",
+      "scopeFiltered": "Export current filter results ({count} total)",
+      "scopeAll": "Export all",
+      "scopeSelected": "Export {count} selected",
+      "formatLabel": "Export format",
+      "formatMdSingle": "Markdown combined report (1 .md file)",
+      "formatMdZip": "Markdown split files (1 .md per vulnerability, .zip)",
+      "formatCsv": "CSV table (.csv)",
+      "formatJson": "JSON (.json)",
+      "exporting": "Exporting…",
+      "submit": "Export"
+    },
+    "common": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…",
+      "delete": "Delete",
+      "loading": "Loading…"
+    },
+    "toast": {
+      "retestStatusFailed": "Failed to load retest status: {error}",
+      "exportStarted": "Export file download started",
+      "exportFailed": "Export failed: {error}",
+      "assetTreeFailed": "Failed to load asset tree: {error}",
+      "marked": "Marked as \"{label}\"",
+      "updateFailed": "Update failed: {error}",
+      "saved": "Saved",
+      "saveFailed": "Save failed: {error}",
+      "deleted": "Vulnerability deleted",
+      "deleteFailed": "Delete failed: {error}",
+      "deepenQueued": "Deep-dive intent #{id} added to the task queue",
+      "deepenCreated": "Created high-priority Worker intent #{id}",
+      "deepenFailed": "Submission failed: {error}"
+    },
+    "table": {
+      "colSeverity": "Severity",
+      "colName": "Vulnerability name",
+      "colAsset": "Asset",
+      "colStatus": "Status",
+      "colTask": "Task",
+      "colTime": "Time",
+      "colActions": "Actions",
+      "selectOne": "Select this vulnerability",
+      "viewDetail": "View vulnerability details",
+      "unclassified": "Unclassified",
+      "trafficEvidence": "{count} traffic evidence items",
+      "retestingTitle": "View the in-progress retest session",
+      "retesting": "Retesting",
+      "retestTitle": "Retest this vulnerability in a separate session",
+      "retest": "Retest",
+      "deepen": "Deep-dive",
+      "deleteAria": "Delete vulnerability",
+      "deleteConfirmTitle": "Delete this vulnerability?",
+      "deleteConfirmBody": "This permanently deletes the item. It is also removed from the vulnerability list, the task's vulnerability tab, and the exploration graph. This action cannot be undone.",
+      "editName": "Vulnerability name",
+      "editNamePlaceholder": "A readable title. If empty, the type is used instead",
+      "editCategory": "Type",
+      "editCategoryPlaceholder": "e.g. SQL Injection",
+      "editSeverity": "Severity",
+      "evidence": "Evidence",
+      "typeInline": "· Type: ",
+      "assetInline": "· Asset: ",
+      "detailReport": "Detailed report",
+      "reportCopied": "Detailed report copied",
+      "reportLoadFailed": "Failed to load report.",
+      "reportEmpty": "No detailed report available."
+    },
+    "assetTree": {
+      "kind": {
+        "company": "Company",
+        "root_domain": "Root domain",
+        "subdomain": "Subdomain",
+        "ip": "IP",
+        "app": "App",
+        "service": "Service",
+        "endpoint": "Endpoint",
+        "none": "Unlinked"
+      },
+      "emptyNoAsset": "No vulnerabilities linked to assets in the current filter.",
+      "emptyNoMatch": "No matching assets.",
+      "filterPlaceholder": "Filter assets",
+      "refresh": "Refresh asset tree",
+      "truncated": "Too many assets, so the {kinds} levels are hidden (their counts are rolled up into the parent levels). Narrow the scope with the filter or search box to see all levels.",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "criticalCount": "Critical {count}",
+      "highCount": "High {count}",
+      "totalCount": "{count} vulnerabilities total"
+    },
+    "detail": {
+      "notFound": "Vulnerability {id} not found",
+      "back": "Back to vulnerability list",
+      "sourceTask": "Source Task #{id} · read-only",
+      "tab": {
+        "overview": "Overview",
+        "lineage": "Lineage"
+      },
+      "summary": "Summary",
+      "summaryEmpty": "(No summary)",
+      "evidence": "Evidence / PoC",
+      "evidenceEmpty": "(No evidence)",
+      "reportStale": "Traffic evidence changed, so the detailed report needs to be regenerated.",
+      "statusTitle": "Status",
+      "fieldId": "Vulnerability ID",
+      "fieldSeverity": "Severity",
+      "fieldStatus": "Status",
+      "fieldType": "Vulnerability type",
+      "fieldAssets": "Related assets",
+      "fieldTask": "Task",
+      "taskDeleted": "— (task deleted)",
+      "fieldTime": "Discovered at",
+      "severityChanged": "Severity changed to \"{label}\"",
+      "statusChanged": "Status changed to \"{label}\""
+    },
+    "traffic": {
+      "title": "Linked traffic",
+      "bind": "Link traffic",
+      "inherited": "Inherited evidence · read-only",
+      "description": "Arrange the requests and responses in reproduction order. The linked evidence stays intact even if you clean up the original traffic.",
+      "retry": "Retry",
+      "empty": "No linked traffic",
+      "emptyHint": "You can link baseline comparisons, vulnerability proofs, and supplementary verification requests.",
+      "evidenceNo": "Evidence #{id}",
+      "viewRaw": "View raw",
+      "editNote": "Edit description",
+      "moveUp": "Move evidence {id} up",
+      "moveDown": "Move evidence {id} down",
+      "unbind": "Unlink",
+      "updated": "Traffic evidence updated",
+      "editTitle": "Edit traffic evidence",
+      "editDescription": "Describe how this request/response pair supports the vulnerability conclusion.",
+      "roleLabel": "Role",
+      "noteLabel": "Evidence description",
+      "saveNote": "Save description",
+      "role": {
+        "baseline": "Baseline comparison",
+        "proof": "Vulnerability proof",
+        "verification": "Supplementary verification",
+        "supporting": "Supporting evidence"
+      }
+    }
+  },
+  "copyButton": {
+    "label": "Copy",
+    "success": "Copied",
+    "error": "Copy failed. Select the text manually to copy it"
+  },
+  "trafficEvidence": {
+    "picker": {
+      "title": "Link traffic",
+      "description": "Filter requests and responses to select multiple entries; your selection persists across pages. After linking, you can set the purpose, description, and order.",
+      "host": "Target host",
+      "hostPlaceholder": "Domain or IP",
+      "method": "Request method",
+      "allMethods": "All methods",
+      "keyword": "Keyword",
+      "keywordPlaceholder": "URL / body keyword",
+      "selectPage": "Select unlinked traffic on this page",
+      "colMethodUrl": "Method / URL",
+      "colTime": "Time",
+      "colStatus": "Status code",
+      "colAction": "Action",
+      "selectOne": "Select traffic {id}",
+      "bound": "Linked",
+      "preview": "Preview",
+      "loading": "Loading…",
+      "noMatch": "No matching traffic",
+      "selectedSummary": "{selected} selected · {total} total",
+      "prevPage": "Previous page",
+      "pageNo": "Page {page}",
+      "nextPage": "Next page",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "bindCount": "Link {count} traffic entries",
+      "boundToast": "Linked {count} traffic entries"
+    },
+    "viewer": {
+      "title": "Traffic evidence #{id}",
+      "fallbackDesc": "View the request and response saved at link time",
+      "request": "Request",
+      "response": "Response",
+      "bodyBytes": "Body {bytes} bytes",
+      "previewSuffix": " · Preview",
+      "downloadRequest": "Download full request body",
+      "downloadResponse": "Download full response body",
+      "loadMore": "Load more of the body"
+    },
+    "captured": {
+      "title": "Traffic preview",
+      "description": "Traffic ID: {id}. The full body is saved when linked."
+    },
+    "code": {
+      "empty": "(empty)",
+      "copyFailed": "Copy failed. Select all with Ctrl/Cmd+A and copy.",
+      "wrapOff": "Turn off word wrap",
+      "wrapOn": "Turn on word wrap",
+      "copiedPacket": "Raw copied",
+      "copyPacket": "Copy raw",
+      "copied": "Copied",
+      "label": "Raw HTTP code"
+    }
+  },
+  "transcript": {
+    "newRound": "New round",
+    "streaming": "Streaming live…",
+    "loading": "Loading…",
+    "withThinking": "With reasoning",
+    "kind": {
+      "thinking": "Reasoning",
+      "result": "Summary",
+      "note": "Note"
+    },
+    "tool": {
+      "name": "Tool",
+      "running": "Running…",
+      "failed": "✕ Failed",
+      "command": "Command",
+      "output": "Output",
+      "empty": "(empty)",
+      "loadFailed": "(load failed)",
+      "pinned": "Pinned tool call #{seq}"
+    },
+    "approval": {
+      "request": "Approval request",
+      "historyReadonly": "History · read-only",
+      "allowed": "Allowed",
+      "timeout": "Timed out",
+      "denied": "Denied",
+      "allow": "Allow",
+      "deny": "Deny",
+      "expand": "Expand approval details",
+      "collapse": "Collapse approval details",
+      "retry": "Retry details",
+      "loading": "Loading approval details…",
+      "loadError": "Failed to load approval details",
+      "allowedToast": "Execution allowed",
+      "deniedToast": "Execution denied"
+    }
+  },
+  "mentionTextarea": {
+    "inputAria": "Message. Type @ to cite a record",
+    "listboxAria": "Select a record to cite",
+    "pickKind": "Select a citation type",
+    "searchKind": "Search {kind}",
+    "allRecords": "All records",
+    "hintKeys": "↑↓ to move · Enter to select · Esc to close",
+    "candidatesAria": "Citation candidates",
+    "searching": "Searching…",
+    "searchError": "Search failed: {error}. Please type again and retry.",
+    "noMatch": "No matching records. Try a different name, address, or ID.",
+    "loadingMore": "Loading more…",
+    "pageError": "Load failed. Tap to retry",
+    "showingMore": "{count} shown · scroll down to load more",
+    "showingAll": "All {count} shown",
+    "searchHint": "Type a name, address, or ID to search records",
+    "removeAria": "Remove citation {label}",
+    "selectedHint": "Reads the latest details on send · up to 10",
+    "kind": {
+      "finding": "Finding",
+      "asset": "Asset",
+      "company": "Company",
+      "endpoint": "Endpoint",
+      "ip": "IP",
+      "app": "App",
+      "root_domain": "Domain",
+      "subdomain": "Subdomain",
+      "service": "Service"
+    }
+  },
+  "assetInterceptRules": {
+    "action": {
+      "block": "Block",
+      "allow": "Allow"
+    },
+    "kind": {
+      "exact_domain": "Domain (exact match)",
+      "exact_ip": "IP (exact match)",
+      "exact_url": "URL (exact match)",
+      "fuzzy_domain": "Domain (partial match)",
+      "fuzzy_ip": "IP (partial match)",
+      "fuzzy_url": "URL (partial match)",
+      "cidr": "CIDR range"
+    },
+    "notePlaceholder": "Note (optional)",
+    "add": "Add rule"
+  },
+  "interceptPage": {
+    "title": "Command interception",
+    "subtitle": "Before a tool runs, it is first checked against interception rules; commands not caught by any rule can be handed to the model for a final decision",
+    "scope": {
+      "label": "Interception scope",
+      "empty": "No tools enabled — neither interception rules nor the model fallback will run",
+      "toolCount": "{count} tools",
+      "adjust": "Adjust scope",
+      "dialogTitle": "Interception scope",
+      "dialogDesc": "Only tools with interception enabled go through rule matching; other tools pass straight through"
+    },
+    "tab": {
+      "rules": "Interception rules",
+      "model": "Model settings"
+    },
+    "rules": {
+      "priorityHint": "Matched one at a time by priority (higher number first); the first rule to match is applied",
+      "add": "Add rule",
+      "loading": "Loading…",
+      "empty": "No rules",
+      "addFirst": "Create your first rule",
+      "colPriority": "Priority",
+      "colName": "Name",
+      "colTarget": "Target",
+      "colType": "Type",
+      "colPattern": "Pattern",
+      "colAction": "Action",
+      "colEnabled": "Enabled"
+    },
+    "target": {
+      "tool_name": "Tool name",
+      "tool_input": "Input"
+    },
+    "matchType": {
+      "regex": "Regex",
+      "string": "String"
+    },
+    "action": {
+      "allow": "Allow",
+      "deny": "Deny",
+      "ask": "Ask"
+    },
+    "editor": {
+      "editTitle": "Edit rule",
+      "newTitle": "Add rule",
+      "desc": "The higher the priority, the earlier it is matched; the first rule to match is applied and subsequent rules are skipped",
+      "name": "Name",
+      "namePlaceholder": "Enter a rule name",
+      "priority": "Priority (higher number is matched first)",
+      "matchTarget": "Match target",
+      "targetToolName": "Tool name (tool_name)",
+      "targetToolInput": "Input (tool_input JSON)",
+      "matchTypeLabel": "Match type",
+      "typeStringContains": "String contains",
+      "typeRegex": "Regex",
+      "pattern": "Pattern",
+      "regexWarn": "Contains Go RE2 extended syntax (e.g. <code>(?i)</code>), which cannot be previewed in the browser; the server validates it on submit",
+      "actionLabel": "Interception action",
+      "actionAllow": "Allow — pass through immediately and skip subsequent rules",
+      "actionDeny": "Deny — block it and return a rejection message to the model",
+      "actionAsk": "Ask the user — wait for approval",
+      "denyMessage": "Rejection message (sent to the model)",
+      "askMessage": "Approval note (optional)",
+      "denyMessagePlaceholder": "The action was blocked by security policy",
+      "enableTimeout": "Use approval timeout",
+      "enableTimeoutHint": "When the timeout passes, it is handled automatically without waiting further",
+      "timeoutSeconds": "Timeout (seconds)",
+      "timeoutAction": "Action after timeout",
+      "timeoutDeny": "Auto-deny",
+      "timeoutAllow": "Auto-allow",
+      "enableRule": "Enable this rule",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "save": "Save"
+    },
+    "toast": {
+      "ruleUpdated": "Rule updated",
+      "ruleCreated": "Rule created",
+      "ruleDeleted": "Rule deleted",
+      "loadRulesFailed": "Failed to load interception rules",
+      "nameRequired": "Enter a name",
+      "patternRequired": "Enter a pattern",
+      "regexInvalid": "Invalid regex syntax",
+      "scopeSaved": "Interception scope saved",
+      "loadFailed": "Failed to load: {error}",
+      "saveFailed": "Save failed: {error}"
+    },
+    "toolGroup": {
+      "exec": "Execution",
+      "write": "Write/Edit",
+      "system": "System tools",
+      "custom": "Custom tools"
+    },
+    "toolDesc": {
+      "Bash": "Run commands in the shell",
+      "WebFetch": "Send HTTP/HTTPS requests (with proxy support)",
+      "web_search": "Web search",
+      "shell_open": "Open a persistent PTY interactive session",
+      "shell_send": "Send input to an interactive session",
+      "shell_read": "Read output from an interactive session",
+      "shell_close": "Close an interactive session",
+      "shell_list": "List all interactive sessions",
+      "Write": "Write a file",
+      "Edit": "Edit a file (exact replacement)",
+      "MultiEdit": "Batch-edit a file"
+    },
+    "judge": {
+      "title": "Model fallback approval",
+      "desc": "Only commands within the <scope>interception scope</scope> that are <norule>not caught by any interception rule</norule> are judged by the model (allow / ask / deny)",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "promptTitle": "Approval prompt",
+      "promptDesc": "The model decides ALLOW / ASK / DENY based on this, and you can edit it directly",
+      "restoreTemplate": "Restore default template",
+      "promptPlaceholder": "Leave empty to use the built-in template",
+      "charCount": "{count} characters",
+      "modelAndPolicy": "Judgment model and policy",
+      "approvalModel": "Approval model",
+      "followActive": "Follow active setting",
+      "judgeTimeout": "Model judgment timeout (seconds)",
+      "failAction": "On model failure (error / timeout / unparseable)",
+      "failAllow": "Allow",
+      "failAsk": "Switch to ask",
+      "failDeny": "Deny",
+      "manualApproval": "Manual approval (when the model decides \"ask\")",
+      "askTimeout": "Approval wait timeout (seconds)",
+      "askTimeoutAction": "Default action after timeout",
+      "askTimeoutDeny": "Deny",
+      "askTimeoutAllow": "Allow",
+      "saving": "Saving…",
+      "saveConfig": "Save settings",
+      "loadConfigFailed": "Failed to load model fallback settings: {error}",
+      "configSaved": "Model fallback settings saved",
+      "restored": "Reverted to the built-in default template",
+      "restoreFailed": "Restore failed: {error}"
+    }
+  },
+  "assetInterceptPage": {
+    "title": "Asset blocking",
+    "subtitle": "A global asset blacklist. Matched domains / IPs / URLs / ranges are blocked and no task runs against them",
+    "intro": "Supports exact and partial matching of domains / IPs / URLs, plus CIDR ranges. By default, government (.gov / .gov.cn) and education (.edu / .edu.cn) sites are built in to be blocked by partial match",
+    "add": "Add rule",
+    "loading": "Loading…",
+    "empty": "No asset blocking rules",
+    "addFirst": "Create the first rule",
+    "colType": "Type",
+    "colPattern": "Match content",
+    "colNote": "Note",
+    "colEnabled": "Enabled",
+    "builtin": "Built-in",
+    "group": {
+      "exact": "Exact match",
+      "fuzzy": "Partial match",
+      "cidr": "Range"
+    },
+    "editor": {
+      "editTitle": "Edit asset blocking rule",
+      "newTitle": "Add asset blocking rule",
+      "desc": "Target assets matching this rule are blocked globally",
+      "matchType": "Match type",
+      "matchContent": "Match content",
+      "hintCidr": "CIDR range, e.g., 192.168.0.0/16",
+      "hintFuzzy": "Partial match: matches if the target contains this content",
+      "hintExact": "Exact match: matches only if the target is exactly this content",
+      "note": "Note (optional)",
+      "notePlaceholder": "Describe what this rule is for",
+      "enableRule": "Enable this rule",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "save": "Save"
+    },
+    "toast": {
+      "loadFailed": "Failed to load asset blocking rules",
+      "ruleUpdated": "Rule updated",
+      "ruleCreated": "Rule created",
+      "ruleDeleted": "Rule deleted",
+      "contentRequired": "Enter the match content",
+      "cidrInvalid": "Invalid CIDR format. Enter it like 192.168.0.0/16"
+    },
+    "deleteConfirm": "Delete asset blocking rule \"{pattern}\"?"
+  },
+  "scopeEditor": {
+    "defaultLabel": "Asset scope",
+    "defaultDescription": "Enter one per line; domains, IPs, CIDRs, ICP registration, and company keywords are detected automatically.",
+    "placeholder": "example.com\n203.0.113.10\n198.51.100.0/24\ncompany name keyword",
+    "kind": {
+      "domain": "Domain",
+      "ip": "IP",
+      "cidr": "CIDR",
+      "icp": "ICP",
+      "keyword": "Keyword"
+    },
+    "recognized": "{count} detected",
+    "lineError": "Line {line}: {error}",
+    "moreErrors": "{count} more lines with errors",
+    "error": {
+      "empty": "Enter a scope value",
+      "tooLong": "You can enter up to {max} characters",
+      "domainSpace": "Enter a valid domain or URL without spaces",
+      "domainInvalid": "Enter a valid domain or URL",
+      "ipInvalid": "Enter a valid IP",
+      "cidrInvalid": "Enter a valid CIDR range",
+      "cidrPrefixV4": "IPv4 range prefix must be between /16 and /32",
+      "cidrPrefixV6": "IPv6 range prefix must be between /32 and /128"
+    }
+  },
+  "approvalFocus": {
+    "mismatch": "The approval source does not match the current conversation",
+    "noSource": "The original run could not be found",
+    "notFoundDeleted": "That tool call could not be found in the conversation. The record may have been deleted.",
+    "notFound": "That tool call could not be found in the conversation.",
+    "locateFail": "Not found: {error}",
+    "expanded": "Expanded the tool call for approval #{id}",
+    "loading": "Loading the conversation location of approval #{id}…",
+    "retry": "Search again",
+    "cancel": "Cancel search"
+  },
+  "todoPopover": {
+    "parseError": "Couldn't parse the Todo",
+    "none": "No Todo in this conversation",
+    "view": "View recent Todo",
+    "recent": "Recent Todo",
+    "loadingSuffix": " · Loading…",
+    "empty": "(Empty)"
+  },
+  "agentsPage": {
+    "title": "Agents",
+    "subtitle": "Prompts and settings for built-in agents, and creating and managing custom conversational agents",
+    "listTitle": "Agent list",
+    "countTotal": "{count} total",
+    "empty": "(no agents)",
+    "new": "New agent",
+    "badgeBuiltin": "Built-in",
+    "badgeCustom": "Custom",
+    "badgeDisabled": "Disabled",
+    "noDescription": "(no description)",
+    "toolLabel": "Tools",
+    "deleteTitle": "Delete agent \"{name}\"?",
+    "deleteDesc": "This agent's prompt, variables, exposure scope, and tool bindings will be deleted. This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleted": "Deleted agent \"{name}\"",
+    "deleteFailed": "Delete failed: {msg}",
+    "created": "Created agent \"{name}\"",
+    "createFailed": "Create failed: {msg}",
+    "createTitle": "New custom agent",
+    "createDesc": "Create a conversational assistant. The key is used as the internal identifier and cannot be changed after creation. The name and description are used for identification.",
+    "keyPlaceholder": "e.g., research_helper",
+    "keyError": "Must start with a lowercase letter and use only lowercase letters, digits, and underscores",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g., Research helper",
+    "descLabel": "Description",
+    "descPlaceholder": "Describe in one sentence what this agent does",
+    "create": "Create",
+    "editorDescFallback": "Prompt, settings, exposed resources, and tool bindings"
+  },
+  "logsPage": {
+    "title": "System Logs",
+    "subtitle": "Real-time backend log stream (planner / worker / database / traffic …)",
+    "filterPlaceholder": "Filter (text / tag)…",
+    "all": "All",
+    "paused": "Paused",
+    "pause": "Pause",
+    "clear": "Clear",
+    "totalLines": "{count} lines",
+    "warnCount": "{count} warnings",
+    "errorCount": "{count} errors",
+    "loading": "Loading…",
+    "loadOlder": "Load older logs",
+    "empty": "No logs."
+  },
+  "mcpPage": {
+    "subtitle": "External MCP tool servers · exposure allowed per agent",
+    "addCard": "Add MCP",
+    "enableAria": "Enable",
+    "deleteAria": "Delete",
+    "toolCount": "{count} tools",
+    "noTools": "No tools discovered yet",
+    "visibilityLabel": "Exposure scope (allow per agent)",
+    "addServer": "Add MCP server",
+    "sheetDesc": "stdio (run a local process) or http (remote Streamable HTTP)",
+    "tabConfig": "Configuration",
+    "tabTools": "Tool list",
+    "save": "Save",
+    "add": "Add",
+    "transport": "Transport",
+    "transportStdio": "stdio (local)",
+    "transportHttp": "http (remote)",
+    "transportSse": "sse (legacy)",
+    "nameLabel": "Name",
+    "cmdLabel": "Command",
+    "argsLabel": "Arguments (space-separated)",
+    "urlLabel": "Remote URL",
+    "insecureLabel": "Skip TLS certificate verification (self-signed certificates)",
+    "headersLabel": "Request headers (KEY=VALUE per line, e.g. Authorization=Bearer xxx)",
+    "envLabel": "Environment variables (KEY=VALUE per line)",
+    "refresh": "Refresh",
+    "loading": "Loading…",
+    "toolsEmpty": "No tools discovered yet. Click Refresh to fetch again.",
+    "errNoName": "Enter a name",
+    "errNoCmd": "Enter a command",
+    "errNoUrl": "Enter a remote URL",
+    "saved": "Saved",
+    "added": "MCP server added",
+    "saveFailed": "Save failed: {msg}",
+    "foundTools": "Discovered {count} tools",
+    "refreshFailed": "Refresh failed: {msg}",
+    "removed": "Removed: {name}",
+    "deleteFailed": "Delete failed: {msg}",
+    "actionFailed": "Action failed: {msg}",
+    "visibilityGranted": "Exposure allowed for “{name}”",
+    "visibilityRevoked": "Exposure revoked for “{name}”"
+  },
+  "toolsPage": {
+    "title": "Tools",
+    "subtitle": "System tool descriptions and bindings, plus custom tools (command/script/http)",
+    "searchPlaceholder": "Search tool name, description, agent…",
+    "tabSystem": "System tools",
+    "tabCustom": "Custom tools",
+    "systemMatched": "{shown} / {total} matched; click a card to edit the description, parameter defaults, and agent bindings",
+    "systemTotal": "{total} total; click a card to edit the description, parameter defaults, and agent bindings",
+    "systemNoMatch": "No matching system tools",
+    "systemEmpty": "(no system tools yet; waiting for the backend seed)",
+    "customMatched": "shell/command/script/http, {shown} / {total} matched; click a card to edit",
+    "customTotal": "shell (bash declaration) / command / script (Python) / http (API), {total} total; click a card to edit",
+    "newCustom": "Create custom tool",
+    "customNoMatch": "No matching custom tools",
+    "customEmpty": "(no custom tools yet; click \"Create custom tool\" at the top right)",
+    "editSheetDesc": "Edit the description, parameter defaults, and agent bindings",
+    "badgeSystem": "System",
+    "badgeCustom": "Custom",
+    "badgeDisabled": "Disabled",
+    "callsTitle": "{count} total calls",
+    "callsBadge": "{count} calls",
+    "noDescription": "(no description)",
+    "noBoundAgents": "(no bound agents)",
+    "trafficGatedNote": "This tool depends on <b>traffic capture</b>. You must first enable traffic capture in \"System settings\" before you can bind it to an agent and enable it.",
+    "bindAgentLabel": "Agent binding (determines which agents get this tool)",
+    "bindAgentShort": "Agent binding",
+    "noAgents": "(no agents)",
+    "enabled": "Enabled",
+    "descLabel": "Tool description (passed to the model)",
+    "paramsLabel": "Parameters (name / type / required are read-only; description and default are editable)",
+    "noParams": "(no parameters)",
+    "required": "Required",
+    "itemsSubfield": "items subfield",
+    "rowDesc": "Description",
+    "rowDefault": "Default",
+    "defaultEmptyHint": "(blank = no default)",
+    "scalarOnly": "Scalars only",
+    "save": "Save",
+    "resetDefault": "Restore default",
+    "savedTool": "Saved tool \"{key}\"",
+    "saveFailed": "Save failed: {msg}",
+    "resetDone": "Restored \"{key}\" to the code default",
+    "resetFailed": "Restore failed: {msg}",
+    "keyError": "The key must start with a lowercase letter and use only lowercase letters, digits, and underscores",
+    "schemaError": "The parameter JSON Schema is malformed",
+    "headersError": "The headers JSON is malformed",
+    "httpSchemaRequired": "http tools must provide a parameter JSON Schema (must include properties and cannot be empty)",
+    "createdCustom": "Custom tool created",
+    "saved": "Saved",
+    "deleted": "Deleted",
+    "deleteFailed": "Delete failed: {msg}",
+    "testParamsError": "The test parameter JSON is malformed",
+    "editCustom": "Edit {key}",
+    "customSheetDesc": "shell = bash environment declaration (only a name and description are needed; it tells the model it can be called via bash). command/script/http require you to write an execution spec.",
+    "keyPlaceholder": "e.g., nmap_scan",
+    "descLabelShort": "Description (passed to the model)",
+    "kindLabel": "Type",
+    "kindShell": "shell (bash environment declaration)",
+    "kindCommand": "command (shell command template)",
+    "kindScript": "script (Python script)",
+    "kindHttp": "http (API request)",
+    "shellHint": "Best for well-known tools like nmap, sqlmap, and ffuf. Since the model already knows how to use them, you only need to declare \"can be called from bash.\" The name and description are appended to the Bash tool description.",
+    "cmdTemplateLabel": "Command template (placeholder '{param}', e.g., nmap -p '{ports}' '{target}')",
+    "scriptLabel": "Python body (parameters passed via stdin JSON or os.environ[\"TOOL_X\"])",
+    "httpUrlLabel": "URL (may include '{param}')",
+    "httpHeadersLabel": "Headers (JSON, may include '{param}')",
+    "httpBodyLabel": "Body (may include '{param}')",
+    "proxyLabel": "Proxy URL (blank = direct connection)",
+    "useRecordingProxy": "Use recording proxy",
+    "timeoutLabel": "Timeout (ms, blank = default)",
+    "schemaLabel": "Parameter JSON Schema",
+    "schemaHttpSuffix": "(required for http tools; must include properties)",
+    "schemaDefaultSuffix": "(blank = automatically applies a thin '{args}' wrapper)",
+    "deferredLabel": "deferred (enable only when you have many rarely-used tools)",
+    "testSectionLabel": "Test run (uses the current form, not saved)",
+    "testParamsPlaceholder": "Example parameter JSON, e.g., '{\"target\":\"example.com\"}'",
+    "testRun": "Run test",
+    "testRunning": "Running…",
+    "noOutput": "(no output)",
+    "create": "Create",
+    "delete": "Delete"
+  },
+  "skillsPage": {
+    "title": "Skills",
+    "subtitle": "Skill library · agentskills.io spec · per-agent visibility permissions",
+    "missingCount": "{count} unmatched calls",
+    "missingHint": "Skills that an agent named and called but that don't exist in the skill library. Sorted by how many times they were named.",
+    "newSkill": "New skill",
+    "uploadTitle": "Upload a .zip archive containing SKILL.md",
+    "uploading": "Uploading…",
+    "uploadZip": "Upload archive",
+    "emptySidebar": "No skills. Click “New skill” to get started.",
+    "callCountTitle": "Called {count} times · Last {last}",
+    "newFile": "New file",
+    "newFolder": "New folder",
+    "deleteFolder": "Delete folder",
+    "deleteFile": "Delete file",
+    "deleteSkillAction": "Delete skill",
+    "emptyOverview": "No skills. Click “New skill” or “Upload archive” on the left to get started.",
+    "statTotal": "Total skills",
+    "statTotalHint": "{count} called",
+    "statCalls": "Cumulative calls",
+    "statUnused": "Unused",
+    "statUnusedHintSome": "Never loaded by any agent",
+    "statUnusedHintNone": "All used",
+    "statMissing": "Unmatched calls",
+    "statMissingHintSome": "{count} nonexistent skills",
+    "statMissingHintNone": "None",
+    "overviewTitle": "Skill library overview",
+    "overviewDesc": "Select a skill on the left to see its details and call history. Or get a quick overview of overall usage here.",
+    "ranking": "Call ranking",
+    "rankingEmpty": "No skill call history yet.",
+    "callsCount": "{count} times",
+    "recent": "Recent calls",
+    "recentEmpty": "No history.",
+    "unusedSkills": "Unused skills",
+    "allUsed": "Every skill has been called.",
+    "neverCalled": "Never called",
+    "installed": "Installed skill: {name} ({files} files)",
+    "overwriteConfirm": "{msg}\n\nOverwrite the skill with the same name?",
+    "uploadFailed": "Upload failed: {msg}",
+    "readFileFailed": "Failed to read the file",
+    "folderCreated": "Created folder: {path}",
+    "fileCreated": "Created file: {path}",
+    "createFailed": "Creation failed: {msg}",
+    "deleted": "Deleted: {path}",
+    "deleteFailed": "Deletion failed: {msg}",
+    "skillDeleted": "Deleted skill: {name}",
+    "saved": "Saved",
+    "saveFailed": "Save failed: {msg}",
+    "mcpLinked": "Linked “{name}”",
+    "mcpUnlinked": "Unlinked “{name}”",
+    "opFailed": "Operation failed: {msg}",
+    "visGranted": "Granted visibility to “{name}”",
+    "visRevoked": "Revoked visibility for “{name}”",
+    "needName": "Enter a name",
+    "needDesc": "Description is required",
+    "skillCreated": "Skill created",
+    "callStats": "Call statistics",
+    "totalCalls": "Total calls",
+    "coveredTasks": "Related tasks",
+    "callers": "Callers:",
+    "loadingCalls": "Loading call details…",
+    "recentCallsCount": "{count} recent calls",
+    "taskRef": "Task #{id}",
+    "sessionRef": "Conversation session",
+    "noCallsYet": "No call history yet.",
+    "linkedMcp": "Linked MCP",
+    "linkedMcpHint": "(Those tools are exposed/unlocked only when the skill is loaded)",
+    "noMcp": "No MCP. You can add one on the “MCP” page.",
+    "visibility": "Visibility scope (per-agent permissions)",
+    "noAgents": "(No agents)",
+    "saving": "Saving…",
+    "save": "Save",
+    "loading": "Loading…",
+    "deleteSkillQ": "Delete the skill “{name}”?",
+    "deleteFolderQ": "Delete the folder “{path}”?",
+    "deleteFileQ": "Delete the file “{path}”?",
+    "deleteSkillDesc": "Deletes all of this skill's files, MCP links, and visibility settings. This action can't be undone.",
+    "deleteFolderDesc": "Deletes all files under this folder. This action can't be undone.",
+    "irreversible": "This action can't be undone.",
+    "cancel": "Cancel",
+    "deleting": "Deleting…",
+    "delete": "Delete",
+    "tabBasic": "Basic info",
+    "tabVisibility": "Visibility",
+    "nameLabel": "Name",
+    "nameHint": "Lowercase / digits / hyphens, 1–64 characters",
+    "descLabel": "Description",
+    "descPlaceholder": "What this skill does and when to use it.",
+    "compatPlaceholder": "Requires sqlmap, python3",
+    "bodyLabel": "Body",
+    "bodyHint": "(Leave empty to auto-generate a skeleton)",
+    "bodyPlaceholder": "## How to run\n\n1. First detect errors\n2. Distinguish blind injection types\n\nPut scripts in the scripts/ directory.",
+    "mcpSheetHint": "The selected MCP's tools are exposed/unlocked only when the skill is loaded.",
+    "visSheetHint": "The selected agents can see this skill right after they're created.",
+    "creating": "Creating…",
+    "create": "Create"
+  },
+  "changePasswordDialog": {
+    "title": "Change password",
+    "description": "The username is fixed as <b>ARTEX</b>. You must first authenticate by entering your current password, and after changing the password, login Tokens already issued remain valid until they expire.",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "cancel": "Cancel",
+    "submit": "Change",
+    "submitting": "Changing…",
+    "errorRequired": "Enter your current password and new password",
+    "errorMismatch": "The new passwords you entered do not match",
+    "success": "Password changed",
+    "failed": "Failed to change password: {msg}"
+  },
+  "commands": {
+    "title": "Tool execution",
+    "searchPlaceholder": "Search tools / arguments…",
+    "taskIdPlaceholder": "Task ID",
+    "stats": "Statistics",
+    "colTime": "Time",
+    "colTask": "Task",
+    "colTool": "Tool",
+    "colInput": "Input",
+    "colStatus": "Status",
+    "empty": "No tool execution records",
+    "failed": "Failed",
+    "success": "Success",
+    "statsTitle": "Tool call statistics",
+    "statsDescFiltered": "All records matching the current filter",
+    "statsDescAll": "All tool execution records",
+    "unitTools": "tools",
+    "unitCalls": "calls",
+    "statsEmpty": "No statistics data",
+    "detailTitle": "Tool execution details",
+    "inputLabel": "Input",
+    "outputLabel": "Output",
+    "emptyOutput": "(empty)"
+  },
+  "workspace": {
+    "crumbRoot": "Workspace",
+    "newFolder": "New folder",
+    "upload": "Upload",
+    "refresh": "Refresh",
+    "colName": "Name",
+    "colSize": "Size",
+    "colMtime": "Modified",
+    "colActions": "Actions",
+    "loading": "Loading…",
+    "empty": "Empty folder",
+    "download": "Download",
+    "delete": "Delete",
+    "downloadFile": "Download file",
+    "tooLarge": "The file is too large to preview or edit online.",
+    "binary": "This is a binary file, so online preview and editing aren't supported.",
+    "dirty": "Unsaved changes",
+    "synced": "Synced",
+    "save": "Save",
+    "saving": "Saving…",
+    "folderNamePlaceholder": "Folder name",
+    "cancel": "Cancel",
+    "create": "Create",
+    "confirmDelete": "{kind, select, dir {Delete folder \"{name}\"? (including all its contents)} other {Delete file \"{name}\"?}}",
+    "readDirFailed": "Failed to read folder: {msg}",
+    "openFileFailed": "Failed to open file: {msg}",
+    "saved": "Saved",
+    "saveFailed": "Save failed: {msg}",
+    "deleted": "Deleted",
+    "deleteFailed": "Delete failed: {msg}",
+    "uploaded": "Uploaded {n} files",
+    "uploadFailed": "Upload failed: {msg}",
+    "folderCreated": "Folder created",
+    "createFailed": "Creation failed: {msg}",
+    "downloadFailed": "Download failed: {msg}"
+  },
+  "llmRecords": {
+    "title": "LLM Records",
+    "searchPlaceholder": "Search Session ID…",
+    "taskPlaceholder": "Select a task…",
+    "taskEmpty": "No task records",
+    "deleteTaskConversations": "Delete task conversations",
+    "selectTaskFirst": "Select a task above first",
+    "recording": "Recording",
+    "recordingOff": "Off",
+    "colTime": "Time",
+    "colTask": "Task",
+    "colLatency": "Latency",
+    "colStatus": "Status",
+    "empty": "No LLM call records",
+    "taskBadge": "Task #{id}",
+    "rawTooltipHas": "View the raw HTTP actually exchanged with the provider",
+    "rawTooltipNone": "This record was created before that feature was added, so there is no raw data",
+    "raw": "Raw",
+    "loading": "Loading…",
+    "emptyContent": "(Empty)",
+    "copyCopied": "Copied",
+    "copyTooltip": "Copy content",
+    "deleteTitle": "Delete all LLM conversations for task “{taskId}”?",
+    "deleteDesc": "Permanently deletes all LLM call records for this task (including raw requests/responses). This action can't be undone.",
+    "cancel": "Cancel",
+    "deleting": "Deleting…",
+    "confirmDelete": "Delete"
+  },
+  "assetSync": {
+    "title": "Asset Sync",
+    "subtitle": "Sync and register assets from external data sources",
+    "notReady": "Once the data source is ready, you can select projects/tasks to sync.",
+    "statusLoadFailed": "Failed to read the data source status: {msg}",
+    "dsTitle": "Data source status",
+    "refresh": "Refresh",
+    "created": "Created the ScopeSentry data source. Enter the address and key",
+    "createFailed": "Creation failed: {msg}",
+    "urlRequired": "Enter the MCP address",
+    "savedEnabled": "Saved and enabled the data source",
+    "savedPending": "Saved (the activation conditions are not yet met)",
+    "saveFailed": "Save failed: {msg}",
+    "notCreatedDesc": "You haven't created the ScopeSentry data source yet. Creating it adds a placeholder MCP (with empty address/key and in a disabled state).",
+    "createDs": "Create data source",
+    "notConfigured": "The data source was created but not yet configured. Enter the MCP address and API Key, then enable it.",
+    "notEnabled": "The data source is configured but not yet enabled. Saving enables it automatically.",
+    "mcpUrl": "MCP address",
+    "mcpUrlPlaceholder": "http://your-host:8082/mcp",
+    "apiKeyLabel": "API Key (X-API-Key, leave empty to keep the existing value)",
+    "saveEnable": "Save and enable",
+    "toolsFound": "Found {count} tools",
+    "badgeChecking": "Checking…",
+    "badgeNotCreated": "Not created",
+    "badgeNotConfigured": "Not configured",
+    "badgeNotEnabled": "Disabled",
+    "badgeConnected": "Connected",
+    "badgeUnreachable": "Unreachable",
+    "listLoadFailed": "Failed to load the list: {msg}",
+    "selectAtLeastOneTarget": "{dim, select, project {Select at least one project} other {Select at least one task}}",
+    "selectAtLeastOneType": "Select at least one asset type",
+    "syncDone": "Sync complete; registered {total} assets",
+    "syncFailed": "Sync failed: {msg}",
+    "loading": "Loading…",
+    "noData": "No data",
+    "workbenchTitle": "Select data to sync",
+    "dimProject": "By project",
+    "dimTask": "By task",
+    "syncAssetsLabel": "Assets to sync:",
+    "createCompany": "Create a company per project and record it in the asset scope",
+    "searchProject": "Search project name",
+    "searchTask": "Search task name",
+    "selectedCount": "{count} selected",
+    "syncSelected": "Sync selected",
+    "colProjectName": "Project name",
+    "colTaskName": "Task name",
+    "colTag": "Tag",
+    "colAssetCount": "Asset count",
+    "colStatus": "Status",
+    "colTime": "Time",
+    "pageNo": "Page {page}",
+    "assetType": {
+      "subdomain": "Subdomain",
+      "service": "Service",
+      "app": "App",
+      "ip": "IP"
+    },
+    "resultCompanies": "New/updated companies: {names}",
+    "moreErrors": "… {count} errors in total"
+  },
+  "assets": {
+    "title": "Assets",
+    "totalAssets": "<n>{count}</n> total",
+    "deleteSelected": "Delete selected ({count})",
+    "refresh": "Refresh",
+    "companyTable": {
+      "name": "Company",
+      "count": "Asset count",
+      "scope": "Asset scope",
+      "actions": "Actions"
+    },
+    "noScope": "No scope set",
+    "deleteCompanyAria": "Delete company {name}",
+    "companyEmpty": "No companies registered yet. Click \"Add company\" in the top right and enter an asset scope; the system will automatically attribute matching assets to it.",
+    "tab": {
+      "company": "Company",
+      "rootDomain": "Root domain",
+      "ip": "IP",
+      "subdomain": "Subdomain",
+      "app": "Application",
+      "service": "Service",
+      "endpoint": "Endpoint"
+    },
+    "col": {
+      "domain": "Domain",
+      "icp": "ICP registration",
+      "ownerCompany": "Owning company",
+      "cSegment": "C segment",
+      "boundDomains": "Bound domains",
+      "openPorts": "Open ports",
+      "rootDomain": "Root domain",
+      "recordType": "Record type",
+      "recordValue": "Record value",
+      "appName": "Application name",
+      "category": "Category",
+      "service": "Service",
+      "port": "Port",
+      "statusCode": "Status code",
+      "pageTitle": "Title",
+      "fingerprint": "Fingerprint",
+      "auth": "Auth",
+      "method": "Method",
+      "fullUrl": "Full URL",
+      "params": "Parameters"
+    },
+    "unassigned": "Unassigned",
+    "deleteAssetAria": "Delete asset {target}",
+    "authFallback": "Auth",
+    "emptyData": "No data",
+    "loading": "Loading…",
+    "deleteDialog": {
+      "title": "Confirm deletion",
+      "body": "This permanently deletes <n>{count}</n> asset records. This action cannot be undone.",
+      "confirm": "Confirm deletion"
+    },
+    "deleteCompanyDialog": {
+      "title": "Delete company · {name}",
+      "body": "This permanently deletes the company and its asset scope settings. It cannot be undone.",
+      "alsoDeleteAssets": "Also delete all assets belonging to this company",
+      "alsoDeleteHint": "If not selected, the assets are kept and only their attribution is released"
+    },
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "save": "Save",
+    "deleting": "Deleting…",
+    "fixInvalidScope": "Please fix the invalid asset scope",
+    "saveFailed": "Save failed: {msg}",
+    "reasonLabel": "Attribution rationale (optional)",
+    "reasonPlaceholder": "e.g. certificate / whois / ASN evidence",
+    "toast": {
+      "deleted": "Deleted {count} assets",
+      "deleteFailed": "Delete failed: {msg}",
+      "companyDeletedWithAssets": "Deleted the company along with {count} assets",
+      "companyDeleted": "Company deleted"
+    },
+    "companyDialog": {
+      "addButton": "Add company",
+      "title": "Add company",
+      "description": "Set up a company and its asset scope. Keywords are used only as Agent hints and do not auto-attribute assets.",
+      "nameLabel": "Company name",
+      "namePlaceholder": "e.g. Acme Corp (name must be unique)",
+      "nameRequired": "Please enter a company name",
+      "createdWithInvalid": "Company created with {added} scope entries added. {invalid} rows are invalid",
+      "created": "Company created with {added} scope entries added",
+      "exists": "Company already exists. Please use a different name"
+    },
+    "editScope": {
+      "button": "Edit",
+      "title": "Edit asset scope · {name}",
+      "description": "Editing replaces the entire existing scope. ICP matches assets precisely, while company keywords are used only as Agent hints.",
+      "overwrite": "Overwrite and save",
+      "savedWithInvalid": "Saved. {invalid} rows are invalid",
+      "updated": "Scope updated. {added} total"
+    },
+    "appendScope": {
+      "button": "Append",
+      "title": "Append asset scope · {name}",
+      "description": "The new scope is added to the existing scope. ICP matches assets precisely, while company keywords are used only as Agent hints.",
+      "scopeRequired": "Please enter the scope to append",
+      "appended": "Added {added} scope entries"
+    }
+  },
+  "tasksPage": {
+    "tab": {
+      "current": "Current tasks",
+      "archived": "Archived"
+    },
+    "filter": {
+      "searchPlaceholder": "Search description / goal / ID",
+      "clearSearch": "Clear search",
+      "statusPlaceholder": "Status",
+      "allStatus": "All statuses",
+      "categoryPlaceholder": "Task category",
+      "allCategory": "All categories",
+      "uncategorized": "Uncategorized"
+    },
+    "count": "{shown}/{total}",
+    "selected": "{count} selected",
+    "clearSelection": "Clear selection",
+    "batchPause": "Pause {count}",
+    "batchResume": "Resume {count}",
+    "batchArchive": "Archive {count}",
+    "empty": {
+      "noTasks": "No tasks yet. Click \"New task\" at the top right to get started.",
+      "noMatch": "No matching tasks."
+    },
+    "table": {
+      "selectAllAria": "Select all tasks on this page",
+      "name": "Name",
+      "description": "Description",
+      "target": "Goal",
+      "status": "Status",
+      "goalProgress": "Goal progress",
+      "findings": "Findings",
+      "findingsSub": "Critical/High/Medium/Low",
+      "findingsTitle": "Critical / High / Medium / Low",
+      "runningWorker": "Running workers",
+      "created": "Created",
+      "duration": "Duration",
+      "actions": "Actions"
+    },
+    "delete": {
+      "detailAssets": "{n} assets deleted",
+      "detailAssetsDetached": "{n} shared asset links removed",
+      "detailTraffic": "{n} traffic records deleted",
+      "detailFiles": "Task files deleted",
+      "detailFindings": "{n} findings deleted",
+      "detailLlm": "{n} LLM request/response records deleted",
+      "summary": "Task deleted ({details})",
+      "summaryBare": "Task deleted"
+    },
+    "toast": {
+      "deleteWarn": "{summary}. Some external data could not be cleaned up: {warning}",
+      "deleteFailed": "Delete failed: {msg}",
+      "paused": "Task #{id} paused",
+      "resumed": "{queued, select, yes {Task #{id} resumed (added to queue)} other {Task #{id} resumed}}",
+      "controlFailed": "{action, select, pause {Pause failed: {msg}} other {Resume failed: {msg}}}",
+      "renamed": "Task #{id} renamed",
+      "renameFailed": "Rename failed: {msg}",
+      "pinned": "Task #{id} pinned",
+      "unpinned": "Task #{id} unpinned",
+      "pinFailed": "{pinned, select, yes {Unpin failed: {msg}} other {Pin failed: {msg}}}",
+      "archiveQueued": "Task #{id} added to the archive queue",
+      "archiveFailed": "Archive failed: {msg}"
+    },
+    "row": {
+      "selectAria": "Select task {id}",
+      "pinnedBadge": "Pinned",
+      "unnamed": "Unnamed",
+      "viewDetail": "View task details",
+      "tokenTitle": "Input {input} · Cache {cache} · Output {output}",
+      "tokenIn": "In",
+      "tokenCache": "Ca",
+      "tokenOut": "Out",
+      "nameAria": "Task #{id} name",
+      "renameAria": "Rename task #{id}",
+      "renameTitle": "Rename",
+      "pinAria": "Pin task #{id}",
+      "unpinAria": "Unpin task #{id}",
+      "pinTitle": "Pin",
+      "unpinTitle": "Unpin",
+      "resumeTask": "Resume task",
+      "pauseTask": "Pause task",
+      "controlDisabled": "Can't pause or resume in this state",
+      "archiveAria": "Archive task #{id}"
+    },
+    "archiveBlock": {
+      "queued": "Queued tasks must be paused first",
+      "running": "Running or unfinished tasks must be paused first",
+      "inherited": "Unarchived task #{id} directly inherits this task; archive the dependent task first"
+    },
+    "archiveDialog": {
+      "title": "{count, plural, =1 {Archive this task?} other {Archive # tasks?}}",
+      "description": "Archiving stops task scheduling and compresses the graph, LLM records, files, and dedicated assets and traffic into local cold storage. Once archiving is done, you can restore it from \"Archived\".",
+      "cancel": "Cancel",
+      "confirm": "Confirm archive"
+    },
+    "batch": {
+      "deleted": "Deleted {count} tasks",
+      "deletedDetails": "Deleted {count} tasks ({details})",
+      "deleteWarn": "{summary}. Some external data could not be cleaned up: {warnings}",
+      "deleteFailed": "Failed to delete {count} tasks: {items}{truncated, select, yes { and more} other {}}",
+      "archiveQueued": "Added {count} tasks to the archive queue",
+      "archiveFailed": "Can't archive {count} tasks: {items}",
+      "controlLimit": "You can control at most 100 tasks at a time",
+      "paused": "Paused {count} tasks",
+      "resumed": "{queued, select, yes {Resumed {count} tasks (some were queued)} other {Resumed {count} tasks}}",
+      "controlFailed": "Failed to process {count} tasks: {items}{truncated, select, yes { and more} other {}}",
+      "controlBatchFailed": "{action, select, pause {Bulk pause failed: {msg}} other {Bulk resume failed: {msg}}}",
+      "moveLimit": "You can change the category of at most 100 tasks at a time",
+      "moved": "Moved {count} tasks to \"{target}\"",
+      "moveFailed": "Failed to move {count} tasks: {items}{truncated, select, yes { and more} other {}}",
+      "moveCategoryFailed": "Failed to change category: {msg}",
+      "statusChanged": "Status changed",
+      "taskGone": "The task no longer exists"
+    },
+    "upload": {
+      "marker": "[Uploaded files (absolute paths)]",
+      "hint": "The worker can open these paths with Read/Bash:",
+      "failed": "Upload failed: {msg}"
+    },
+    "taskRef": "Task #{id}",
+    "sort": {
+      "default": "Sort by {label} descending",
+      "active": "Currently sorted by {label} {direction, select, asc {ascending} other {descending}}. Click to toggle direction"
+    },
+    "concurrency": {
+      "aria": "Task concurrency settings",
+      "trigger": "Concurrency settings",
+      "title": "Task concurrency limit",
+      "description": "Limit how many tasks run at the same time. When the limit is reached, new tasks are queued in creation order and start automatically as slots free up.",
+      "enableLabel": "Enable task concurrency limit",
+      "defaultOff": "Off by default",
+      "limitLabel": "Concurrency limit",
+      "cancel": "Cancel",
+      "save": "Save",
+      "enabledToast": "Concurrency limit on. Up to {count} tasks run at the same time",
+      "disabledToast": "Task concurrency limit turned off",
+      "saveFailed": "Save failed: {msg}"
+    },
+    "archive": {
+      "state": {
+        "archive_queued": "Archive queued",
+        "archiving": "Archiving",
+        "archive_failed": "Archive failed",
+        "ready": "Restorable",
+        "restore_queued": "Restore queued",
+        "restoring": "Restoring",
+        "restore_failed": "Restore failed",
+        "delete_queued": "Delete queued",
+        "deleting": "Deleting",
+        "delete_failed": "Delete failed"
+      },
+      "compression": "{size} · {percent}% saved",
+      "deleteTitle": "Permanently delete {count} archived tasks?",
+      "deleteDescription": "Permanently deletes about {size} of archive bundles and {rows} associated data snapshots. This action cannot be undone.",
+      "deleteCancel": "Cancel",
+      "deleteConfirm": "Delete permanently",
+      "loadFailed": "Failed to load the archive list: {msg}",
+      "restoreQueued": "Queued {count} tasks for restore",
+      "restoreRejected": "{count} tasks can't be restored",
+      "restoreFailed": "Restore failed: {msg}",
+      "deleteQueued": "Queued {count} archived items for permanent deletion",
+      "deleteRejected": "{count} archived items can't be deleted",
+      "permDeleteFailed": "Permanent deletion failed: {msg}",
+      "retryQueued": "Requeued for processing",
+      "retryFailed": "Retry failed: {msg}",
+      "searchPlaceholder": "Search task name / description / ID",
+      "statePlaceholder": "Processing state",
+      "allStates": "All states",
+      "total": "{count} archived",
+      "selected": "{count} selected",
+      "restore": "Restore {count}",
+      "deleteSelected": "Delete {count}",
+      "selectPageAria": "Select all archives on this page",
+      "colTask": "Task",
+      "colOriginalStatus": "Original status",
+      "colCategory": "Category",
+      "colArchivedAt": "Archived at",
+      "colCompressedSize": "Compressed size",
+      "colDataCount": "Data volume",
+      "colProcessingState": "Processing state",
+      "colActions": "Actions",
+      "emptyTitle": "No archived tasks",
+      "emptyDescription": "You can archive paused or finished tasks from the current task list.",
+      "selectRowAria": "Select archived task #{id}",
+      "uncategorized": "Uncategorized",
+      "originalSizeTitle": "{size} before compression",
+      "retryAria": "Retry archive operation",
+      "retryTitle": "Retry",
+      "restoreAria": "Restore task",
+      "restoreTitle": "Restore task",
+      "permDeleteAria": "Permanently delete archived item",
+      "permDeleteTitle": "Delete permanently"
+    },
+    "deleteOptions": {
+      "legend": "Clean up associated data too",
+      "allLabel": "Delete all",
+      "allDescription": "Selects all the associated data below. Includes assets, traffic, files, findings, and LLM request/response records.",
+      "assetsLabel": "Associated assets",
+      "assetsDescription": "Deletes assets that belong only to this task. For shared assets, only the link to the current task is removed.",
+      "trafficLabel": "Associated traffic",
+      "trafficDescription": "Deletes by the exact hostnames of associated assets. Shared host traffic still referenced by other tasks is kept.",
+      "filesLabel": "Task files",
+      "filesDescription": "Deletes uploaded files, command output, and other artifacts in this task's working directory.",
+      "findingsLabel": "Associated findings",
+      "findingsDescription": "Permanently deletes the standalone finding records and finding reports this task created.",
+      "llmLabel": "LLM request/response records",
+      "llmDescription": "Permanently deletes the LLM request, response, token, and error details this task recorded."
+    },
+    "deleteDialog": {
+      "aria": "Delete task",
+      "title": "Delete task #{id}?",
+      "descSuffix": "'s run history and exploration path will be permanently deleted.",
+      "descNoTask": "This task's run history and exploration path will be permanently deleted.",
+      "cancel": "Cancel",
+      "deleting": "Deleting",
+      "delete": "Delete"
+    },
+    "move": {
+      "trigger": "Change category",
+      "title": "Change category of {count} selected tasks",
+      "description": "The target category is applied to all selected tasks. Choosing \"Uncategorized\" removes them from their current category.",
+      "targetLabel": "Target category",
+      "selectPlaceholder": "Select category",
+      "uncategorized": "Uncategorized",
+      "noCategory": "No categories yet. Create one first in \"Manage categories\".",
+      "cancel": "Cancel",
+      "move": "Move"
+    },
+    "bulkDelete": {
+      "trigger": "Delete selected {count}",
+      "title": "Delete {count} selected tasks?",
+      "description": "The run history and exploration paths of these tasks will be permanently deleted, and the cleanup options below apply to all selected tasks.",
+      "more": "…and {count} more",
+      "cancel": "Cancel",
+      "progress": "Deleting {done}/{total}",
+      "confirm": "Delete {count} tasks"
+    },
+    "sourcePicker": {
+      "atLimit": "You can link up to {max} tasks",
+      "placeholder": "Search task ID, description, or goal",
+      "empty": "No matching tasks",
+      "unknownTask": "Unknown task"
+    },
+    "categoryPicker": {
+      "unknown": "Unknown category",
+      "placeholder": "Search for a category, or type a new name and press Enter to create one",
+      "create": "Create category \"{name}\"",
+      "hint": "Type a name to search for or create a category",
+      "created": "Created category \"{name}\"",
+      "createFailed": "Failed to create category: {msg}"
+    },
+    "companyPicker": {
+      "scopeDomain": "Domain",
+      "scopeKeyword": "Keyword",
+      "scopeNone": "No asset scope set",
+      "scopeEntry": "{label}: {value}",
+      "scopeMore": "and {count} more",
+      "placeholder": "Search company name or asset scope",
+      "empty": "No matching companies",
+      "fallback": "Company #{id}",
+      "assetCount": "{count} assets"
+    },
+    "categoryManage": {
+      "trigger": "Manage categories",
+      "title": "Manage task categories",
+      "description": "Categories are used for filtering and archiving tasks. Editing them does not affect task execution, and deleting one moves its tasks to Uncategorized.",
+      "newCategory": "New category",
+      "uncategorized": "Uncategorized",
+      "nameLabel": "Category name",
+      "namePlaceholder": "e.g. External network assessment",
+      "renameHint": "{count} tasks currently use this category. Renaming it updates the task list too.",
+      "createHint": "Once created, you can use it in new tasks and the task list filter.",
+      "categoryTasks": "Tasks in category",
+      "uncategorizedTasks": "Uncategorized tasks",
+      "categoryTaskCount": "This category has {count} tasks.",
+      "uncategorizedTaskCount": "{count} tasks are not categorized yet.",
+      "emptyCategoryTitle": "No tasks in this category",
+      "emptyUncategorizedTitle": "No uncategorized tasks",
+      "emptyDescription": "Tasks appear here once they're added to a category.",
+      "dropHint": "Drop to move",
+      "taskCount": "{count} tasks",
+      "dragAria": "Drag task #{id}",
+      "dragTitle": "Drag task",
+      "deleteCategory": "Delete category",
+      "close": "Close",
+      "saving": "Saving",
+      "create": "Create category",
+      "save": "Save changes",
+      "created": "Category created",
+      "updated": "Category updated",
+      "createFailed": "Failed to create category: {msg}",
+      "updateFailed": "Failed to update category: {msg}",
+      "deleted": "Category deleted; its tasks were moved to Uncategorized",
+      "deleteFailed": "Failed to delete category: {msg}",
+      "targetMissing": "Target category not found. Refresh and try again",
+      "moved": "Moved task #{id} to \"{name}\"",
+      "moveFailed": "Failed to move task: {msg}",
+      "deleteTitle": "Delete category \"{name}\"?",
+      "unnamedCategory": "Unnamed category",
+      "deleteDescription": "Deleting the category automatically moves its {count} tasks to Uncategorized; task data is not deleted.",
+      "deleteCancel": "Cancel",
+      "deleting": "Deleting",
+      "deleteConfirm": "Delete"
+    },
+    "create": {
+      "newTask": "New task",
+      "description": "Enter the test target and goal. You can expand advanced settings when needed.",
+      "nameLabel": "Name (optional)",
+      "namePlaceholder": "Give it a recognizable name. e.g. Acme website pentest",
+      "categoryLabel": "Task category",
+      "categoryHint": "Optional, and only one category can be set. It's used for the task list filter and archiving, and does not affect Agent execution.",
+      "descLabel": "Description",
+      "descPlaceholder": "Test target and context. e.g. Test the site example.com",
+      "uploadButton": "Upload files",
+      "uploadDone": "Uploaded {count} files and appended their absolute paths to the end of the description (editable)",
+      "uploadIdle": "You can select multiple files. On upload, their absolute paths are appended to the description so the worker can open them with Read/Bash",
+      "goalLabel": "Goal",
+      "goalPlaceholder": "What to achieve. e.g. Gain admin page access, gain server access",
+      "sourceLabel": "Linked tasks",
+      "sourceHint": "You can link up to {max} tasks. The new task inherits the selected tasks' persistent blackboard, asset scope, and related traffic as live read-only, and writes to its own independent blackboard.",
+      "companyLabel": "Linked company asset scope",
+      "companyHint": "When you create the task, the assets the selected company currently owns are added to \"Test assets,\" and the domains, IPs, CIDRs, ICP, and company keywords are provided to the Agent as scope context. It does not auto-generate intents or override the execution goal.",
+      "interceptLabel": "Per-task asset block / allow rules (optional)",
+      "interceptHint": "Applies only to this task and is not added to the global rules. The evaluation order is as follows. First, assets are checked against the \"block\" rules (including global ones); if a rule matches, testing is prohibited. If none match and this task has \"allow\" rules set, an asset must match one allow rule to pass; otherwise testing is likewise not allowed. If no allow rule is set, no whitelist is applied.",
+      "llmLabel": "LLM profile chain",
+      "llmHint": "Fails over in list order. The first entry is the current profile, and it switches to the next only when the quota runs out.",
+      "advanced": "Advanced settings",
+      "advancedSub": "Timeout · Heartbeat · First intent",
+      "timeoutLabel": "Task timeout (minutes, optional)",
+      "timeoutPlaceholder": "Leave empty for no time limit",
+      "timeoutHint": "When the time is up, it runs a graceful wind-down (each agent records its results + the planner makes a final decision), and the task enters the timeout-ended state.",
+      "heartbeatLabel": "Planner heartbeat (minutes)",
+      "heartbeatPlaceholder": "Default 10",
+      "heartbeatHint": "If this much time passes since the last planning finished or the task started with no trigger in between, one planning round runs automatically (to prevent stalls and resume supervision of running workers). The minimum is 10 minutes.",
+      "seedLabel": "Dispatch the first intent immediately (description + goal)",
+      "seedHint": "When on, right after creation it dispatches \"description + goal\" as a single intent so the worker starts immediately without waiting for the first planning round; when it finishes, the planner takes over to assess and follow up. Recommended for cases usually solved by a single work, like CTF; when off, it follows the standard flow of planning first, then executing.",
+      "coverageLabel": "Asset coverage feature",
+      "coverageHint": "On by default. It calculates and displays test coverage, shows testing progress on the situation map, and automatically accumulates the tested scope. When off, coverage is no longer calculated or displayed, the situation map shows only assets without progress, and the agent no longer receives scope-related tools. Turning it off does not affect \"Linked company asset scope\".",
+      "cancel": "Cancel",
+      "creating": "Creating",
+      "create": "Create",
+      "validateRequired": "Enter a description and goal",
+      "validateSourceLimit": "You can link up to {max} source tasks",
+      "createdToast": "Task created",
+      "createFailed": "Creation failed: {msg}"
+    }
+  },
+  "chatSendMode": {
+    "option": {
+      "enter": "Enter to send, Shift+Enter for newline",
+      "ctrlEnter": "Ctrl+Enter to send, Enter for newline"
+    }
+  },
+  "traffic": {
+    "title": "Traffic",
+    "subtitle": "Global recording proxy · all HTTP traffic",
+    "recording": "Recording",
+    "stopped": "Stopped",
+    "total": "<n></n> total",
+    "picker": {
+      "selectTarget": "Select target…",
+      "selectTargetCount": "Select target ({count})",
+      "batchByTarget": "Batch delete by target",
+      "sortAriaDesc": "Packet count is currently descending. Click to switch to ascending",
+      "sortAriaAsc": "Packet count is currently ascending. Click to switch to descending",
+      "sortTipDesc": "Packet count descending",
+      "sortTipAsc": "Packet count ascending",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
+      "empty": "No traffic records",
+      "deleteSelected": "Delete selected ({count})"
+    },
+    "toolbar": {
+      "hostHint": "First select a target on the left or enter a host",
+      "deleteHost": "Delete this target",
+      "purgeTitle": "Delete all traffic and compact storage",
+      "purgeEmptyTitle": "No traffic records currently",
+      "purgeAll": "Purge all",
+      "search": "Search all (URL / method / type / status code…)",
+      "method": "Method",
+      "allMethods": "All methods"
+    },
+    "filters": {
+      "advanced": "Advanced filters",
+      "body": "Response content (body keyword, 3+ chars)",
+      "path": "Path (e.g. /api/user/…)",
+      "status": "Status code",
+      "allStatus": "All status codes",
+      "respLen": "Response length",
+      "min": "Min (B)",
+      "max": "Max (B)",
+      "clear": "Clear filters"
+    },
+    "selection": {
+      "selected": "{count} traffic entries selected",
+      "linkToVuln": "Link to finding",
+      "clear": "Clear selection"
+    },
+    "table": {
+      "selectPage": "Select traffic on this page",
+      "time": "Time",
+      "method": "Method",
+      "status": "Status code",
+      "respLen": "Response length",
+      "selectRow": "Select traffic {id}",
+      "loading": "Loading…",
+      "empty": "No matching traffic."
+    },
+    "detail": {
+      "request": "Request",
+      "response": "Response",
+      "loadingMsg": "Loading message…",
+      "loadFailed": "(Unable to load message)"
+    },
+    "toast": {
+      "purgedWithSpace": "Purged {deleted} traffic entries, freed {space} of storage",
+      "purged": "Purged {deleted} traffic entries",
+      "purgeFailed": "Purge failed: {msg}"
+    },
+    "dialog": {
+      "titlePurge": "Purge all traffic records?",
+      "titleSelected": "Delete all traffic for the {count} selected targets?",
+      "titleFilter": "Delete all traffic for this target?",
+      "descPurge": "Permanently deletes all <n></n> traffic records (including raw requests/responses), ignoring the current filter. This action cannot be undone. Traffic evidence linked to findings is stored in a separate evidence vault and is unaffected.<br></br><muted>After purging, storage is also compacted, returning disk space held by the index to the system. Traffic recording is briefly paused during this time.</muted>",
+      "descSelected": "Permanently deletes all traffic records (including raw requests/responses) for <n></n> targets (<hosts></hosts>). This action cannot be undone.",
+      "descFilter": "Permanently deletes all traffic records (including raw requests/responses) whose host contains <host></host>. This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirmPurge": "Confirm purge",
+      "confirmDelete": "Confirm delete",
+      "purging": "Purging…",
+      "deleting": "Deleting…"
+    }
+  },
+  "chat": {
+    "live": "Live",
+    "custom": "Custom",
+    "emptyStart": "Start a conversation with \"{agent}\"",
+    "turnsTooltip": "Agent iterations (number of model calls)",
+    "turnsCount": "{turns}×",
+    "loadEarlierHint": "Scroll up to load earlier messages…",
+    "running": "Running",
+    "untitledConversation": "New conversation",
+    "newConversation": "New conversation",
+    "filterByAgentAria": "Filter conversations by agent",
+    "allAgents": "All agents",
+    "agentOption": "{name} ({count})",
+    "selectAllAria": "Select all conversations in the current filter",
+    "selectedCount": "{count} selected",
+    "done": "Done",
+    "multiSelect": "Multi-select",
+    "emptyAll": "No conversations",
+    "emptyForAgent": "No conversations for this agent",
+    "loadMore": "Load more",
+    "deletedConversation": "Conversation deleted",
+    "loadingConversation": "Loading the conversation…",
+    "totalCount": "{count} total",
+    "filteredCount": "{shown} / {total}",
+    "conversationNotFound": "Conversation not found",
+    "bulkDeleted": "Deleted {count} conversations",
+    "bulkDeleteFailDetail": "#{id} ({error})",
+    "bulkDeleteFailed": "Failed to delete {count} conversations: {details}",
+    "andMore": " and more",
+    "bulkDeleteError": "Bulk delete failed: {msg}",
+    "bulkDeleteTitle": "Delete {count} selected conversations?",
+    "bulkDeleteDesc": "Conversation messages and run history are deleted together, and this action cannot be undone.",
+    "deleting": "Deleting",
+    "confirmDelete": "Confirm delete",
+    "composer": {
+      "removeAttachment": "Remove",
+      "uploadFile": "Upload file",
+      "sendSideQuestion": "Send side question",
+      "stopRun": "Stop this run",
+      "sendMessage": "Send message",
+      "placeholder": "Type a message. Use @ to cite records, Enter to send",
+      "placeholderRunning": "The agent is responding. You can ask with /btw…"
+    },
+    "llmProfile": {
+      "default": "Default",
+      "defaultNamed": "Default ({name})",
+      "change": "Change",
+      "select": "Select LLM profile"
+    },
+    "agentPicker": {
+      "placeholder": "Select agent…"
+    },
+    "item": {
+      "selectAria": "Select conversation \"{title}\"",
+      "renameHint": "Double-click to rename",
+      "pinnedAria": "Pinned",
+      "runningTooltip": "Agent running",
+      "manageAria": "Manage conversation \"{title}\"",
+      "rename": "Rename",
+      "pin": "Pin",
+      "unpin": "Unpin",
+      "delete": "Delete",
+      "deleteTitle": "Delete conversation \"{title}\"?",
+      "deleteDesc": "This action cannot be undone.",
+      "cancel": "Cancel"
+    },
+    "group": {
+      "expand": "Expand \"{name}\"",
+      "collapse": "Collapse \"{name}\"",
+      "activeInside": "The current conversation is in this group",
+      "runningAria": "{count} conversations running"
+    },
+    "toast": {
+      "sendFailed": "Send failed: {msg}",
+      "uploadFailed": "Upload failed: {msg}",
+      "switchLlmFailed": "Failed to switch LLM: {msg}",
+      "stopFailed": "Stop failed: {msg}",
+      "deleteFailed": "Delete failed: {msg}",
+      "renameFailed": "Rename failed: {msg}",
+      "pinFailed": "Pin failed: {msg}",
+      "unpinFailed": "Unpin failed: {msg}"
+    }
+  },
+  "linkTraffic": {
+    "title": "Link to vulnerability",
+    "description": "Saves the {count} selected traffic items as evidence for an existing vulnerability.",
+    "findLabel": "Find vulnerability",
+    "searchPlaceholder": "Name / summary / vulnerability type",
+    "loading": "Loading…",
+    "empty": "No matching vulnerabilities. Register a vulnerability first",
+    "prevPage": "Previous page",
+    "nextPage": "Next page",
+    "pageInfo": "Page {page} · {total} total",
+    "selected": "Selected vulnerability: #{id} {name}",
+    "selectPrompt": "Select a vulnerability",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "confirm": "Confirm link",
+    "boundToast": "Linked {count} traffic items to vulnerability #{id}"
+  },
+  "sortableHead": {
+    "sortBy": "Sort by {label} descending",
+    "active": "{label} currently sorted {direction, select, asc {ascending} other {descending}}, click to toggle sort direction"
+  },
+  "sessions": {
+    "token": {
+      "inShort": "In",
+      "cacheShort": "Cache",
+      "outShort": "Out",
+      "inLong": "Input",
+      "cacheLong": "Cache",
+      "outLong": "Output"
+    },
+    "item": {
+      "sourceTask": "Source #{id}",
+      "deleted": "Deleted",
+      "live": "Live",
+      "deleteTitle": "Delete this intent (reason required; choose soft or hard delete)"
+    },
+    "asset": {
+      "current": "Current asset: {label}",
+      "sourceTask": "Source task #{id}",
+      "type": {
+        "app": "App",
+        "endpoint": "Endpoint",
+        "ip": "IP",
+        "root_domain": "Root domain",
+        "service": "Service",
+        "subdomain": "Subdomain"
+      },
+      "source": {
+        "agent": "Agent discovery",
+        "anchor": "Blackboard anchor",
+        "api": "Asset API",
+        "company": "Company association",
+        "legacy": "Legacy association",
+        "manual": "Manual add",
+        "system": "System association",
+        "task": "Task initialization"
+      }
+    },
+    "toast": {
+      "uploadFailed": "Upload failed: {msg}",
+      "createSessionFailed": "Failed to create session: {msg}",
+      "reasonRequired": "Please enter a deletion reason",
+      "workerPaused": "Worker #{id} paused",
+      "workerResumed": "Worker #{id} resumed, awaiting reassignment",
+      "hardDeleteExtra": "(includes {intents} intents / {facts} facts / {findings} findings)",
+      "workerHardDeleted": "Hard-deleted Worker #{id} and its dedicated child nodes{extra}",
+      "workerSoftDeleted": "Worker #{id} deleted (reason recorded; the planner will re-plan accordingly)",
+      "workerActionFailed": "Worker action failed: {msg}",
+      "loadFailed": "Load failed",
+      "sendFailed": "Send failed: {msg}",
+      "retryLater": "Please try again in a moment",
+      "messageTooLong": "A message can't exceed {max} characters",
+      "workerMessageSent": "Message sent to Worker #{id}. Resuming execution immediately"
+    },
+    "role": {
+      "mainagent": "Main agent",
+      "planner": "Planner",
+      "worker": "Workers",
+      "system": "System audit"
+    },
+    "title": {
+      "main": "Main agent · session #{n}",
+      "planner": "Planner · situation assessment",
+      "system": "System events · LLM failover"
+    },
+    "resolution": {
+      "unnamed": "Unnamed profile",
+      "current": "Current profile: {label}",
+      "unavailable": "Model unavailable",
+      "noConfig": "No LLM profile available"
+    },
+    "list": {
+      "title": "Session list"
+    },
+    "sse": {
+      "live": "Live",
+      "reconnecting": "Reconnecting",
+      "titleLive": "Real-time connection healthy",
+      "titleDown": "Real-time connection dropped; reconnecting automatically (you can still view the history)"
+    },
+    "taskTotal": "Task total",
+    "tokens": {
+      "full": "Input {input} · output {output} · cache read {cacheRead} · cache write {cacheWrite}"
+    },
+    "newMain": {
+      "title": "New main-agent session (clears context, keeps task state)",
+      "aria": "New main-agent session",
+      "label": "New"
+    },
+    "worker": {
+      "loadOlder": "Load more earlier Workers",
+      "noRunning": "No running Worker sessions.",
+      "execSession": "Worker execution session"
+    },
+    "header": {
+      "sourceTask": "Source task #{id} · read-only history",
+      "interactive": "Interactive",
+      "runDurationTitle": "Run time (first step → last step)",
+      "olderHistoryTitle": "Scroll up to load earlier history",
+      "olderHistoryLabel": "↑ Earlier history"
+    },
+    "deletedNotice": {
+      "heading": "This intent was deleted by the user",
+      "detail": "(execution was stopped and the planner notified; the intent and its outputs are preserved, and you can view the history below)",
+      "reason": "Deletion reason: "
+    },
+    "transcript": {
+      "loadingMore": "Loading earlier history…",
+      "loadingActivity": "Loading activity stream…",
+      "loadError": "Load failed: {error}",
+      "retry": "Retry",
+      "emptyMain": "No conversation yet. Send the main agent a message below to guide the exploration or step into the flow.",
+      "emptyWorker": "No activity history."
+    },
+    "composer": {
+      "attachmentRemove": "Remove",
+      "mainAria": "Send a message to the main agent",
+      "mainBusyPlaceholder": "The main agent is running. You can ask with /btw…",
+      "mainPlaceholder": "Message the main agent; use @ to cite findings, assets, and more…",
+      "uploadTitle": "Upload file",
+      "sideQuestion": "Send side question",
+      "stopTitle": "Stop the current run",
+      "sendTitle": "Send message",
+      "workerAria": "Send a message to Worker #{id}",
+      "workerPlaceholder": "Message Worker #{id}; use @ to cite records and steer its execution…",
+      "pauseTitle": "Pause the current Worker",
+      "resumeTitle": "Continue running without a message",
+      "resumeAria": "Continue immediately",
+      "resumeLabel": "Continue"
+    },
+    "deleteDialog": {
+      "title": "Delete Worker #{id}?",
+      "hardDesc": "<s>Hard delete</s> physically removes the intent and the child nodes that <s>support only that intent</s> (cascading down to the leaves so no orphaned data is left), while preserving shared nodes, goals, and task-root facts. <s>This action can't be undone.</s> The planner receives the deletion notice and re-plans accordingly.",
+      "softDesc": "<s>Soft delete</s> marks the intent as \"Deleted\" and records the reason, while the intent node, execution history, and registered facts and findings are <s>all preserved</s>. The planner receives \"the user deleted this intent + reason\" and re-plans accordingly.",
+      "softLabel": "Soft delete",
+      "softHint": "Keeps data, traceable",
+      "hardLabel": "Hard delete",
+      "hardHint": "Cascading removal, unrecoverable",
+      "reasonLabel": "Deletion reason (required)",
+      "reasonPlaceholder": "Explain why you're deleting this intent. e.g. wrong direction / goal no longer exists / duplicate of another intent…",
+      "back": "Back",
+      "confirmHard": "Hard delete",
+      "confirmSoft": "Confirm delete"
+    },
+    "newSession": {
+      "title": "Start a new session?",
+      "desc": "The current session is archived (you can switch back anytime), and the main agent continues with a clean context. The task's graph, assets, and goals are unaffected.",
+      "cancel": "Cancel",
+      "starting": "Starting…",
+      "start": "Start new session"
+    }
+  },
+  "settingsPage": {
+    "title": "System Settings",
+    "subtitle": "Global runtime switches",
+    "save": "Save",
+    "configured": "Configured",
+    "onSuffix": " · On",
+    "offSuffix": " · Off",
+    "toast": {
+      "saveFailed": "Save failed: {error}",
+      "workersInvalid": "The parallel worker count must be an integer greater than 0",
+      "workersSaved": "Saved the parallel worker agent count (applies to tasks started afterward)",
+      "pythonSaved": "Saved the Python interpreter setting",
+      "bindingOn": "Turned on automatic agent traffic binding",
+      "bindingOff": "Turned off automatic agent traffic binding",
+      "noaOn": "Turned on noa context compression (applies to runs started afterward)",
+      "noaOff": "Turned off noa context compression (restored built-in compression)",
+      "webSearchSaved": "Saved the web search settings",
+      "braveKeySaved": "Saved the Brave API Key",
+      "tavilyKeySaved": "Saved the Tavily API Key",
+      "proxySaved": "Saved the egress proxy",
+      "proxyCleared": "Cleared the egress proxy (switched to direct connection)",
+      "globalProxySaved": "Saved the global proxy",
+      "globalProxyCleared": "Cleared the global proxy (switched to direct connection)",
+      "testSuccess": "Search test succeeded · {backend} returned {count} results",
+      "testFailed": "Search test failed: {error}",
+      "testUnknownError": "Unknown error"
+    },
+    "trafficCapture": {
+      "title": "Traffic Capture",
+      "desc": "When on, all agents' HTTP traffic passes through the recording proxy and is fully saved, and the traffic_search / traffic_get tools and proxy settings are injected into the agents (the prompt includes a proxy description).<br></br>When off (default), no traffic is recorded. Agents <b>do not receive</b> the proxy settings or traffic tools, and the prompt <b>does not include</b> any proxy-related content. Toggling regenerates the agents immediately to apply the change.",
+      "on": "On · Recording traffic and injecting the proxy",
+      "off": "Off · No recording or proxy injection"
+    },
+    "agentBinding": {
+      "title": "Automatic Agent Traffic Binding",
+      "desc": "Off by default. When on, the report agent that runs when a finding is recorded cross-checks existing HTTP requests/responses, links the relevant traffic, and then writes the report. <b>Inspecting packets and making extra tool calls increases token usage.</b><br></br>It can still report normally when the traffic is TCP, no packets were captured, or there is no matching traffic. This switch does not affect traffic capture, manual linking, or viewing saved evidence. It applies starting from the next round of agents, and turning it off immediately rejects new automatic links.",
+      "on": "On · Increases token usage",
+      "off": "Off · Manual linking still available"
+    },
+    "globalProxy": {
+      "title": "Global Proxy",
+      "desc": "All agents' <b>destination traffic</b> goes out through this proxy (hides the source IP / uses a relay server). It supports <b>http / https / socks5</b> and can include <code>user:pass</code> authentication. Leave empty for a direct connection.<br></br>When <b>Traffic Capture</b> is on, this proxy becomes the <b>upstream</b> of the recording proxy (traffic is still fully saved and then goes out through this proxy again). When capture is off, it is injected directly into the agents' bash / WebFetch output. It is independent of the web search proxy and the LLM proxy.<br></br><b>Note</b>: With <b>capture off</b>, socks5 depends on whether each command-line tool supports <code>ALL_PROXY</code> (curl does, but some tools may ignore it). If you mainly use socks5, it's better to turn on Traffic Capture. On that path the MITM makes the connection directly, so it applies reliably even if a tool doesn't notice.",
+      "addrLabel": "Proxy address",
+      "placeholder": "socks5://user:pass@host:1080 or http://host:port (empty for direct connection)",
+      "configured": "Configured · All destination traffic goes out through this proxy",
+      "notConfigured": "Not configured · Destination traffic goes out via direct connection"
+    },
+    "constraints": {
+      "title": "Behavior Constraint Injection",
+      "desc": "When on, each task's <b>behavior constraints</b> (the allow/deny items managed under “Behavior Constraints” in the task overview) are appended to that agent's system prompt to limit the exploration scope (e.g., “Test the current port only”, “No brute forcing”).<br></br>You can control injection separately for the <b>planner</b> and the <b>worker</b>; both default to on. Changes apply immediately (read on the next round) with no need to regenerate the agents. When off, that agent no longer sees the constraints.",
+      "injectPlanner": "Inject into the planner",
+      "injectWorker": "Inject into the worker"
+    },
+    "experimental": {
+      "title": "Experimental Features",
+      "desc": "These features are still under validation and default to off. They may change agent behavior or affect stability, so turn them on only after you understand the impact.<br></br><b>noa context compression</b>: the model compresses long conversation history directly (norma v0.4.0). When on, the four kinds of agents connected to the platform (<b>planner / worker / main agent / conversation</b>) hand off context to noa instead of using the built-in compression, and the raw compression output is kept in the task's working directory for easy review. Changes apply immediately (to runs started afterward) with no need to regenerate the agents. Turning it off restores the built-in compression immediately.",
+      "noaLabel": "noa context compression"
+    },
+    "webSearch": {
+      "title": "Web Search",
+      "desc": "The <b>master switch + source settings</b> for web search. Only when it is on can you choose <b>web_search</b> usage individually in <b>each agent's settings</b> (it returns only the title/link/summary and does not fetch the body; body collection is handled by WebFetch). Web search <b>does not go through</b> the recording proxy and is independent of Traffic Capture.<br></br>For the source, you can choose among <b>DuckDuckGo (ddgs)</b> (no Key needed), <b>Brave (free tier)</b> (requires a Brave API Key), <b>Tavily</b> (requires a Tavily API Key), and <b>DeepSeek</b> (reuses the current LLM settings). When the master switch is off, each agent's web search switch is unavailable.",
+      "on": "Master switch on · Can be enabled individually in each agent's settings",
+      "off": "Off · Web search can't be enabled for any agent",
+      "sourceLabel": "Search source",
+      "sourcePlaceholder": "Select a source",
+      "sourceDdgs": "DuckDuckGo (ddgs · free, no Key needed)",
+      "sourceBrave": "Brave (free tier · Key required)",
+      "sourceTavily": "Tavily (Key required)",
+      "sourceDeepseek": "DeepSeek (official)",
+      "deepseekTitle": "DeepSeek official web search",
+      "deepseekDesc1": "This source reuses the <b>currently active LLM settings</b> as-is. So it <b>supports only the official DeepSeek models</b>, and those settings <b>must use the anthropic protocol</b>. DeepSeek's OpenAI-protocol endpoint does not support server-side search. Changing the LLM settings may stop this source from working.",
+      "deepseekDesc2": "Unlike other sources, the search is <b>run by the DeepSeek server</b>. Each search consumes one extra model call (incurring token cost), and the search request <b>does not go through the egress proxy above</b> and <b>is not included in the traffic record</b>. The returned results contain <b>only titles and links</b> (no summary); if you need the body, WebFetch fetches it.",
+      "deepseekDesc3": "You must verify yourself that the above conditions are met; the system does not block it. You can use the “Search Test” button below to actually run it once and check.",
+      "braveKeyLabel": "Brave Search API Key",
+      "braveKeyPlaceholderSet": "Configured (leave empty to keep)",
+      "braveKeyPlaceholderUnset": "Enter the Brave API Key",
+      "braveNeedsKey": "You selected Brave but haven't set a Key yet. The search tool won't turn on until you save a Key.",
+      "braveQuota": "The free tier allows about 2,000 queries per month. Get a Key at https://brave.com/search/api/.",
+      "tavilyKeyLabel": "Tavily Search API Key",
+      "tavilyKeyPlaceholderSet": "Configured (leave empty to keep)",
+      "tavilyKeyPlaceholderUnset": "Enter the Tavily API Key (tvly-…)",
+      "tavilyNeedsKey": "You selected Tavily but haven't set a Key yet. The search tool won't turn on until you save a Key.",
+      "tavilyGetKey": "Sign up at https://tavily.com and get an API Key.",
+      "proxyLabel": "Egress proxy (optional)",
+      "proxyPlaceholder": "http://host:port or socks5://host:port (empty for direct connection)",
+      "proxyHint": "An independent egress proxy used only to reach the search endpoint (VPN/SOCKS, etc.). It is unrelated to the MITM proxy that records traffic; when the network is blocked, connections go through this proxy.",
+      "testHint": "Runs an actual search for “test” with the current settings (source + proxy + Key) to check that it works.",
+      "testRunning": "Testing…",
+      "testButton": "Search Test"
+    },
+    "python": {
+      "title": "Custom scripts · Python interpreter",
+      "desc": "Custom <b>script</b>-type tools run Python with this interpreter. It is auto-detected at startup (python3 preferred); you can enter an absolute path to a venv or a specific version here, and if left empty it is auto-detected at run time.",
+      "placeholder": "/usr/bin/python3 (empty for auto-detection)",
+      "detect": "Detect again"
+    },
+    "workers": {
+      "title": "Task parallelism · Worker agent count",
+      "desc": "The number of worker agents that run in parallel in each task (default 3). A higher value explores more concurrently and consumes more. Changes <b>apply to tasks started afterward</b>; running tasks are unaffected."
+    },
+    "sendKey": {
+      "title": "Session input box send key",
+      "desc": "The conversation page and the main agent session input box in the task details share this setting; selecting it applies immediately with no need to save.<br></br>This setting is <b>saved only in this browser</b> and is not synced to your account, so if you change browsers or clear site data you'll need to set it again.",
+      "label": "Send method"
+    },
+    "update": {
+      "title": "Version and Updates",
+      "desc": "Check for and install new versions from GitHub. Updating restarts the program and interrupts running tasks.",
+      "currentVersion": "Current version",
+      "latestVersion": "Latest version",
+      "modeDocker": "Docker",
+      "modeStandalone": "Standalone program",
+      "changelog": "Changelog",
+      "connectError": "Can't connect to GitHub: {error} You can set the global proxy above and try again.",
+      "noAsset": "{latest} has no release package for {os}/{arch} ({asset} missing), so it can't be updated automatically.",
+      "willDownloadPrefix": "Will download: ",
+      "willDownloadSize": " ({size})",
+      "willDownloadSuffix": ". It is replaced only after passing SHA256 verification and a smoke test; if either fails, the current version is kept automatically.",
+      "upToDate": "You're already on the latest version.",
+      "dockerNote": "In a Docker environment, updating replaces only the program itself and does not update the image's tool chain such as playwright / nmap. Also, recreating the container with <code>docker compose up -d</code> reverts to the version bundled in the image. To upgrade the image as well, run <code>docker compose pull artex && docker compose up -d artex</code>.",
+      "restarting": "Restarting and applying the new version. Please wait (the page will refresh automatically)…",
+      "check": "Check for updates",
+      "updateToVersion": "Update to {latest}",
+      "updateNow": "Update now",
+      "rollback": "Roll back to the previous version",
+      "footer": "One-click update relies on the daemon script restarting the program. Start ARTEX with <code>start.sh</code> (<code>start.bat</code> on Windows). If you run the artex binary directly, it won't restart automatically after the program exits.",
+      "toast": {
+        "checkFailed": "Update check failed: {error}",
+        "found": "Found new version {latest}",
+        "upToDate": "You're already on the latest version",
+        "updated": "Updated to {version}. Reloading the page",
+        "restartTimeout": "Timed out waiting for the service to restart. Check the backend logs or verify that artex was started with start.sh / start.bat.",
+        "updateFailed": "Update failed: {error}",
+        "startFailed": "Failed to start the update: {error}",
+        "rollbackSwitched": "Switched to the previous version. Restarting…",
+        "rollbackFailed": "Rollback failed: {error}",
+        "preparing": "Preparing…"
+      },
+      "confirm": {
+        "title": "Update to {latest}?",
+        "restart": "Updating restarts the program and interrupts running tasks.",
+        "docker": "Note: updating inside the container replaces only the program itself and does not update the image's tool chain such as playwright / nmap. If the new version depends on new tools, switch to running it with docker compose pull.",
+        "rollback": "Roll back to the previous version?\n\nThe program will restart and running tasks will be interrupted.\nNote: the database structure is not rolled back, and the previous version may not recognize data written by the new version."
+      }
+    },
+    "language": {
+      "title": "Display language",
+      "desc": "The language of every label shown on screen. It takes effect immediately with no need to save. This setting is stored in this browser only and is not synced to your account, so you will need to set it again if you switch browsers or clear site data.",
+      "label": "Language"
+    }
+  },
+  "llmPage": {
+    "page": {
+      "subtitle": "Format / model / rate-limit settings shared by all agents. Click a card to edit; the star marks the active profile.",
+      "poolConfig": "Rotation settings",
+      "enabled": "On",
+      "new": "New",
+      "tab": {
+        "profiles": "Model profiles",
+        "retry": "Retry & backoff"
+      },
+      "empty": "No model profiles yet. Add your first one with \"New\" at the top right.",
+      "toast": {
+        "activated": "Activated: {name}",
+        "activateFailed": "Activation failed: {msg}",
+        "cannotDeleteActive": "You can't delete the active profile",
+        "deleted": "Deleted: {name}",
+        "deleteFailed": "Delete failed: {msg}"
+      }
+    },
+    "card": {
+      "proxy": "Proxy {proxy}",
+      "thinking": "Thinking {effort}",
+      "thinkingOff": "Off",
+      "excluded": "Excluded from rotation",
+      "priority": "Priority {priority}",
+      "active": "Active",
+      "activate": "Set active",
+      "deleteAria": "Delete profile"
+    },
+    "health": {
+      "noKey": {
+        "label": "No key",
+        "hint": "API Key is empty, so calls can't be made"
+      },
+      "tripped": "Circuit tripped",
+      "trippedCooldown": "Circuit tripped · {cooldown}",
+      "degraded": "Degraded · {fails} failures",
+      "ok": "Healthy"
+    },
+    "pool": {
+      "title": "LLM rotation · failover",
+      "desc": "When on, agents that <b>don't specify a model</b> automatically switch to the next profile whenever the current one is unusable (insufficient balance / expired key / rate limit / service error).",
+      "enable": {
+        "label": "Enable rotation",
+        "hint": "Off by default. When off, only the active profile is ever used, and a failure just fails.",
+        "aria": "LLM rotation toggle"
+      },
+      "bindFallback": {
+        "label": "Fall back even when a pinned model fails",
+        "hint": "Off by default: when an agent or task pins a specific profile, only that profile is used and a failure just fails (no silent switch to another model). When on, a pinned profile that fails falls back to the rotation chain below.",
+        "aria": "Pinned-profile failure fallback toggle"
+      },
+      "order": {
+        "label": "Rotation order",
+        "tooFew": "Only {n} profile(s) are currently usable, so rotation won't work. You need API Keys filled in and at least 2 profiles taking part in the rotation."
+      },
+      "recoverAll": "Recover all",
+      "badge": {
+        "active": "Active",
+        "excluded": "Excluded"
+      },
+      "cooldown": "Cooldown {cooldown}",
+      "consecutiveFails": "{fails} consecutive failures",
+      "recoverNow": {
+        "aria": "Recover now",
+        "title": "Recover now: clears the circuit breaker and retries this profile on the next call"
+      },
+      "priority": "Priority {priority}",
+      "empty": "No profiles",
+      "note": "The active profile is always first; the rest follow in order of priority (set on each profile). When a profile fails it enters a cooldown (60s → 5min → 30min), is skipped during the cooldown, and is automatically brought back once it recovers. Profiles that can't fit the current request in their context window are skipped. Agents and tasks that pin a model don't take part in the rotation by default.",
+      "toast": {
+        "enabled": "LLM rotation turned on",
+        "disabled": "LLM rotation turned off",
+        "fallbackUpdated": "Fallback setting updated",
+        "setFailed": "Update failed: {msg}",
+        "recoveredOne": "Profile recovered",
+        "recoveredAll": "All profiles recovered",
+        "recoverFailed": "Recovery failed: {msg}"
+      }
+    },
+    "profile": {
+      "titleNew": "New model profile",
+      "titleEdit": "Edit: {name}",
+      "activeBadge": "Active",
+      "descNew": "A new profile isn't activated automatically. Use it by clicking \"Set active\" on its card.",
+      "descEdit": "Make your changes, then click Save. Saving the active profile applies it to all agents immediately.",
+      "name": {
+        "label": "Name",
+        "placeholder": "e.g. OpenAI production"
+      },
+      "format": {
+        "label": "Format",
+        "placeholder": "Select a format"
+      },
+      "model": {
+        "label": "Model",
+        "loadTitle": "Load available models from the API"
+      },
+      "baseUrl": {
+        "label": "Base URL (optional)"
+      },
+      "proxy": {
+        "label": "Proxy (optional)",
+        "hint": "Only LLM outbound requests go through this proxy. Supports http/https/socks5 and may include a username and password (e.g. socks5://user:pass@host:port; URL-encode the password if it contains special characters). Leave empty to use no proxy (direct connection)."
+      },
+      "sessionHeader": {
+        "label": "Custom session header (optional)",
+        "placeholder": "e.g. x-session-id (not sent if empty)",
+        "hint": "Fill in a header name and this HTTP header is sent on every request, with its value automatically set to the <b>current session's session id</b> (conv-12 for chat sessions, exp3-worker-i87 for workers, etc.). It's for gateways that use a session-id header for prompt caching / sticky routing. The same session stays stable across turns, and different sessions differ from one another. Not sent if empty."
+      },
+      "apiKey": {
+        "placeholderSet": "Set ({hint}); leave empty to keep it"
+      },
+      "rps": "Rate limit per second",
+      "rpm": "Rate limit per minute",
+      "cw": "Context window (K)",
+      "rateHint": "Rate limit 0 = unlimited, shared by all agents. The context window is in K (thousands of tokens): 0 = default 200K, max 1000 (i.e. 1M). Set it too high and compaction won't be triggered.",
+      "priority": {
+        "label": "Rotation priority",
+        "hint": "Higher numbers are picked first. The active profile is always first regardless of this value. Profiles with the same priority take turns going first, naturally sharing the quota."
+      },
+      "exclude": {
+        "label": "Exclude from rotation",
+        "hint": "When on, this profile is never used as a failover target (it can still be used when an agent or task pins it explicitly). Good for an expensive profile you want \"reserved for a specific agent, so it isn't consumed when others fail.\"",
+        "aria": "Exclude from rotation"
+      },
+      "streaming": {
+        "label": "Streaming output · streaming",
+        "hint": "When on (default), it runs over streaming SSE so you can watch real-time progress and live token counts during a run. When off, it runs truly non-streaming (stream:false, returning the full response at once), which can work around broken SSE implementations on some gateways (empty frames / frames missing the thinking field) but loses real-time progress during a run.",
+        "aria": "Streaming output"
+      },
+      "maxTokens": {
+        "label": "Output cap · max tokens",
+        "hint": "The maximum number of tokens to generate in a single response, sent with every request. 0 (default) = don't send this field and follow the server default. This differs from the \"Context window\" above, which is the model's total capacity and is used only to compute the compaction threshold locally. Set it too small and a reasoning model gets cut off during the thinking stage and can't answer a single character."
+      },
+      "maxTokensField": {
+        "label": "Cap field name",
+        "opt": {
+          "default": "max_tokens (default)"
+        }
+      },
+      "maxTokensFieldHint": {
+        "openai": "Which key to send the cap under. max_tokens is the default and most compatible gateways recognize only this. OpenAI's official reasoning models (the o-series / GPT-5), on the other hand, recognize only max_completion_tokens and throw an unsupported_parameter error the moment they receive max_tokens.",
+        "anthropic": "Selectable only in the openai format. Anthropic's field name is fixed to max_tokens.",
+        "openai-responses": "Selectable only in the openai format. The Responses API's field name is fixed to max_output_tokens."
+      },
+      "thinkingType": {
+        "label": "Thinking switch · thinking.type",
+        "hint": "Controls whether the thinking field is sent. Don't send = omit this field (compatible with models that don't support it, such as MiniMax); Off = send disabled; On = send enabled. Independent of the effort below.",
+        "opt": {
+          "none": "Don't send (default)",
+          "disabled": "Off",
+          "enabled": "On"
+        }
+      },
+      "effort": {
+        "label": "Reasoning effort · reasoning_effort",
+        "hint": "An independent effort level (OpenAI reasoning_effort / Anthropic output_config.effort). Some interfaces have no thinking field and turn on reasoning through effort alone, so you can set effort on its own without sending the thinking switch.",
+        "opt": {
+          "none": "Don't send (default)"
+        }
+      },
+      "testing": "Testing…",
+      "testConnection": "Test connection",
+      "create": "Create",
+      "save": "Save",
+      "toast": {
+        "modelsLoaded": "Loaded {n} models",
+        "loadModelsFailed": "Failed to load models: {error}",
+        "noModels": "No models returned",
+        "loadModelsError": "Error loading models: {msg}",
+        "testOk": "Connected · {latency}ms · {model}",
+        "testReply": "Reply: {reply}",
+        "testFailed": "Connection failed: {error}",
+        "unknown": "Unknown",
+        "testError": "Test error: {msg}",
+        "nameModelRequired": "Enter a name and a model",
+        "created": "Created: {name} (use it by clicking \"Set active\" on its card)",
+        "savedActive": "Saved. The active profile applies immediately, no restart needed",
+        "saved": "Saved",
+        "saveFailed": "Save failed: {msg}"
+      }
+    },
+    "retryLayer": {
+      "connect": {
+        "title": "Connection retry",
+        "where": "SDK · before a 200 is received",
+        "trigger": "When no connection is made or a 200 hasn't been received yet: network-layer errors such as connection reset / read-write timeout / DNS failure, plus HTTP 408·429·500·502·503·504.",
+        "skips": "Other status codes (400 / 401 / 403 / 404 / 413 / 422, etc.) are definitive rejections that would fail the same way on a resend, so they're passed straight up.",
+        "desc": "Resends the same request as-is. Once a stream has started (a 200 was already received), this layer no longer handles a mid-stream drop.",
+        "attemptsLabel": "Retry count",
+        "defInterval": "0.5s→1s→2s exponential (max 8s)",
+        "offHint": "-1 = never retry; pass the failure straight up"
+      },
+      "empty": {
+        "title": "Empty-response retry",
+        "where": "SDK · openai format only",
+        "trigger": "HTTP 200 with a normal finish_reason of stop, but the entire response contains no content block. Gateway empty frames, frames missing the thinking field, and sampling hiccups all show up this way.",
+        "skips": "Excludes cases where content is empty because it was cut off by max_tokens (that must be solved by raising the output cap; a resend just hits the same wall again).",
+        "desc": "It resends the entire prompt, which is costly on long contexts, so it's best not to set the count high.",
+        "attemptsLabel": "Retry count",
+        "defInterval": "0.5s→1s→2s exponential (max 8s)",
+        "offHint": "-1 = emit the empty response as-is"
+      },
+      "stream": {
+        "title": "Same-provider safe-window retry",
+        "where": "This project · before any output is delivered",
+        "trigger": "A problem that arises after the stream is already established (a 200 was received): a mid-stream disconnect, provider overloaded, or a 429 / 5xx error event inside the stream, while not a single token has yet been delivered to the caller.",
+        "skips": "Doesn't retry quota exhaustion (402 / insufficient_quota, handled by rotation switching profiles), context overflow (413 / context length, handled by compaction), or the definitive rejections 400 / 401 / 403 / 404 / 422.",
+        "desc": "Replays the same request on the same profile. Since no output has been delivered yet, replaying doesn't duplicate model output or tool execution.",
+        "attemptsLabel": "Retry count",
+        "defInterval": "0.5s→1s exponential (max 4s)",
+        "offHint": "-1 = on a stream drop, hand off immediately to the outer intent re-run layer"
+      },
+      "breaker": {
+        "title": "Rotation circuit breaker",
+        "where": "This project · per process, one global instance",
+        "trigger": "Trips when transient failures (429 · 5xx · network errors) pile up consecutively to the threshold. Definitive failures such as insufficient balance (402), expired key (401 / 403), and missing model (404) trip immediately from the first one, ignoring the threshold.",
+        "skips": "A single success resets the count to 0, so a profile that only acts up occasionally won't gradually accumulate its way to tripping.",
+        "desc": "When tripped, it enters a cooldown, and during the cooldown rotation skips this profile. The state is stored in the DB, so it survives a restart.",
+        "attemptsLabel": "Consecutive failures before tripping",
+        "defInterval": "1min→5min→30min steps",
+        "offHint": "-1 = never trip on transient failures (definitive failures still trip)"
+      },
+      "intent": {
+        "title": "Intent re-run",
+        "where": "This project · per process, one global instance",
+        "trigger": "When the earlier layers couldn't stop it: a worker ends in model_error. Either the inner retries are all exhausted, or the stream dropped after it had already begun delivering output (replay isn't safe then, so the whole thing has to be run again).",
+        "skips": "Quota exhaustion is already handled by rotation switching profiles, so it isn't re-run here. When a task enters pause / stop / wrap-up, it yields immediately and doesn't take up backoff time.",
+        "desc": "Runs the entire intent again from the start. As the outermost layer, a single re-run multiplies the counts of all the inner layers once more.",
+        "attemptsLabel": "Re-run count",
+        "defInterval": "Fixed 3s",
+        "offHint": "-1 = don't re-run; mark the intent as blocked right away"
+      }
+    },
+    "retry": {
+      "defaultN": "Default {n}",
+      "triggerLabel": "Trigger",
+      "skipsLabel": "Skips this layer",
+      "intervalMs": "Interval ms",
+      "defaultBackoff": "Default backoff",
+      "fixed": "Fixed {human}",
+      "emptyLine": "Leave empty to use the default. {hint}.",
+      "override": {
+        "label": "Retry override",
+        "hint": "Applies to this profile only, overriding the global defaults in \"Retry & backoff.\" Leave a field empty to follow the global value. Enter -1 for the count to turn off this layer's retries. Fill in an interval to use a fixed interval instead of exponential backoff. The circuit breaker and intent re-run are per process, so they can be adjusted only on the global page."
+      },
+      "loading": "Loading retry policy…",
+      "intro": "A single model-call failure passes through five retry layers in order from innermost to outermost: <chain>connection → empty response → same-provider safe window → rotation circuit breaker → intent re-run</chain>. An outer layer's turn comes only after the inner one is used up, so the counts <emph>multiply together</emph>. Max out every layer and a single hiccup can burn dozens of requests. Leaving them all empty is the current default, exactly the behavior when this page didn't exist. The first three layers can be overridden individually on each model profile.",
+      "save": "Save",
+      "resetAll": "Reset all to defaults",
+      "toast": {
+        "loadFailed": "Failed to read retry policy: {msg}",
+        "saved": "Saved. Applies immediately (a call already in progress keeps using the previous values)",
+        "saveFailed": "Save failed: {msg}"
+      }
+    }
+  },
+  "notifyPage": {
+    "title": "Notifications",
+    "subtitle": "When a vulnerability is found, send notifications to channels like DingTalk, Feishu, and WeCom. Each channel can have its own delivery timing and filter rules.",
+    "globalSwitch": "Master switch",
+    "addChannel": "Add channel",
+    "disabled": "Disabled",
+    "aria": {
+      "globalSwitch": "Notifications master switch",
+      "enable": "Enable",
+      "delete": "Delete",
+      "statusChange": "Receive status changes"
+    },
+    "toast": {
+      "loadConfigFailed": "Failed to load notification settings: {msg}",
+      "loadChannelsFailed": "Failed to load channel list: {msg}",
+      "nameRequired": "Enter a channel name",
+      "saved": "Saved",
+      "channelAdded": "Channel added",
+      "saveFailed": "Failed to save: {msg}",
+      "testSent": "Test message sent ({ms} ms). Please check the channel",
+      "testFailed": "Test failed: {msg}",
+      "deleted": "Deleted: {name}",
+      "deleteFailed": "Failed to delete: {msg}",
+      "actionFailed": "Action failed: {msg}",
+      "globalOn": "Notifications turned on",
+      "globalOff": "Notifications turned off"
+    },
+    "stats": {
+      "channels": "Channels",
+      "channelsHint": "Active / total",
+      "sentToday": "Sent today",
+      "pending": "Pending",
+      "failed": "Failed",
+      "backlog": "Longest backlog",
+      "backlogStuck": "Delivery may be stalled"
+    },
+    "global": {
+      "title": "Global settings",
+      "baseUrl": "Link base URL",
+      "baseUrlHint": "The address the message's \"View details\" button points to. Leave blank to omit the button.",
+      "digest": "Digest interval (minutes)",
+      "digestHint": "Applies only to channels in \"Digest\" mode.",
+      "save": "Save global settings"
+    },
+    "tab": {
+      "channels": "Channels",
+      "deliveries": "Delivery log"
+    },
+    "mode": {
+      "realtime": "Real-time",
+      "digest": "Digest"
+    },
+    "kind": {
+      "dingtalk": "DingTalk",
+      "feishu": "Feishu",
+      "wecom": "WeCom",
+      "webhook": "Generic Webhook",
+      "telegram": "Telegram",
+      "email": "Email"
+    },
+    "sheet": {
+      "addTitle": "Add notification channel",
+      "rateLimited": " · Default limit {rate}/min",
+      "rateUnlimited": " · Unlimited",
+      "kindLabel": "Channel type",
+      "kindLocked": "Channel type cannot be changed. Changing the type is equivalent to replacing all credentials, so please create a new channel.",
+      "nameLabel": "Channel name",
+      "namePlaceholder": "Incident response / daily alerts",
+      "noFields": "The input form for this channel is not defined yet (no CHANNEL_FIELDS entry in the frontend). Add the entry and try again.",
+      "modeLabel": "Delivery timing",
+      "modeRealtime": "Real-time · one message per vulnerability",
+      "modeDigest": "Digest · one bundled message per interval",
+      "modeHint": "For something like \"high and above in real-time, the rest as a digest,\" create two channels. Set one to real-time + minimum severity High, and the other to digest + no severity limit.",
+      "rateLabel": "Rate limit (per minute)",
+      "ratePlaceholder": "0 = unlimited",
+      "rateHint": "Leave blank to use the channel default. 0 means unlimited. When the limit is exceeded, messages are delayed rather than dropped.",
+      "enable": "Enable this channel",
+      "save": "Save",
+      "add": "Add",
+      "sendTest": "Send test message"
+    },
+    "filter": {
+      "title": "Filter rules (leave blank for no filtering)",
+      "minSeverity": "Minimum severity",
+      "includeLabel": "Send only these vulnerability types",
+      "includePlaceholder": "SQL injection\nCommand execution",
+      "includeHint": "One keyword per line. Case-insensitive substring matching. Blank means all types.",
+      "excludeLabel": "Exclude these vulnerability types",
+      "excludePlaceholder": "Information disclosure",
+      "excludeHint": "Exclusion takes priority over inclusion. If both match, the item is excluded.",
+      "taskIds": "Limit by task ID",
+      "assetIds": "Limit by asset ID",
+      "idsHint": "Leave task/asset blank for no limit. If set, the vulnerability must intersect with them.",
+      "onStatusChange": "Also send when a vulnerability's handling status changes (real-time mode only)"
+    },
+    "severityOpt": {
+      "all": "No limit",
+      "low": "Low and above",
+      "medium": "Medium and above",
+      "high": "High and above",
+      "critical": "Critical only"
+    },
+    "masked": {
+      "savedTail": "Saved (ending {tail}) · enter a new value to overwrite, or leave blank to delete this field",
+      "saved": "Saved · enter a new value to overwrite, or leave blank to delete this field"
+    },
+    "summary": {
+      "includeCount": "{n} types included",
+      "excludeCount": "{n} excluded",
+      "taskCount": "{n} tasks",
+      "assetCount": "{n} assets",
+      "statusChange": "Includes status changes",
+      "all": "All vulnerabilities"
+    },
+    "field": {
+      "dingtalk": {
+        "webhook": {
+          "label": "Webhook URL"
+        },
+        "secret": {
+          "label": "Signing secret",
+          "help": "Enter this when you select \"Signature\" in the bot's security settings. Leave blank if you chose \"Custom keywords\" or did not enable security settings."
+        }
+      },
+      "feishu": {
+        "webhook": {
+          "label": "Webhook URL"
+        },
+        "secret": {
+          "label": "Signature verification secret",
+          "help": "Enter this when \"Signature verification\" is enabled on the bot; otherwise leave it blank."
+        }
+      },
+      "wecom": {
+        "webhook": {
+          "label": "Webhook URL"
+        }
+      },
+      "webhook": {
+        "url": {
+          "label": "Target URL"
+        },
+        "method": {
+          "label": "Request method",
+          "opt": {
+            "POST": "POST (with request body)",
+            "PUT": "PUT (with request body)",
+            "PATCH": "PATCH (with request body)",
+            "GET": "GET (no request body)"
+          }
+        },
+        "headers": {
+          "label": "Custom request headers",
+          "help": "One KEY=VALUE per line. Example: Authorization=Bearer xxx"
+        },
+        "body_template": {
+          "label": "Request body template",
+          "help": "Leave blank to use the built-in default template. Variables: '{{.Title}} {{.Batch}} {{.Count}} {{.HomeURL}} {{.SentAt}}', plus .Name/.VulnClass/.Severity/.Summary/.Assets/.DetailURL/.StatusLabel under range .Items. When inserting a string, use '{{json .Xxx}}' instead of '{{.Xxx}}'; otherwise quotes in the title will break the JSON."
+        }
+      },
+      "telegram": {
+        "bot_token": {
+          "label": "Bot Token"
+        },
+        "chat_id": {
+          "label": "Chat ID"
+        },
+        "base_url": {
+          "label": "API URL",
+          "help": "Leave blank to use the official URL. Enter this when using your own Bot API reverse proxy."
+        }
+      },
+      "email": {
+        "host": {
+          "label": "SMTP server"
+        },
+        "port": {
+          "label": "Port",
+          "help": "Port 587 uses STARTTLS. For 465, enable \"Implicit TLS.\""
+        },
+        "username": {
+          "label": "Account"
+        },
+        "password": {
+          "label": "Password / app password"
+        },
+        "from": {
+          "label": "Sender"
+        },
+        "to": {
+          "label": "Recipients",
+          "help": "Separate multiple addresses with commas."
+        },
+        "tls": {
+          "label": "Implicit TLS",
+          "help": "Enable for port 465 and disable for port 587 (STARTTLS is used automatically)."
+        }
+      }
+    },
+    "delivery": {
+      "loadFailed": "Failed to load delivery log: {msg}",
+      "requeued": "Re-queued",
+      "resendFailed": "Resend failed: {msg}",
+      "allChannels": "All channels",
+      "allStates": "All states",
+      "refresh": "Refresh",
+      "totalCount": "{total} total",
+      "colTime": "Time",
+      "colFinding": "Vulnerability",
+      "colChannel": "Channel",
+      "colState": "State",
+      "colAttempts": "Attempts",
+      "colError": "Error",
+      "loading": "Loading…",
+      "empty": "No delivery records",
+      "noTitle": "(no title)",
+      "statusChanged": "Status changed",
+      "resend": "Resend"
+    },
+    "unit": {
+      "sec": "{n}s",
+      "min": "{n}min",
+      "hour": "{n}h"
+    }
+  }
+}

@@ -46,6 +46,8 @@ func TestPostgresDSNErrorLocalized(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("ARTEX_PG_DSN", "")
 	t.Setenv("ARTEX_CONFIG", filepath.Join(dir, "nope.json"))
+	// Pin Korean explicitly so ARTEX_LANG in the environment cannot leak in.
+	t.Setenv("ARTEX_LANG", "ko")
 
 	_, _, err := PostgresDSN()
 	if err == nil {
@@ -71,6 +73,8 @@ func TestPostgresDSNErrorLocalized(t *testing.T) {
 func TestPostgresDSNSourceLocalized(t *testing.T) {
 	dir := t.TempDir()
 	cfgPath := filepath.Join(dir, "config.json")
+	// Pin Korean explicitly so ARTEX_LANG in the environment cannot leak in.
+	t.Setenv("ARTEX_LANG", "ko")
 
 	// env source
 	t.Setenv("ARTEX_CONFIG", filepath.Join(dir, "nope.json"))

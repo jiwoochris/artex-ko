@@ -11,32 +11,23 @@ import (
 // 「目标资产」的域名/IP/URL 与启用中的规则做匹配。供 agent 工具（add_intent、
 // insert_assets）在下发意图 / 插入资产前调用，命中则拒绝。
 
-// AssetInterceptKindLabel 返回 kind 的中文标签，用于给 agent 的说明消息。
+// AssetInterceptKindLabel 返回 kind 的标签(按当前输出语言)，用于给 agent 的说明消息。
 func AssetInterceptKindLabel(kind string) string {
-	switch kind {
-	case "exact_domain":
-		return "域名(全等)"
-	case "exact_ip":
-		return "IP(全等)"
-	case "exact_url":
-		return "URL(全等)"
-	case "fuzzy_domain":
-		return "域名(模糊)"
-	case "fuzzy_ip":
-		return "IP(模糊)"
-	case "fuzzy_url":
-		return "URL(模糊)"
-	case "cidr":
-		return "CIDR 网段"
+	if v, ok := assetInterceptKindLabels[dbLabelLang()][kind]; ok {
+		return v
+	}
+	if v, ok := assetInterceptKindLabels["ko"][kind]; ok {
+		return v
 	}
 	return kind
 }
 
-// Reason 返回一条可读的命中原因，形如：命中资产拦截规则 [域名(模糊): .gov.cn]（备注）。
+// Reason 返回一条可读的命中原因(按当前输出语言)，形如：命中资产拦截规则 [域名(模糊): .gov.cn]（备注）。
 func (r AssetInterceptRule) Reason() string {
-	s := fmt.Sprintf("命中资产拦截规则 [%s: %s]", AssetInterceptKindLabel(r.Kind), r.Pattern)
+	lang := dbLabelLang()
+	s := fmt.Sprintf(interceptReasonFmt[lang], AssetInterceptKindLabel(r.Kind), r.Pattern)
 	if note := strings.TrimSpace(r.Note); note != "" {
-		s += "（" + note + "）"
+		s += fmt.Sprintf(interceptNoteFmt[lang], note)
 	}
 	return s
 }
@@ -156,7 +147,7 @@ func (a *Asset) InterceptLabel() string {
 	default:
 		target = fmt.Sprintf("#%d", a.ID)
 	}
-	return fmt.Sprintf("资产#%d[%s] %s", a.ID, a.Type, target)
+	return fmt.Sprintf(trAssetLabelFmt(), a.ID, a.Type, target)
 }
 
 // hasEnabledRule 判断规则集里是否存在任一启用规则。

@@ -56,7 +56,7 @@ func connectMCP(ctx context.Context, m *db.MCPServer) (mcpClient, error) {
 		}
 		return mcphttp.NewSSE(ctx, m.Name, m.URL, jsonStrMap(m.Env), m.Insecure)
 	default:
-		return nil, fmt.Errorf(errMCPUnknownTransportFmt, m.Transport)
+		return nil, fmt.Errorf(trMsg(errMCPUnknownTransportFmt), m.Transport)
 	}
 }
 
@@ -79,7 +79,7 @@ func (s *Server) discoverAndCacheMCP(ctx context.Context, m *db.MCPServer) error
 	if err := s.m.pg.SaveMCPTools(m.ID, tools); err != nil {
 		return err
 	}
-	log.Printf("[mcp] %s 에서 도구 %d개를 발견해 캐시했습니다", m.Name, len(tools))
+	log.Printf(logT("[mcp] %s 에서 도구 %d개를 발견해 캐시했습니다"), m.Name, len(tools))
 	return nil
 }
 
@@ -90,7 +90,7 @@ func (s *Server) discoverAndCacheMCP(ctx context.Context, m *db.MCPServer) error
 func (s *Server) discoverEmptyMCPsOnStartup() {
 	servers, err := s.m.pg.ListMCP()
 	if err != nil {
-		log.Printf("[mcp] 시작 시 자동 발견: 목록을 읽지 못했습니다: %v", err)
+		log.Printf(logT("[mcp] 시작 시 자동 발견: 목록을 읽지 못했습니다: %v"), err)
 		return
 	}
 	for _, m := range servers {
@@ -99,7 +99,7 @@ func (s *Server) discoverEmptyMCPsOnStartup() {
 		}
 		ctx, cancel := context.WithTimeout(s.ctx, 90*time.Second)
 		if err := s.discoverAndCacheMCP(ctx, m); err != nil {
-			log.Printf("[mcp] 시작 시 %s 자동 발견에 실패했습니다: %v", m.Name, err)
+			log.Printf(logT("[mcp] 시작 시 %s 자동 발견에 실패했습니다: %v"), m.Name, err)
 		}
 		cancel()
 	}

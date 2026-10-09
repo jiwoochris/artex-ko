@@ -79,7 +79,7 @@ func goalsSystem(dataDir string, withScope bool) string {
 	if withScope {
 		sys += goalsScopeTail
 	}
-	return sys + langDirective()
+	return sys + langDirective(resolveOutputLang())
 }
 
 // GoalSpec is one decomposed objective.
