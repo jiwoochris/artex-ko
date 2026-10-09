@@ -372,7 +372,7 @@ func (s *CompanyStore) AddScopeInputsChecked(companyID int64, inputs []ScopeInpu
 	if needsAttribution {
 		warning, err := recomputeAttributionTx(tx)
 		if err != nil {
-			return 0, 0, invalid, errors, fmt.Errorf("重新计算企业归属失败: %w", err)
+			return 0, 0, invalid, errors, fmt.Errorf("기업 귀속 재계산 실패: %w", err)
 		}
 		logAttributionWarning(warning)
 	}
@@ -698,7 +698,7 @@ func (s *CompanyStore) UpdateScopeInputsChecked(companyID int64, inputs []ScopeI
 	// detach scope-derived assets or expose a lower-precedence company match.
 	warning, err := recomputeAttributionTx(tx)
 	if err != nil {
-		return 0, invalid, errs, fmt.Errorf("重新计算企业归属失败: %w", err)
+		return 0, invalid, errs, fmt.Errorf("기업 귀속 재계산 실패: %w", err)
 	}
 	logAttributionWarning(warning)
 	if err := tx.Commit(); err != nil {

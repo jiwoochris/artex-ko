@@ -284,7 +284,7 @@ func (s *ExplorationStore) UpdateGoalPayload(id int64, text, vulnclass string) e
 		return err
 	}
 	if n, _ := res.RowsAffected(); n == 0 {
-		return fmt.Errorf("目标不存在")
+		return fmt.Errorf("대상이 존재하지 않습니다")
 	}
 	return nil
 }
@@ -299,7 +299,7 @@ func (s *ExplorationStore) DeleteGoal(id int64) error {
 		return err
 	}
 	if n, _ := res.RowsAffected(); n == 0 {
-		return fmt.Errorf("目标不存在")
+		return fmt.Errorf("대상이 존재하지 않습니다")
 	}
 	return nil
 }

@@ -312,10 +312,10 @@ func (s *Server) updateApply(w http.ResponseWriter, r *http.Request) {
 		})
 		updHub.finish(err)
 		if err != nil {
-			log.Printf("[update] 更新失败：%v", err)
+			log.Printf("[update] 업데이트 실패: %v", err)
 			return
 		}
-		log.Printf("[update] %s → %s 已暂存，即将退出以完成换装", current, rel.TagName)
+		log.Printf("[update] %s → %s 스테이징 완료, 교체를 마치기 위해 곧 종료합니다", current, rel.TagName)
 		// 留一点时间把最后一条进度推给前端，再触发退出。
 		time.Sleep(1500 * time.Millisecond)
 		requestRestart()
@@ -334,7 +334,7 @@ func (s *Server) updateRollback(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, err.Error())
 		return
 	}
-	log.Printf("[update] 已手动回滚到上一版本，即将退出以完成切换")
+	log.Printf("[update] 이전 버전으로 수동 롤백했습니다. 전환을 마치기 위해 곧 종료합니다")
 	writeJSON(w, 202, map[string]any{"ok": true})
 	go func() {
 		time.Sleep(500 * time.Millisecond)

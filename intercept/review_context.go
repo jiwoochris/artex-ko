@@ -53,7 +53,7 @@ func WithReviewWorkingDirectory(ctx context.Context, workingDir string) context.
 
 func BuildReviewInput(ctx context.Context, tool string, arguments json.RawMessage) (ReviewInput, error) {
 	if !json.Valid(arguments) {
-		return ReviewInput{}, fmt.Errorf("工具参数不是有效 JSON")
+		return ReviewInput{}, fmt.Errorf("도구 매개변수가 유효한 JSON 이 아닙니다")
 	}
 	in := ReviewInput{Version: 4, Tool: tool, Arguments: append(json.RawMessage(nil), arguments...)}
 	if env, ok := ctx.Value(reviewContextKey{}).(reviewEnvironment); ok {

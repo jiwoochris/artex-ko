@@ -135,26 +135,26 @@ func objectProperty(parent map[string]any, key string) map[string]any {
 
 func (s *Server) agentFindingTrafficAccess(ctx context.Context, id int64, write bool) error {
 	if id <= 0 {
-		return errors.New("finding_id 必须为独立漏洞记录 ID；不是探索节点 ID")
+		return errors.New("finding_id 는 독립 취약점 기록 ID 여야 합니다. 탐색 노드 ID 가 아닙니다")
 	}
 	f, err := s.m.pg.GetFinding(id)
 	if err != nil {
 		return err
 	}
 	if f == nil {
-		return fmt.Errorf("%w：finding_id=%d。证据工具使用独立漏洞记录 ID，请从 list_task_findings / get_task_node_detail 的 finding_id 字段读取；不要传 id / finding_node_id", db.ErrFindingNotFound, id)
+		return fmt.Errorf("%w: finding_id=%d. 증거 도구는 독립 취약점 기록 ID 를 사용합니다. list_task_findings / get_task_node_detail 의 finding_id 필드에서 읽고, id / finding_node_id 를 전달하지 마세요", db.ErrFindingNotFound, id)
 	}
 	if ri := agent.RunInfoFrom(ctx); ri.TaskID > 0 {
 		task := s.m.ResolveTask(strconv.FormatInt(ri.TaskID, 10))
 		if task == nil {
-			return errors.New("任务不存在")
+			return errors.New("작업이 존재하지 않습니다")
 		}
 		_, inherited, allowed := findingProvenanceInTask(task, f.TaskID)
 		if !allowed {
-			return errors.New("当前任务不可读取该漏洞")
+			return errors.New("현재 작업은 해당 취약점을 읽을 수 없습니다")
 		}
 		if write && inherited {
-			return errors.New("继承漏洞的流量证据只读，请到来源任务修改")
+			return errors.New("상속된 취약점의 트래픽 증거는 읽기 전용입니다. 원본 작업에서 수정하세요")
 		}
 	}
 	return nil
@@ -165,7 +165,7 @@ func (s *Server) toolBindFindingTraffic() actool.CoreTool {
 		objSchema(map[string]any{"finding_id": strParam("独立漏洞记录 ID，从 list_task_findings / get_task_node_detail 的 finding_id 字段读取"), "traffic_refs": agent.HintTrafficSchema()}, "finding_id", "traffic_refs"),
 		func(ctx context.Context, raw json.RawMessage) (actool.Result, error) {
 			if !s.m.pg.GetBool(settingAgentTrafficBinding, false) {
-				return actool.Errorf("Agent 自动绑定流量已关闭；请在系统设置开启，或使用页面人工绑定。"), nil
+				return actool.Errorf("Agent 자동 트래픽 연결이 꺼져 있습니다. 시스템 설정에서 켜거나 페이지에서 수동으로 연결하세요."), nil
 			}
 			var args struct {
 				FindingID json.RawMessage `json:"finding_id"`
@@ -179,7 +179,7 @@ func (s *Server) toolBindFindingTraffic() actool.CoreTool {
 				return actool.Errorf(err.Error()), nil
 			}
 			if len(args.Refs) == 0 {
-				return actool.Errorf("补绑需要至少一条已核实的 traffic_refs；无流量无需调用此工具"), nil
+				return actool.Errorf("재연결에는 최소 한 개의 확인된 traffic_refs 가 필요합니다. 트래픽이 없으면 이 도구를 호출할 필요가 없습니다"), nil
 			}
 			list, err := s.evidenceStore().Bind(ctx, id, args.Refs)
 			if err != nil {

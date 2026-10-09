@@ -143,12 +143,12 @@ func (n *Notifier) step(ctx context.Context) {
 		return
 	}
 	if _, _, err := n.pg.FanOutPendingEvents(ctx, notifyFanOutPerTick); err != nil {
-		log.Printf("[notify] 分派事件失败: %v", err)
+		log.Printf("[notify] 이벤트 분배 실패: %v", err)
 		return
 	}
 	channels, err := n.pg.ListNotificationChannels(ctx)
 	if err != nil {
-		log.Printf("[notify] 读取渠道失败: %v", err)
+		log.Printf("[notify] 채널 읽기 실패: %v", err)
 		return
 	}
 	baseURL := n.publicBaseURL()
@@ -204,7 +204,7 @@ func digestTickPlan() (tokens, claimLimit int) {
 func (n *Notifier) stepRealtime(ctx context.Context, ch *db.NotificationChannel, allow int, baseURL string) {
 	deliveries, err := n.pg.ClaimRealtimeDeliveries(ctx, ch.ID, allow, notifyLease)
 	if err != nil {
-		log.Printf("[notify] 领取实时投递失败 channel=%d: %v", ch.ID, err)
+		log.Printf("[notify] 실시간 전송 할당 실패 channel=%d: %v", ch.ID, err)
 		return
 	}
 	if len(deliveries) == 0 {
@@ -231,7 +231,7 @@ func (n *Notifier) stepDigest(ctx context.Context, ch *db.NotificationChannel, a
 	window := n.digestInterval()
 	due, err := n.pg.DigestBatchDue(ctx, ch.ID, window)
 	if err != nil {
-		log.Printf("[notify] 判断汇总批次失败 channel=%d: %v", ch.ID, err)
+		log.Printf("[notify] 요약 배치 판정 실패 channel=%d: %v", ch.ID, err)
 		return
 	}
 	if !due {
@@ -239,7 +239,7 @@ func (n *Notifier) stepDigest(ctx context.Context, ch *db.NotificationChannel, a
 	}
 	deliveries, err := n.pg.ClaimDigestBatch(ctx, ch.ID, allow, notifyLease)
 	if err != nil {
-		log.Printf("[notify] 领取汇总批次失败 channel=%d: %v", ch.ID, err)
+		log.Printf("[notify] 요약 배치 할당 실패 channel=%d: %v", ch.ID, err)
 		return
 	}
 	if len(deliveries) == 0 {
@@ -261,9 +261,9 @@ func (n *Notifier) stepDigest(ctx context.Context, ch *db.NotificationChannel, a
 	if skipped := excludeDeliveries(deliveries, included); len(skipped) > 0 {
 		reason := errDeliverySnapshotUnrenderable
 		if fErr := n.pg.FailDeliveries(ctx, deliveryIDs(skipped), reason); fErr != nil {
-			log.Printf("[notify] 标记坏快照投递失败 channel=%s ids=%v: %v", ch.Kind, deliveryIDs(skipped), fErr)
+			log.Printf("[notify] 손상 스냅샷 전송 표시 실패 channel=%s ids=%v: %v", ch.Kind, deliveryIDs(skipped), fErr)
 		}
-		log.Printf("[notify] 跳过 %d 条快照无法解析的投递 channel=%d", len(skipped), ch.ID)
+		log.Printf("[notify] 스냅샷을 해석할 수 없는 전송 %d건 건너뜀 channel=%d", len(skipped), ch.ID)
 	}
 	// 只把进了消息的那些交给 send：included[i] 与 msg.Items[i] 严格对应，
 	// send 依赖这个对应关系把「渠道回报装下了前 K 条」落到正确的投递行上。
@@ -287,13 +287,13 @@ func (n *Notifier) send(ctx context.Context, channel notify.Channel, cfg map[str
 		if delivered > len(deliveries) {
 			// 渠道回报的条数不可能超过投递数；真发生了说明渲染层算错了，
 			// 按全部送达处理并把问题记下来，总好过把记录写乱。
-			log.Printf("[notify] 渠道回报送达条数 %d 超过投递数 %d channel=%s，按全部送达处理",
+			log.Printf("[notify] 채널이 보고한 전송 건수 %d 이(가) 전송 수 %d 을(를) 초과하여 전부 전송된 것으로 처리합니다 channel=%s",
 				delivered, len(deliveries), channel.Kind())
 			delivered = len(deliveries)
 		}
 		sent, rest := deliveries[:delivered], deliveries[delivered:]
 		if err := n.pg.MarkDeliveriesSent(ctx, deliveryIDs(sent)); err != nil {
-			log.Printf("[notify] 标记已送达失败 channel=%s ids=%v: %v", channel.Kind(), deliveryIDs(sent), err)
+			log.Printf("[notify] 전송 완료 표시 실패 channel=%s ids=%v: %v", channel.Kind(), deliveryIDs(sent), err)
 		}
 		if len(rest) > 0 {
 			// 本条消息已达渠道长度上限：剩下的立刻回队，由下一个 tick 续发。
@@ -301,7 +301,7 @@ func (n *Notifier) send(ctx context.Context, channel notify.Channel, cfg map[str
 			// 不该消耗重试预算（领取时已经乐观 +1 了，那里会减回去）。
 			if err := n.pg.DeferDeliveries(ctx, deliveryIDs(rest),
 				fmt.Sprintf(errDeliveryChannelLengthCapped, delivered)); err != nil {
-				log.Printf("[notify] 分段续发排队失败 channel=%s ids=%v: %v", channel.Kind(), deliveryIDs(rest), err)
+				log.Printf("[notify] 분할 재전송 큐 등록 실패 channel=%s ids=%v: %v", channel.Kind(), deliveryIDs(rest), err)
 			}
 		}
 		return
@@ -335,24 +335,24 @@ func (n *Notifier) send(ctx context.Context, channel notify.Channel, cfg map[str
 
 	if len(failIDs) > 0 {
 		if fErr := n.pg.FailDeliveries(ctx, failIDs, err.Error()); fErr != nil {
-			log.Printf("[notify] 标记失败状态出错 channel=%s ids=%v: %v", channel.Kind(), failIDs, fErr)
+			log.Printf("[notify] 실패 상태 표시 오류 channel=%s ids=%v: %v", channel.Kind(), failIDs, fErr)
 		}
 	}
 	if len(exhaustedIDs) > 0 {
 		reason := fmt.Sprintf(errDeliveryRetryExhausted, db.MaxNotifyAttempts, err)
 		if fErr := n.pg.FailDeliveries(ctx, exhaustedIDs, reason); fErr != nil {
-			log.Printf("[notify] 标记失败状态出错 channel=%s ids=%v: %v", channel.Kind(), exhaustedIDs, fErr)
+			log.Printf("[notify] 실패 상태 표시 오류 channel=%s ids=%v: %v", channel.Kind(), exhaustedIDs, fErr)
 		}
 	}
 	// 按延迟分组重排：只有 3 档退避，分组数天然很小，不必为每条单独发一次
 	// UPDATE（那会让一个 500 条的批次产生 500 次往返）。
 	for delay, group := range byDelay {
 		if rErr := n.pg.RescheduleDeliveries(ctx, group, delay, err.Error()); rErr != nil {
-			log.Printf("[notify] 重排投递失败 channel=%s ids=%v: %v", channel.Kind(), group, rErr)
+			log.Printf("[notify] 전송 재배치 실패 channel=%s ids=%v: %v", channel.Kind(), group, rErr)
 		}
 	}
 	if len(failIDs)+len(exhaustedIDs) > 0 {
-		log.Printf("[notify] 投递失败 channel=%d kind=%s 永久失败=%d 重试耗尽=%d 待重试=%d: %s",
+		log.Printf("[notify] 전송 실패 channel=%d kind=%s 영구실패=%d 재시도소진=%d 재시도대기=%d: %s",
 			deliveries[0].ChannelID, channel.Kind(), len(failIDs), len(exhaustedIDs), len(byDelay), err)
 	}
 }
@@ -421,7 +421,7 @@ func (n *Notifier) renderBatch(ctx context.Context, deliveries []*db.Notificatio
 		if err != nil {
 			// 坏快照不进消息，也不进 included——它的处置由调用方负责
 			// （显式标记失败，而不是混在「已送达」里蒙混过关）。
-			log.Printf("[notify] 汇总批次中跳过无法解析的快照 delivery=%d: %v", dl.ID, err)
+			log.Printf("[notify] 요약 배치에서 해석할 수 없는 스냅샷 건너뜀 delivery=%d: %v", dl.ID, err)
 			continue
 		}
 		item, err := n.itemFor(ctx, snap, baseURL)
@@ -448,7 +448,7 @@ func (n *Notifier) itemFor(ctx context.Context, snap notify.Snapshot, baseURL st
 	if err != nil {
 		// 资产名解析失败不该阻止推送：读不到名字比收不到通知轻得多，
 		// 消息里少一行资产而已。
-		log.Printf("[notify] 解析资产名失败 finding=%d: %v", snap.FindingID, err)
+		log.Printf("[notify] 자산 이름 해석 실패 finding=%d: %v", snap.FindingID, err)
 	}
 	item := notify.Item{
 		FindingID:  snap.FindingID,

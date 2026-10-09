@@ -501,7 +501,7 @@ func transitionIntentState(store *db.ExplorationStore, intentID int64, expected,
 		// 이 CAS 충돌 오류는 runIntent(아래 989~1156) 안에서만 쓰이고 그 함수는 bool 을
 		// 반환한다. 오류는 log.Printf 로 남기거나 흐름 제어에만 쓰여 HTTP 응답·에이전트
 		// 도구(actool)로 나가지 않으므로, 로그 성격(Z2)이라 원문을 보존한다.
-		return fmt.Errorf("%w: 意图 %d 不再是 %s 状态", db.ErrIntentStateConflict, intentID, expected)
+		return fmt.Errorf("%w: 의도 %d 은(는) 더 이상 %s 상태가 아닙니다", db.ErrIntentStateConflict, intentID, expected)
 	}
 	return nil
 }
@@ -514,13 +514,13 @@ func (e *Engine) SteerWork(intentID int64, msg string) error {
 	// 오류가 actool.Errorf(err.Error()) 로 에이전트에게 되돌아가는 두뇌 입력이다. 번역하면
 	// 벤치마크된 에이전트의 입력이 바뀌어 성능 드리프트 위험이 있어 원문을 보존한다.
 	if strings.TrimSpace(msg) == "" {
-		return fmt.Errorf("纠偏消息不能为空")
+		return fmt.Errorf("교정 메시지는 비워 둘 수 없습니다")
 	}
 	e.workMu.Lock()
 	running := e.work[intentID] != nil
 	e.workMu.Unlock()
 	if !running {
-		return fmt.Errorf("意图 %d 当前没有运行中的 work（可能已结束或未被领取）", intentID)
+		return fmt.Errorf("의도 %d 에 현재 실행 중인 work 가 없습니다(이미 종료되었거나 아직 할당되지 않았을 수 있음)", intentID)
 	}
 	e.steerMu.Lock()
 	e.steerBox[intentID] = append(e.steerBox[intentID], msg)
@@ -634,10 +634,10 @@ func (h steerHooks) Stop(ctx context.Context, messages []llm.Message) (bool, []s
 	}
 	n := h.nudges.Add(1)
 	if n > int64(h.limit) {
-		log.Printf("[work %s] 空转回合(仅思考、无正文无工具)已达续跑上限 %d，放行收场", h.label, h.limit)
+		log.Printf("[work %s] 공회전 턴(사고만 하고 본문·도구 없음)이 연속 실행 상한 %d에 도달, 종료를 허용합니다", h.label, h.limit)
 		return prevent, blocking, msg
 	}
-	log.Printf("[work %s] 空转回合(仅思考、无正文无工具)，注入续跑指令 (%d/%d)", h.label, n, h.limit)
+	log.Printf("[work %s] 공회전 턴(사고만 하고 본문·도구 없음), 연속 실행 지시 주입 (%d/%d)", h.label, n, h.limit)
 	return false, []string{emptyTurnNudge}, ""
 }
 
@@ -651,7 +651,7 @@ func (e *Engine) KillWork(intentID int64) error {
 		// KillWork 는 planner 의 kill_work 도구(agent/tools.go)로 배선되어, 이 오류가
 		// actool.Errorf(err.Error()) 로 에이전트에게 되돌아가는 두뇌 입력이다. SteerWork 와
 		// 같은 이유로 원문을 보존한다.
-		return fmt.Errorf("意图 %d 当前没有运行中的 work（可能已结束或未被领取）", intentID)
+		return fmt.Errorf("의도 %d 에 현재 실행 중인 work 가 없습니다(이미 종료되었거나 아직 할당되지 않았을 수 있음)", intentID)
 	}
 	run.cancel(agent.AbortKilledByPlanner)
 	return nil
@@ -684,7 +684,7 @@ func (e *Engine) emitActivity(t *Task, r db.Activity) db.Activity {
 					storeID, t.ExpID, exists, refs, maxID)
 			}
 		}
-		log.Printf("[activity] task %s 丢弃活动记录(该任务累计第 %d 条) worker=%s kind=%s tool=%s tuid=%s reason=%s summary=%q: %v%s",
+		log.Printf("[activity] task %s 활동 기록 폐기(해당 작업 누적 %d번째) worker=%s kind=%s tool=%s tuid=%s reason=%s summary=%q: %v%s",
 			t.ID, n, r.Worker, r.Kind, r.Tool, r.ToolUseID, dropReason(err), preview(r.Summary, 80), err, diag)
 		e.touch(t.ID)
 		return r
@@ -709,12 +709,12 @@ func (e *Engine) appendActivity(t *Task, r db.Activity) (int64, error) {
 	for attempt := 1; attempt <= 3; attempt++ {
 		if id, err = t.Store.AppendActivity(r); err == nil {
 			if attempt > 1 {
-				log.Printf("[activity] task %s 写入第 %d 次重试成功 (worker=%s kind=%s tool=%s)",
+				log.Printf("[activity] task %s %d번째 재시도 쓰기 성공 (worker=%s kind=%s tool=%s)",
 					t.ID, attempt, r.Worker, r.Kind, r.Tool)
 			}
 			return id, nil
 		}
-		log.Printf("[activity] task %s 写入失败 (第 %d/3 次, worker=%s kind=%s tool=%s expID=%d): %v",
+		log.Printf("[activity] task %s 쓰기 실패 (%d/3회, worker=%s kind=%s tool=%s expID=%d): %v",
 			t.ID, attempt, r.Worker, r.Kind, r.Tool, t.Store.ID(), err)
 		time.Sleep(time.Duration(attempt) * 25 * time.Millisecond)
 	}
@@ -873,7 +873,7 @@ func (e *Engine) plannerLoop(ctx context.Context, t *Task) {
 				// frontier 抽干且无在跑意图 → 收尾。用 Guarded 版做 CAS，避免踩到并发的
 				// pause/delete/超时收尾的状态转换。
 				if won, err := e.m.SetTaskStatusGuarded(t.ID, "done"); err != nil {
-					log.Printf("[goalless] task %s 收尾落 done 失败: %v", t.ID, err)
+					log.Printf("[goalless] task %s 마무리 done 기록 실패: %v", t.ID, err)
 				} else if won {
 					e.emitActivity(t, db.Activity{Worker: "system", Kind: "text",
 						Summary: "目标已全部达成，直投意图已执行完毕，任务结束"})
@@ -892,7 +892,7 @@ func (e *Engine) plannerLoop(ctx context.Context, t *Task) {
 		if ectx.Err() != nil || e.IsDeleting(t.ID) {
 			return
 		}
-		log.Printf("[planner] task %s 规划中…(%s 触发)", t.ID, src)
+		log.Printf("[planner] task %s 계획 중…(%s 트리거)", t.ID, src)
 		// round marker: each Plan() is one planner round; emit a boundary so the
 		// UI can separate rounds in the transcript (kind='round').
 		e.emitActivity(t, db.Activity{Worker: "planner", Kind: "round",
@@ -906,19 +906,19 @@ func (e *Engine) plannerLoop(ctx context.Context, t *Task) {
 		e.EndLLMCall(t.ID)
 		switch {
 		case err != nil && ectx.Err() == nil:
-			log.Printf("[planner] task %s 规划出错: %v", t.ID, err)
+			log.Printf("[planner] task %s 계획 오류: %v", t.ID, err)
 		case met:
-			log.Printf("[planner] task %s 判定目标达成: %s", t.ID, reason)
+			log.Printf("[planner] task %s 목표 달성 판정: %s", t.ID, reason)
 			// 所有目标达成 → 持久化任务状态为 done（前端 DTO 会优先展示该终态）。
 			if err := e.m.SetTaskStatus(t.ID, "done"); err != nil {
-				log.Printf("[planner] task %s 标记完成落库失败: %v", t.ID, err)
+				log.Printf("[planner] task %s 완료 표시 기록 실패: %v", t.ID, err)
 			}
 			// 任务已判完成 → 立刻取消在跑的 worker：它们手头的意图跑出来也没意义了。
 			// 下一轮 worker 循环撞终态门就不再领新意图;被取消的这批走下方"任务已完成"分支
 			// 归为 stopped(而非 blocked)。
 			e.cancelExec(t.ID, agent.AbortGoalMet)
 		default:
-			log.Printf("[planner] task %s 规划完成", t.ID)
+			log.Printf("[planner] task %s 계획 완료", t.ID)
 		}
 		e.touch(t.ID)
 	}
@@ -992,7 +992,7 @@ func (e *Engine) runWorkerStep(ctx context.Context, t *Task, name string, worker
 	if intent == nil {
 		return false
 	}
-	log.Printf("[worker %s] task %s 领取意图 #%d", name, t.ID, intent.ID)
+	log.Printf("[worker %s] task %s 의도 #%d 할당", name, t.ID, intent.ID)
 	return e.runIntent(ctx, t, name, worker, intent, "", "")
 }
 
@@ -1012,7 +1012,7 @@ func (e *Engine) runIntent(ctx context.Context, t *Task, name string, worker *ag
 	ectx := e.clockCtx(e.execContextFor(ctx, t.ID), t, false) // cancellable by Pause; 带任务 deadline
 	if ectx.Err() != nil || e.IsDeleting(t.ID) {
 		if err := transitionIntentState(t.Store, intent.ID, "running", "open"); err != nil {
-			log.Printf("[worker %s] task %s 意图 #%d 领取后回退失败: %v", name, t.ID, intent.ID, err)
+			log.Printf("[worker %s] task %s 의도 #%d 할당 후 롤백 실패: %v", name, t.ID, intent.ID, err)
 		}
 		return true
 	}
@@ -1056,7 +1056,7 @@ func (e *Engine) runIntent(ctx context.Context, t *Task, name string, worker *ag
 	for attempt := 1; attempt <= maxRetries &&
 		retryableWorkerModelError(reason, err) &&
 		workCtx.Err() == nil && ectx.Err() == nil && !e.IsPaused(t.ID) && !e.isSettling(t.ID); attempt++ {
-		log.Printf("[worker %s] task %s 意图 #%d model_error 收场，%v 后重试 (%d/%d)",
+		log.Printf("[worker %s] task %s 의도 #%d model_error 종료, %v 후 재시도 (%d/%d)",
 			name, t.ID, intent.ID, retryBackoff, attempt, maxRetries)
 		if sleepCtx(workCtx, retryBackoff) {
 			break // 退避期间被取消（终止/暂停）→ 交给下方分支处理
@@ -1093,10 +1093,10 @@ func (e *Engine) runIntent(ctx context.Context, t *Task, name string, worker *ag
 	if action == "pause" {
 		controlErr = transitionIntentState(t.Store, intent.ID, "running", "paused")
 		if controlErr != nil {
-			log.Printf("[worker %s] task %s 意图 #%d 暂停状态落库失败: %v", name, t.ID, intent.ID, controlErr)
+			log.Printf("[worker %s] task %s 의도 #%d 일시정지 상태 기록 실패: %v", name, t.ID, intent.ID, controlErr)
 			return true
 		}
-		log.Printf("[worker %s] task %s 意图 #%d 已暂停", name, t.ID, intent.ID)
+		log.Printf("[worker %s] task %s 의도 #%d 일시정지됨", name, t.ID, intent.ID)
 		e.touch(t.ID)
 		return true
 	}
@@ -1106,10 +1106,10 @@ func (e *Engine) runIntent(ctx context.Context, t *Task, name string, worker *ag
 		// a later cancel can finish cleanup instead of leaving a phantom running row.
 		controlErr = transitionIntentState(t.Store, intent.ID, "running", "paused")
 		if controlErr != nil {
-			log.Printf("[worker %s] task %s 意图 #%d 取消栅栏落库失败: %v", name, t.ID, intent.ID, controlErr)
+			log.Printf("[worker %s] task %s 의도 #%d 취소 펜스 기록 실패: %v", name, t.ID, intent.ID, controlErr)
 			return true
 		}
-		log.Printf("[worker %s] task %s 意图 #%d 已停止，等待取消清理", name, t.ID, intent.ID)
+		log.Printf("[worker %s] task %s 의도 #%d 중지됨, 취소 정리 대기", name, t.ID, intent.ID)
 		e.touch(t.ID)
 		return true
 	}
@@ -1118,7 +1118,7 @@ func (e *Engine) runIntent(ctx context.Context, t *Task, name string, worker *ag
 	// conversation from its transcript instead of restarting from scratch.
 	if ectx.Err() != nil && taskExecutionPaused(context.Cause(ectx)) {
 		if err := transitionIntentState(t.Store, intent.ID, "running", "open"); err != nil {
-			log.Printf("[worker %s] task %s 意图 #%d 任务暂停回退失败: %v", name, t.ID, intent.ID, err)
+			log.Printf("[worker %s] task %s 의도 #%d 작업 일시정지 롤백 실패: %v", name, t.ID, intent.ID, err)
 		}
 		return true
 	}
@@ -1126,9 +1126,9 @@ func (e *Engine) runIntent(ctx context.Context, t *Task, name string, worker *ag
 	// 不要误标 blocked。此时 worker 通常已在 settlement 阶段把结果写回。
 	if ectx.Err() != nil && e.isSettling(t.ID) {
 		if err := transitionIntentState(t.Store, intent.ID, "running", "exhausted"); err != nil {
-			log.Printf("[worker %s] task %s 意图 #%d 超时收尾状态落库失败: %v", name, t.ID, intent.ID, err)
+			log.Printf("[worker %s] task %s 의도 #%d 시간 초과 마무리 상태 기록 실패: %v", name, t.ID, intent.ID, err)
 		}
-		log.Printf("[worker %s] task %s 意图 #%d 因任务超时收尾结束(exhausted)，写回 %s", name, t.ID, intent.ID, wrote)
+		log.Printf("[worker %s] task %s 의도 #%d 작업 시간 초과로 마무리 종료(exhausted), %s 로 기록", name, t.ID, intent.ID, wrote)
 		e.touch(t.ID)
 		return true
 	}
@@ -1136,18 +1136,18 @@ func (e *Engine) runIntent(ctx context.Context, t *Task, name string, worker *ag
 	// 标 stopped(不是 blocked),别污染已完成任务的意图状态。
 	if ectx.Err() != nil && isTerminalStatus(e.m.TaskStatus(t.ID)) {
 		if err := transitionIntentState(t.Store, intent.ID, "running", "stopped"); err != nil {
-			log.Printf("[worker %s] task %s 意图 #%d 终态停止落库失败: %v", name, t.ID, intent.ID, err)
+			log.Printf("[worker %s] task %s 의도 #%d 최종 상태 중지 기록 실패: %v", name, t.ID, intent.ID, err)
 		}
-		log.Printf("[worker %s] task %s 意图 #%d 因任务已完成而取消(stopped)", name, t.ID, intent.ID)
+		log.Printf("[worker %s] task %s 의도 #%d 작업 완료로 취소됨(stopped)", name, t.ID, intent.ID)
 		e.touch(t.ID)
 		return true
 	}
 	// killed by the planner: mark stopped (don't write back results, don't auto-reclaim).
 	if killed {
 		if err := transitionIntentState(t.Store, intent.ID, "running", "stopped"); err != nil {
-			log.Printf("[worker %s] task %s 意图 #%d planner 停止落库失败: %v", name, t.ID, intent.ID, err)
+			log.Printf("[worker %s] task %s 의도 #%d planner 중지 기록 실패: %v", name, t.ID, intent.ID, err)
 		}
-		log.Printf("[worker %s] task %s 意图 #%d 被终止(stopped)", name, t.ID, intent.ID)
+		log.Printf("[worker %s] task %s 의도 #%d 종료됨(stopped)", name, t.ID, intent.ID)
 		e.touch(t.ID)
 		t.Notify()
 		return true
@@ -1163,19 +1163,19 @@ func (e *Engine) runIntent(ctx context.Context, t *Task, name string, worker *ag
 		state = "blocked"
 	case reason == harness.ReasonMaxTurns:
 		state = "exhausted"
-		log.Printf("[worker %s] intent %d 撞步数上限(exhausted)，本次写回 %s", name, intent.ID, wrote)
+		log.Printf("[worker %s] intent %d 단계 수 상한 도달(exhausted), 이번에는 %s 로 기록", name, intent.ID, wrote)
 	case reason == harness.ReasonTimeout:
 		state = "exhausted"
-		log.Printf("[worker %s] intent %d 运行超时(exhausted)，收尾后写回 %s", name, intent.ID, wrote)
+		log.Printf("[worker %s] intent %d 실행 시간 초과(exhausted), 마무리 후 %s 로 기록", name, intent.ID, wrote)
 	}
 	if state == "blocked" && isTaskLLMChainExhausted(err) {
 		_ = t.Store.SetIntentBlockedReason(intent.ID, db.IntentBlockedLLMQuota)
 	} else {
 		if stateErr := transitionIntentState(t.Store, intent.ID, "running", state); stateErr != nil {
-			log.Printf("[worker %s] task %s 意图 #%d 终态 %s 落库失败: %v", name, t.ID, intent.ID, state, stateErr)
+			log.Printf("[worker %s] task %s 의도 #%d 최종 상태 %s 기록 실패: %v", name, t.ID, intent.ID, state, stateErr)
 		}
 	}
-	log.Printf("[worker %s] task %s 意图 #%d 结束: %s (写回 %s)", name, t.ID, intent.ID, state, wrote)
+	log.Printf("[worker %s] task %s 의도 #%d 종료: %s (%s 로 기록)", name, t.ID, intent.ID, state, wrote)
 	e.touch(t.ID)
 	t.NotifyDone(intent.ID) // results changed the graph -> wake the planner (with the just-finished intent id)
 	return true

@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	ErrEvidenceConflict = errors.New("流量证据已变更，请刷新后重试")
-	ErrFindingNotFound  = errors.New("漏洞不存在")
-	ErrEvidenceNotFound = errors.New("流量证据不存在")
+	ErrEvidenceConflict = errors.New("트래픽 증거가 변경되었습니다. 새로고침 후 다시 시도하세요")
+	ErrFindingNotFound  = errors.New("취약점이 존재하지 않습니다")
+	ErrEvidenceNotFound = errors.New("트래픽 증거가 존재하지 않습니다")
 )
 
 // This lock covers the evidence filesystem as well as its SQL references. All
@@ -51,13 +51,13 @@ func NormalizeTrafficRefs(refs []TrafficRef) ([]TrafficRef, error) {
 	for _, ref := range refs {
 		ref.TrafficID = strings.TrimSpace(ref.TrafficID)
 		if ref.TrafficID == "" {
-			return nil, errors.New("traffic_id 不能为空")
+			return nil, errors.New("traffic_id 는 비워 둘 수 없습니다")
 		}
 		if ref.Role == "" {
 			ref.Role = "supporting"
 		}
 		if !ValidTrafficRole(ref.Role) {
-			return nil, fmt.Errorf("无效的流量用途 %q", ref.Role)
+			return nil, fmt.Errorf("유효하지 않은 트래픽 용도 %q", ref.Role)
 		}
 		if !seen[ref.TrafficID] {
 			out = append(out, ref)
@@ -186,7 +186,7 @@ func LockFindingEvidenceTx(tx *sql.Tx, findingID int64, version *int64) error {
 
 func InsertEvidenceSnapshotTx(tx *sql.Tx, s TrafficEvidenceSnapshot) error {
 	if s.ID != TrafficSnapshotID(s) {
-		return errors.New("证据快照元数据哈希不匹配")
+		return errors.New("증거 스냅샷 메타데이터 해시가 일치하지 않습니다")
 	}
 	// The ID was computed over the normalized form; store those same bytes.
 	id := s.ID
@@ -275,7 +275,7 @@ func (d *DB) GetFindingTraffic(ctx context.Context, findingID int64) (out *Findi
 
 func (d *DB) EditFindingTraffic(ctx context.Context, findingID, bindingID, version int64, role, note *string, remove bool, order []int64) error {
 	if role != nil && !ValidTrafficRole(*role) {
-		return errors.New("无效的流量用途")
+		return errors.New("유효하지 않은 트래픽 용도")
 	}
 	return d.WithEvidenceTx(ctx, func(tx *sql.Tx) error {
 		if err := LockFindingEvidenceTx(tx, findingID, &version); err != nil {
@@ -349,7 +349,7 @@ func RecordFindingTx(ctx context.Context, tx *sql.Tx, in RecordFindingInput, pre
 			return nil, err
 		}
 		if expID != in.ExplorationID {
-			return nil, errors.New("漏洞所属任务与探索记录不匹配")
+			return nil, errors.New("취약점이 속한 작업과 탐색 기록이 일치하지 않습니다")
 		}
 	}
 	if in.IntentID > 0 {
@@ -358,7 +358,7 @@ func RecordFindingTx(ctx context.Context, tx *sql.Tx, in RecordFindingInput, pre
 			return nil, err
 		}
 		if !ok {
-			return nil, errors.New("intent_id 必须是本任务的意图（关联任务意图只读）")
+			return nil, errors.New("intent_id 는 이 작업의 의도여야 합니다(연관 작업의 의도는 읽기 전용)")
 		}
 	}
 	payload, _ := json.Marshal(map[string]any{"vulnclass": in.VulnClass, "name": in.Name, "severity": in.Severity, "summary": in.Summary, "evidence": map[string]any{"by": in.Worker, "poc": in.Evidence}})

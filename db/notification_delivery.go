@@ -349,7 +349,7 @@ WHERE id=$1 AND state IN ($3,$4)`, id, NotifyStatePending, NotifyStateFailed, No
 		return err
 	}
 	if n, _ := res.RowsAffected(); n == 0 {
-		return fmt.Errorf("投递 %d 不存在或当前状态不允许重发", id)
+		return fmt.Errorf("전송 %d 이(가) 존재하지 않거나 현재 상태에서 재전송할 수 없습니다", id)
 	}
 	return nil
 }

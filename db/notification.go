@@ -25,7 +25,7 @@ import (
 //     不可漏推。
 
 // ErrNotificationChannelNotFound 渠道不存在。
-var ErrNotificationChannelNotFound = errors.New("通知渠道不存在")
+var ErrNotificationChannelNotFound = errors.New("알림 채널이 존재하지 않습니다")
 
 // 投递状态。
 const (
@@ -138,7 +138,7 @@ func (d *DB) SaveNotificationChannel(ctx context.Context, c *NotificationChannel
 	// 「未指定」与「显式 0」的区别只有调用方知道（请求体里字段缺省 vs 明确传 0），
 	// 所以默认值由 server 层在字段缺省时填，见 notifyCreateChannel。
 	if c.RatePerMin < 0 {
-		return 0, errors.New("限流值不能为负")
+		return 0, errors.New("속도 제한 값은 음수일 수 없습니다")
 	}
 	if c.Config == nil {
 		c.Config = json.RawMessage(`{}`)
@@ -225,19 +225,19 @@ func (d *DB) DeleteNotificationChannel(ctx context.Context, id int64) error {
 func RecordNotificationEventTx(ctx context.Context, tx *sql.Tx, kind string, findingID int64, snap notify.Snapshot) bool {
 	raw, err := json.Marshal(snap)
 	if err != nil {
-		log.Printf("[notify] 序列化推送事件失败 finding=%d: %v", findingID, err)
+		log.Printf("[notify] 푸시 이벤트 직렬화 실패 finding=%d: %v", findingID, err)
 		return false
 	}
 	if _, err := tx.ExecContext(ctx, `SAVEPOINT notify_event`); err != nil {
-		log.Printf("[notify] 建立保存点失败 finding=%d: %v", findingID, err)
+		log.Printf("[notify] 저장점 생성 실패 finding=%d: %v", findingID, err)
 		return false
 	}
 	if _, err := tx.ExecContext(ctx, `INSERT INTO notification_events(kind,finding_id,snapshot) VALUES($1,$2,$3)`,
 		kind, findingID, string(raw)); err != nil {
-		log.Printf("[notify] 写入推送事件失败 finding=%d（漏洞记录不受影响）: %v", findingID, err)
+		log.Printf("[notify] 푸시 이벤트 쓰기 실패 finding=%d (취약점 기록에는 영향 없음): %v", findingID, err)
 		// 回滚到保存点，把事务从 aborted 状态里救回来。
 		if _, rbErr := tx.ExecContext(ctx, `ROLLBACK TO SAVEPOINT notify_event`); rbErr != nil {
-			log.Printf("[notify] 回滚到保存点失败 finding=%d: %v", findingID, rbErr)
+			log.Printf("[notify] 저장점으로 롤백 실패 finding=%d: %v", findingID, rbErr)
 		}
 		return false
 	}
@@ -251,7 +251,7 @@ func RecordNotificationEventTx(ctx context.Context, tx *sql.Tx, kind string, fin
 func (d *DB) AddNotificationEvent(ctx context.Context, kind string, findingID int64, snap notify.Snapshot) (int64, error) {
 	raw, err := json.Marshal(snap)
 	if err != nil {
-		return 0, fmt.Errorf("序列化通知事件快照失败: %w", err)
+		return 0, fmt.Errorf("알림 이벤트 스냅샷 직렬화 실패: %w", err)
 	}
 	var id int64
 	err = d.QueryRowContext(ctx, `INSERT INTO notification_events(kind,finding_id,snapshot) VALUES($1,$2,$3) RETURNING id`,

@@ -28,7 +28,7 @@ type EvidenceExchange struct {
 
 func (t *Traffic) ReadEvidence(ctx context.Context, ids []string, consume func(EvidenceExchange) error) error {
 	if t == nil {
-		return errors.New("流量录制存储不可用")
+		return errors.New("트래픽 기록 저장소를 사용할 수 없습니다")
 	}
 	t.wmu.Lock()
 	defer t.wmu.Unlock()
@@ -37,7 +37,7 @@ func (t *Traffic) ReadEvidence(ctx context.Context, ids []string, consume func(E
 			return err
 		}
 		if err := t.readEvidence(id, consume); err != nil {
-			return fmt.Errorf("流量 %s: %w", id, err)
+			return fmt.Errorf("트래픽 %s: %w", id, err)
 		}
 	}
 	return nil
@@ -56,7 +56,7 @@ func (t *Traffic) readEvidence(id string, consume func(EvidenceExchange) error) 
 		Scan(&e.ReqHead, &req, &reqBlob, &e.RespHead, &resp, &respBlob)
 	if errors.Is(err, sql.ErrNoRows) && legacy != "" {
 		if !filepath.IsLocal(legacy) {
-			return errors.New("旧流量路径无效")
+			return errors.New("이전 트래픽 경로가 유효하지 않습니다")
 		}
 		r, err := os.Open(filepath.Join(t.dir, legacy, "request.http"))
 		if err != nil {
@@ -114,7 +114,7 @@ func splitLegacyEvidence(r io.Reader) (string, io.Reader, error) {
 		}
 		head.WriteString(line)
 		if head.Len() > 1<<20 {
-			return "", nil, errors.New("旧流量报文头过大")
+			return "", nil, errors.New("이전 트래픽 메시지 헤더가 너무 큽니다")
 		}
 		if errors.Is(err, io.EOF) {
 			return head.String(), b, nil

@@ -85,13 +85,13 @@ func wireAgentAugment(pg *db.DB, skillDir string, hostTools func() ([]actool.Cor
 				}
 				cl, err := connectMCP(ctx, m)
 				if err != nil {
-					log.Printf("[mcp] %s 连接失败: %v", m.Name, err)
+					log.Printf("[mcp] %s 연결 실패: %v", m.Name, err)
 					continue
 				}
 				closers = append(closers, cl)
 				ts, err := cl.Tools(ctx)
 				if err != nil {
-					log.Printf("[mcp] %s tools/list 失败: %v", m.Name, err)
+					log.Printf("[mcp] %s tools/list 실패: %v", m.Name, err)
 					continue
 				}
 				for _, t := range ts {
@@ -195,11 +195,11 @@ func seedPrompts(pg *db.DB) {
 	for key, tmpl := range agent.BuiltinPromptSeeds() {
 		a, err := pg.GetAgentByKey(key)
 		if err != nil || a == nil {
-			log.Printf("[prompts] seed %s 跳过: agent 不存在 (%v)", key, err)
+			log.Printf("[prompts] seed %s 건너뜜: agent 가 존재하지 않습니다 (%v)", key, err)
 			continue
 		}
 		if err := pg.SeedPromptIfEmpty(a.ID, tmpl); err != nil {
-			log.Printf("[prompts] seed %s 失败: %v", key, err)
+			log.Printf("[prompts] seed %s 실패: %v", key, err)
 		}
 	}
 }
@@ -218,7 +218,7 @@ func wireTools(pg *db.DB, domainReg map[string]actool.CoreTool) {
 		schema, _ := json.Marshal(s.Schema)
 		agents, _ := json.Marshal(s.Agents)
 		if err := pg.SeedTool(s.Key, s.Desc, schema, agents); err != nil {
-			log.Printf("[tools] seed %s 失败: %v", s.Key, err)
+			log.Printf("[tools] seed %s 실패: %v", s.Key, err)
 		}
 	}
 	// Seed the traffic host tools so they're bindable per-agent like built-ins.
@@ -229,7 +229,7 @@ func wireTools(pg *db.DB, domainReg map[string]actool.CoreTool) {
 	for _, t := range traffic.SeedToolMetas() {
 		schema, _ := json.Marshal(t.InputSchema())
 		if err := pg.SeedTool(t.Name(), t.Description(), schema, trafficAgents); err != nil {
-			log.Printf("[tools] seed %s 失败: %v", t.Name(), err)
+			log.Printf("[tools] seed %s 실패: %v", t.Name(), err)
 		}
 	}
 	// bashInteractiveShellNote is appended to Bash's description ONLY for agents whose
@@ -239,7 +239,7 @@ func wireTools(pg *db.DB, domainReg map[string]actool.CoreTool) {
 	agent.ToolResolve = func(ctx context.Context, agentKey string, tools []actool.CoreTool) []actool.CoreTool {
 		rows, err := pg.ListTools()
 		if err != nil {
-			log.Printf("[tools] 读取工具表失败，按代码默认放行: %v", err)
+			log.Printf("[tools] 도구 테이블 읽기 실패, 코드 기본값으로 허용합니다: %v", err)
 			return tools
 		}
 		byKey := make(map[string]*db.Tool, len(rows))

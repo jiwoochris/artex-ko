@@ -52,7 +52,7 @@ func verifyFile(path, hash string, length int64) error {
 		return err
 	}
 	if n != length || hex.EncodeToString(h.Sum(nil)) != hash {
-		return fmt.Errorf("证据正文校验失败: %s", hash)
+		return fmt.Errorf("증거 본문 검증 실패: %s", hash)
 	}
 	return nil
 }
@@ -76,10 +76,10 @@ func (s *Store) writeBody(r io.Reader, expectedLength int64, expectedHash string
 	}
 	hash = hex.EncodeToString(h.Sum(nil))
 	if n != expectedLength {
-		return "", fmt.Errorf("正文不完整: 预期 %d 字节，读取 %d 字节", expectedLength, n)
+		return "", fmt.Errorf("본문이 불완전합니다: 예상 %d 바이트, 실제 %d 바이트", expectedLength, n)
 	}
 	if expectedHash != "" && expectedHash != hash {
-		return "", errors.New("原始流量正文哈希不匹配")
+		return "", errors.New("원본 트래픽 본문 해시가 일치하지 않습니다")
 	}
 	if err = f.Sync(); err != nil {
 		return "", err
@@ -249,7 +249,7 @@ func (s *Store) OpenBody(snapshot db.TrafficEvidenceSnapshot, side string) (*os.
 	if side == "response" {
 		hash, length = snapshot.RespHash, snapshot.RespLen
 	} else if side != "request" {
-		return nil, 0, errors.New("side 必须为 request 或 response")
+		return nil, 0, errors.New("side 는 request 또는 response 여야 합니다")
 	}
 	path, err := hashPath(s.Dir, hash)
 	if err != nil {
@@ -317,7 +317,7 @@ func (s *Store) WithInstalledSnapshots(ctx context.Context, snapshots []db.Traff
 	return s.DB.WithEvidenceTx(ctx, func(*sql.Tx) error {
 		for _, v := range snapshots {
 			if v.ID != db.TrafficSnapshotID(v) {
-				return errors.New("归档证据快照元数据哈希不匹配")
+				return errors.New("보관된 증거 스냅샷 메타데이터 해시가 일치하지 않습니다")
 			}
 			for _, body := range []struct {
 				hash   string

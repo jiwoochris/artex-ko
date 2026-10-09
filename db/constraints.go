@@ -41,7 +41,7 @@ ORDER BY (kind='deny'), id`, s.expID)
 // AddConstraint inserts one constraint (kind must be allow|deny) and returns its id.
 func (s *ExplorationStore) AddConstraint(kind, text, origin string) (int64, error) {
 	if kind != "allow" && kind != "deny" {
-		return 0, fmt.Errorf("kind 必须是 allow 或 deny")
+		return 0, fmt.Errorf("kind 는 allow 또는 deny 여야 합니다")
 	}
 	if origin == "" {
 		origin = "system"
@@ -57,7 +57,7 @@ VALUES ($1, $2, $3, $4) RETURNING id`, s.expID, kind, text, origin).Scan(&id)
 // Returns an error if no such constraint exists.
 func (s *ExplorationStore) UpdateConstraint(id int64, kind, text string) error {
 	if kind != "allow" && kind != "deny" {
-		return fmt.Errorf("kind 必须是 allow 或 deny")
+		return fmt.Errorf("kind 는 allow 또는 deny 여야 합니다")
 	}
 	res, err := s.db.Exec(`
 UPDATE task_constraints SET kind=$1, text=$2, updated_at=now()
@@ -66,7 +66,7 @@ WHERE id=$3 AND exploration_id=$4`, kind, text, id, s.expID)
 		return err
 	}
 	if n, _ := res.RowsAffected(); n == 0 {
-		return fmt.Errorf("约束不存在")
+		return fmt.Errorf("제약이 존재하지 않습니다")
 	}
 	return nil
 }
@@ -79,7 +79,7 @@ func (s *ExplorationStore) DeleteConstraint(id int64) error {
 		return err
 	}
 	if n, _ := res.RowsAffected(); n == 0 {
-		return fmt.Errorf("约束不存在")
+		return fmt.Errorf("제약이 존재하지 않습니다")
 	}
 	return nil
 }

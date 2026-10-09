@@ -223,7 +223,7 @@ func (s *Server) seedPythonInterpreter() {
 	}
 	if p := detectPython(); p != "" {
 		_ = s.m.pg.SetSetting(settingPythonInterp, p)
-		log.Printf("[custom-tool] 自动检测到 python 解释器: %s", p)
+		log.Printf("[custom-tool] python 인터프리터 자동 감지: %s", p)
 	}
 }
 
@@ -295,7 +295,7 @@ func (s *Server) buildCustomTool(t *db.Tool) actool.CoreTool {
 		case "http":
 			return s.runHTTPTool(ctx, execRaw, params, tc)
 		default:
-			return actool.Errorf("未知自定义工具类型: " + kind), nil
+			return actool.Errorf("알 수 없는 사용자 정의 도구 유형: " + kind), nil
 		}
 	}
 	return actool.Build(actool.Spec{
@@ -346,7 +346,7 @@ func (s *Server) runCommandTool(ctx context.Context, execRaw json.RawMessage, pa
 	var spec commandExec
 	_ = json.Unmarshal(execRaw, &spec)
 	if strings.TrimSpace(spec.Command) == "" {
-		return actool.Errorf("command 为空"), nil
+		return actool.Errorf("command 가 비어 있습니다"), nil
 	}
 	cmd := renderTemplate(spec.Command, params, shellQuote)
 	// 复用 Bash 也在用的底层 run(经 Bash CoreTool.Call):自动继承安全 floor/超时/
@@ -366,11 +366,11 @@ func (s *Server) runScriptTool(ctx context.Context, key string, execRaw json.Raw
 	var spec scriptExec
 	_ = json.Unmarshal(execRaw, &spec)
 	if strings.TrimSpace(spec.Code) == "" {
-		return actool.Errorf("script code 为空"), nil
+		return actool.Errorf("script code 가 비어 있습니다"), nil
 	}
 	interp := s.pythonInterpreter()
 	if interp == "" {
-		return actool.Errorf("未配置且未检测到 python 解释器(在系统配置里设置)"), nil
+		return actool.Errorf("python 인터프리터가 설정되지 않았고 감지되지도 않았습니다(시스템 설정에서 지정하세요)"), nil
 	}
 	workDir := s.m.dir
 	var sessionEnv []string
@@ -440,7 +440,7 @@ func (s *Server) runHTTPTool(ctx context.Context, execRaw json.RawMessage, param
 	}
 	rawURL := renderTemplate(spec.URL, params, identity)
 	if strings.TrimSpace(rawURL) == "" {
-		return actool.Errorf("http url 为空"), nil
+		return actool.Errorf("http url 이 비어 있습니다"), nil
 	}
 	var bodyReader io.Reader
 	if spec.Body != "" {
@@ -461,7 +461,7 @@ func (s *Server) runHTTPTool(ctx context.Context, execRaw json.RawMessage, param
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return actool.Errorf("请求失败: " + err.Error()), nil
+		return actool.Errorf("요청 실패: " + err.Error()), nil
 	}
 	defer resp.Body.Close()
 	respBody, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))

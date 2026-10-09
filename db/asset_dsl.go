@@ -207,14 +207,14 @@ func (p *dslParser) parseAtom() (*astNode, error) {
 			return nil, err
 		}
 		if p.peek().kind != tkRP {
-			return nil, fmt.Errorf("DSL 语法错误：缺少右括号 ')'")
+			return nil, fmt.Errorf("DSL 문법 오류: 닫는 괄호 ')' 가 없습니다")
 		}
 		p.consume()
 		return node, nil
 	case tkEOF:
-		return nil, fmt.Errorf("DSL 语法错误：表达式不完整")
+		return nil, fmt.Errorf("DSL 문법 오류: 표현식이 불완전합니다")
 	default:
-		return nil, fmt.Errorf("DSL 语法错误：意外的 token '%s'", t.kind)
+		return nil, fmt.Errorf("DSL 문법 오류: 예상치 못한 토큰 '%s'", t.kind)
 	}
 }
 
@@ -244,7 +244,7 @@ func ParseDSL(s string) (*astNode, error) {
 		return nil, err
 	}
 	if p.peek().kind != tkEOF {
-		return nil, fmt.Errorf("DSL 语法错误：意外的内容 '%s'", p.peek().kind)
+		return nil, fmt.Errorf("DSL 문법 오류: 예상치 못한 내용 '%s'", p.peek().kind)
 	}
 	return node, nil
 }
@@ -316,7 +316,7 @@ func (b *whereBuilder) buildLeaf(e Expr) (string, error) {
 	if f == "task_id" {
 		n, err := strconv.ParseInt(e.Value, 10, 64)
 		if err != nil {
-			return "", fmt.Errorf("task_id 需要整数值: %s", e.Value)
+			return "", fmt.Errorf("task_id 는 정수 값이어야 합니다: %s", e.Value)
 		}
 		return b.next(n) + " = ANY(task_ids)", nil
 	}
@@ -325,7 +325,7 @@ func (b *whereBuilder) buildLeaf(e Expr) (string, error) {
 	if f == "company_id" {
 		n, err := strconv.ParseInt(e.Value, 10, 64)
 		if err != nil {
-			return "", fmt.Errorf("company_id 需要整数值: %s", e.Value)
+			return "", fmt.Errorf("company_id 는 정수 값이어야 합니다: %s", e.Value)
 		}
 		return "company_id = " + b.next(n), nil
 	}
@@ -334,14 +334,14 @@ func (b *whereBuilder) buildLeaf(e Expr) (string, error) {
 	if col, ok := knownNumericFields[f]; ok {
 		n, err := strconv.Atoi(e.Value)
 		if err != nil {
-			return "", fmt.Errorf("字段 %s 需要整数值: %s", f, e.Value)
+			return "", fmt.Errorf("필드 %s 은(는) 정수 값이어야 합니다: %s", f, e.Value)
 		}
 		op := e.Op
 		if op == "==" {
 			op = "="
 		}
 		if op != "=" && op != "!=" && op != ">" && op != ">=" && op != "<" && op != "<=" {
-			return "", fmt.Errorf("字段 %s 不支持运算符 %s", f, e.Op)
+			return "", fmt.Errorf("필드 %s 은(는) 연산자 %s 을(를) 지원하지 않습니다", f, e.Op)
 		}
 		return fmt.Sprintf("%s %s %s", col, op, b.next(n)), nil
 	}
@@ -357,7 +357,7 @@ func (b *whereBuilder) buildLeaf(e Expr) (string, error) {
 			p := b.next("%" + e.Value + "%")
 			return "EXISTS (SELECT 1 FROM unnest(" + col + ") t(v) WHERE v ILIKE " + p + ")", nil
 		default:
-			return "", fmt.Errorf("数组字段 %s 不支持运算符 %s", f, e.Op)
+			return "", fmt.Errorf("배열 필드 %s 은(는) 연산자 %s 을(를) 지원하지 않습니다", f, e.Op)
 		}
 	}
 
@@ -371,11 +371,11 @@ func (b *whereBuilder) buildLeaf(e Expr) (string, error) {
 		case "!=":
 			return col + " NOT ILIKE " + b.next("%"+e.Value+"%"), nil
 		default:
-			return "", fmt.Errorf("字符串字段 %s 不支持运算符 %s", f, e.Op)
+			return "", fmt.Errorf("문자열 필드 %s 은(는) 연산자 %s 을(를) 지원하지 않습니다", f, e.Op)
 		}
 	}
 
-	return "", fmt.Errorf("未知字段: %s", f)
+	return "", fmt.Errorf("알 수 없는 필드: %s", f)
 }
 
 func buildDSLWhere(node *astNode) (string, []any, error) {

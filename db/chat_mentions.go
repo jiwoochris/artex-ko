@@ -22,7 +22,7 @@ type ChatMentionPage struct {
 	NextCursor string        `json:"next_cursor,omitempty"`
 }
 
-var ErrInvalidChatMentionCursor = errors.New("分页位置无效，请重新搜索")
+var ErrInvalidChatMentionCursor = errors.New("페이징 위치가 유효하지 않습니다. 다시 검색하세요")
 
 type chatMentionCursor struct {
 	ID    int64  `json:"id"`
@@ -52,7 +52,7 @@ func (d *DB) SearchChatMentions(ctx context.Context, kind, query string) ([]Chat
 func (d *DB) SearchChatMentionsPage(ctx context.Context, kind, query, cursor string) (ChatMentionPage, error) {
 	page := ChatMentionPage{Items: make([]ChatMention, 0)}
 	if kind != "" && !ValidChatMentionKind(kind) {
-		return page, fmt.Errorf("不支持的引用类型")
+		return page, fmt.Errorf("지원하지 않는 참조 유형입니다")
 	}
 	var after chatMentionCursor
 	if cursor != "" {

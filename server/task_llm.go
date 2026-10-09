@@ -254,7 +254,7 @@ func completeTaskLLM(ctx context.Context, taskID string, req llm.CompletionReque
 			if callErr != nil && ctx.Err() == nil &&
 				attempt < retries && isRetryableStreamError(callErr) {
 				backoff := backoffOf(attempt)
-				log.Printf("[task-llm] task %s 非流式调用失败,%v 后同 provider 重试 (%d/%d): %v",
+				log.Printf("[task-llm] task %s 비스트리밍 호출 실패, %v 후 동일 provider 로 재시도 (%d/%d): %v",
 					taskID, backoff, attempt+1, retries, callErr)
 				if sleepCtx(ctx, backoff) {
 					break // 退避期间 ctx 取消 → 停止重试
@@ -328,7 +328,7 @@ func streamTaskLLM(ctx context.Context, taskID string, req llm.CompletionRequest
 				if streamErr != nil && !committed && ctx.Err() == nil &&
 					attempt < retries && isRetryableStreamError(streamErr) {
 					backoff := backoffOf(attempt)
-					log.Printf("[task-llm] task %s 提交前流失败,%v 后同 provider 重试 (%d/%d): %v",
+					log.Printf("[task-llm] task %s 제출 전 스트림 실패, %v 후 동일 provider 로 재시도 (%d/%d): %v",
 						taskID, backoff, attempt+1, retries, streamErr)
 					if sleepCtx(ctx, backoff) {
 						break // 退避期间 ctx 取消 → 停止重试

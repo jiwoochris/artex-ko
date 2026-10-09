@@ -43,7 +43,7 @@ func (s *Server) hostTools() ([]actool.CoreTool, map[string][]string) {
 	tools = append(tools, s.platformTools()...) // 平台操作工具(建改 skill/工具/MCP，给 Auto 用)
 	custom, err := s.customTools()
 	if err != nil {
-		log.Printf("[custom-tool] 加载失败: %v", err)
+		log.Printf("[custom-tool] 로드 실패: %v", err)
 		return tools, nil
 	}
 	tools = append(tools, custom...)
@@ -152,11 +152,11 @@ func (s *Server) delegateToTask(ctx context.Context, in json.RawMessage, pick fu
 	}
 	_ = json.Unmarshal(in, &head)
 	if strings.TrimSpace(head.TaskID) == "" {
-		return actool.Errorf("task_id 为必填"), nil
+		return actool.Errorf("task_id 는 필수입니다"), nil
 	}
 	t, ok := s.m.Task(head.TaskID)
 	if !ok {
-		return actool.Errorf("task 不存在: " + head.TaskID), nil
+		return actool.Errorf("task 가 존재하지 않습니다: " + head.TaskID), nil
 	}
 	var m map[string]json.RawMessage
 	_ = json.Unmarshal(in, &m)
@@ -267,24 +267,24 @@ func (s *Server) toolSpawnTask() actool.CoreTool {
 				a.Description = "未命名任务"
 			}
 			if strings.TrimSpace(a.Goal) == "" {
-				return actool.Errorf("goal 为必填"), nil
+				return actool.Errorf("goal 은 필수입니다"), nil
 			}
 			if a.TimeoutSeconds < 0 {
 				a.TimeoutSeconds = 0
 			}
 			// 只读继承来源任务：数量上限 + 每个 id 有效/去重/存在，校验规则与 HTTP 建任务一致。
 			if len(a.SourceTaskIDs) > db.MaxTaskSourceCount {
-				return actool.Errorf(fmt.Sprintf("关联任务最多选择 %d 个", db.MaxTaskSourceCount)), nil
+				return actool.Errorf(fmt.Sprintf("연관 작업은 최대 %d개까지 선택할 수 있습니다", db.MaxTaskSourceCount)), nil
 			}
 			sourceIDs := make([]int64, 0, len(a.SourceTaskIDs))
 			seenSources := map[int64]bool{}
 			for _, raw := range a.SourceTaskIDs {
 				id, err := strconv.ParseInt(strings.TrimSpace(raw), 10, 64)
 				if err != nil || id <= 0 || seenSources[id] {
-					return actool.Errorf("关联任务 id 无效或重复"), nil
+					return actool.Errorf("연관 작업 id 가 유효하지 않거나 중복되었습니다"), nil
 				}
 				if _, ok := s.m.Task(strconv.FormatInt(id, 10)); !ok {
-					return actool.Errorf(fmt.Sprintf("关联任务 #%d 不存在", id)), nil
+					return actool.Errorf(fmt.Sprintf("연관 작업 #%d 이(가) 존재하지 않습니다", id)), nil
 				}
 				seenSources[id] = true
 				sourceIDs = append(sourceIDs, id)
@@ -293,7 +293,7 @@ func (s *Server) toolSpawnTask() actool.CoreTool {
 			var pin *int64
 			if id := parseProfileID(a.LLMProfileID); id > 0 {
 				if _, ok := s.loadProfileConfig(id); !ok {
-					return actool.Errorf(fmt.Sprintf("LLM 配置 #%d 不存在或未设置 API Key", id)), nil
+					return actool.Errorf(fmt.Sprintf("LLM 설정 #%d 이(가) 존재하지 않거나 API Key 가 설정되지 않았습니다", id)), nil
 				}
 				pin = &id
 			} else if a.ParentRef != "" {
@@ -338,7 +338,7 @@ func (s *Server) toolPauseTask() actool.CoreTool {
 			_ = json.Unmarshal(in, &a)
 			t, ok := s.m.Task(a.TaskID)
 			if !ok {
-				return actool.Errorf("task 不存在: " + a.TaskID), nil
+				return actool.Errorf("task 가 존재하지 않습니다: " + a.TaskID), nil
 			}
 			if _, err := s.applyTaskControlWithCause(t, "pause", agent.AbortPausedByOrchestrator); err != nil {
 				return actool.Errorf(err.Error()), nil
@@ -440,14 +440,14 @@ func (s *Server) toolUpdateFindingReport() actool.CoreTool {
 			_ = json.Unmarshal(in, &a)
 			nodeID := parseProfileID(a.FindingID) // 复用「数字或数字字符串」解析
 			if nodeID <= 0 {
-				return actool.Errorf("finding_id 无效"), nil
+				return actool.Errorf("finding_id 가 유효하지 않습니다"), nil
 			}
 			n, err := s.m.pg.SetFindingReportVersionByNodeID(ctx, nodeID, a.Report, a.EvidenceVersion)
 			if err != nil {
 				return actool.Errorf(err.Error()), nil
 			}
 			if n == 0 {
-				return actool.Errorf(fmt.Sprintf("未找到 finding_id=%d 对应的漏洞记录(先用 report_finding 登记)", nodeID)), nil
+				return actool.Errorf(fmt.Sprintf("finding_id=%d 에 해당하는 취약점 기록을 찾지 못했습니다(먼저 report_finding 으로 등록하세요)", nodeID)), nil
 			}
 			return actool.Text(fmt.Sprintf("finding %d report updated (%d chars)", nodeID, len(a.Report))), nil
 		})
@@ -543,7 +543,7 @@ func (s *Server) refreshBuiltinToolSchemas() {
 		}
 	}
 	_ = s.m.pg.SetSetting(flag, "true")
-	log.Printf("[tools] 已刷新 orchestration/platform 工具 schema 到代码默认(一次性)")
+	log.Printf("[tools] orchestration/platform 도구 schema 를 코드 기본값으로 갱신했습니다(1회성)")
 }
 
 // unbindGoalMetDefault removes goal_met's default "planner" binding ONCE (guarded by
@@ -557,7 +557,7 @@ func (s *Server) unbindGoalMetDefault() {
 		return
 	}
 	if err := s.m.pg.RemoveAgentFromTool("planner", "goal_met"); err != nil {
-		log.Printf("[tools] goal_met 解绑 planner 失败: %v", err)
+		log.Printf("[tools] goal_met planner 바인딩 해제 실패: %v", err)
 		return
 	}
 	_ = s.m.pg.SetSetting(flag, "true")
@@ -587,10 +587,10 @@ func (s *Server) reseedGoalsPrompt() {
 		return
 	}
 	if _, err := s.m.pg.ResetPromptToDefault(a.ID, tmpl); err != nil {
-		log.Printf("[prompts] goals 提示词重刷为新默认失败: %v", err)
+		log.Printf("[prompts] goals 프롬프트를 새 기본값으로 재적용 실패: %v", err)
 		return
 	}
-	log.Printf("[prompts] goals 提示词已追加新默认版本(加入抽操作约束步,一次性)")
+	log.Printf("[prompts] goals 프롬프트에 새 기본 버전을 추가했습니다(추상 연산 제약 단계 추가, 1회성)")
 }
 
 // reseedMainAgentPrompt 把 mainagent 提示词刷成【当前代码默认】——默认正文新增了「目标全部
@@ -617,10 +617,10 @@ func (s *Server) reseedMainAgentPrompt() {
 		return
 	}
 	if _, err := s.m.pg.ResetPromptToDefault(a.ID, tmpl); err != nil {
-		log.Printf("[prompts] mainagent 提示词重刷为新默认失败: %v", err)
+		log.Printf("[prompts] mainagent 프롬프트를 새 기본값으로 재적용 실패: %v", err)
 		return
 	}
-	log.Printf("[prompts] mainagent 提示词已追加新默认版本(加入目标达成后反问建目标,一次性)")
+	log.Printf("[prompts] mainagent 프롬프트에 새 기본 버전을 추가했습니다(목표 달성 후 목표 재생성 질문 추가, 1회성)")
 }
 
 // reseedPlannerPrompt 把 planner 提示词刷成【当前代码默认】——默认正文做了精简重构,并把「克制」降级为
@@ -648,10 +648,10 @@ func (s *Server) reseedPlannerPrompt() {
 		return
 	}
 	if _, err := s.m.pg.ResetPromptToDefault(a.ID, tmpl); err != nil {
-		log.Printf("[prompts] planner 提示词重刷为新默认失败: %v", err)
+		log.Printf("[prompts] planner 프롬프트를 새 기본값으로 재적용 실패: %v", err)
 		return
 	}
-	log.Printf("[prompts] planner 提示词已追加新默认版本(精简重构+克制降级去重+深度优先+否定复核上界,一次性)")
+	log.Printf("[prompts] planner 프롬프트에 새 기본 버전을 추가했습니다(간소화 재구성+절제된 강등 중복 제거+깊이 우선+부정 재검토 상한, 1회성)")
 }
 
 // reseedWorkerPrompt 把 worker 提示词刷成【当前代码默认】——默认正文 record_fact 段删掉了「否定类结论
@@ -678,10 +678,10 @@ func (s *Server) reseedWorkerPrompt() {
 		return
 	}
 	if _, err := s.m.pg.ResetPromptToDefault(a.ID, tmpl); err != nil {
-		log.Printf("[prompts] worker 提示词重刷为新默认失败: %v", err)
+		log.Printf("[prompts] worker 프롬프트를 새 기본값으로 재적용 실패: %v", err)
 		return
 	}
-	log.Printf("[prompts] worker 提示词已追加新默认版本(查上下文段收敛为 list_assets/list_findings,去掉 list_facts/node_detail/asset_neighbors,一次性)")
+	log.Printf("[prompts] worker 프롬프트에 새 기본 버전을 추가했습니다(컨텍스트 조회 구간을 list_assets/list_findings 로 수렴, list_facts/node_detail/asset_neighbors 제거, 1회성)")
 }
 
 // reporterToolCallMessage 必须无条件要求先读一次 get_finding_traffic 再写报告。
@@ -712,7 +712,7 @@ func (s *Server) upgradeReporterTriggerMessage() {
 	defer func() { _ = s.m.pg.SetSetting(flag, "true") }() // 只尝试一次
 	triggers, err := s.m.pg.ListTriggersFor("reporter")
 	if err != nil {
-		log.Printf("[reporter] 读取触发器失败: %v", err)
+		log.Printf("[reporter] 트리거 읽기 실패: %v", err)
 		return
 	}
 	for _, t := range triggers {
@@ -721,10 +721,10 @@ func (s *Server) upgradeReporterTriggerMessage() {
 		}
 		t.ToolCallMessage = reporterToolCallMessage
 		if err := s.m.pg.UpdateTrigger(t); err != nil {
-			log.Printf("[reporter] 升级触发消息失败: %v", err)
+			log.Printf("[reporter] 트리거 메시지 승격 실패: %v", err)
 			return
 		}
-		log.Printf("[reporter] 触发消息已升级为读取并回传 evidence_version")
+		log.Printf("[reporter] 트리거 메시지를 evidence_version 을 읽어 반환하도록 승격했습니다")
 	}
 }
 
@@ -745,17 +745,17 @@ func (s *Server) seedReporterAgent() {
 	a, err := s.m.pg.CreateAgent("reporter", "报告撰写",
 		"漏洞详细报告撰写：发现漏洞时自动触发，查取证据与执行过程后写 Markdown 报告并回写。")
 	if err != nil {
-		log.Printf("[reporter] 创建 agent 失败: %v", err)
+		log.Printf("[reporter] agent 생성 실패: %v", err)
 		return
 	}
 	if err := s.m.pg.SeedPromptIfEmpty(a.ID, agent.ReporterDefaultPrompt); err != nil {
-		log.Printf("[reporter] seed prompt 失败: %v", err)
+		log.Printf("[reporter] seed prompt 실패: %v", err)
 	}
 	// 触发运行策略：parallel + none —— 一漏洞一报告、多个 finding 并发各写各的。
 	// merge 必须为 none：否则(默认 all)一波 finding 会被合并成一次运行，并行就没意义。
 	// maxParallel=5：同时最多 5 个报告会话，避免瞬时太多 LLM 调用。
 	if err := s.m.pg.SetAgentTriggerBehavior("reporter", "parallel", "none", 5); err != nil {
-		log.Printf("[reporter] 设置触发运行策略失败: %v", err)
+		log.Printf("[reporter] 트리거 실행 정책 설정 실패: %v", err)
 	}
 	// 绑定它需要的工具：写报告 + 读证据/执行过程/态势。
 	if err := s.m.pg.AddAgentToToolBinding("reporter", []string{
@@ -763,7 +763,7 @@ func (s *Server) seedReporterAgent() {
 		"get_task_worker_trace", "list_task_worker_traces", "search_task_worker_traces",
 		"get_task_graph",
 	}); err != nil {
-		log.Printf("[reporter] 绑定工具失败: %v", err)
+		log.Printf("[reporter] 도구 바인딩 실패: %v", err)
 	}
 	// 触发器：report_finding 被调用即触发（工具返回 "finding recorded: <id>" 带上 finding_id，
 	// 任务 id 也在触发消息里）。
@@ -774,9 +774,9 @@ func (s *Server) seedReporterAgent() {
 		ToolNames:       []string{"report_finding"},
 		ToolCallMessage: reporterToolCallMessage,
 	}); err != nil {
-		log.Printf("[reporter] 创建触发器失败: %v", err)
+		log.Printf("[reporter] 트리거 생성 실패: %v", err)
 	}
-	log.Printf("[reporter] 已预置「报告撰写」agent + finding 触发器")
+	log.Printf("[reporter] '보고서 작성' agent + finding 트리거를 미리 구성했습니다")
 }
 
 // seedAutoReportFindingBinding adds "auto" to report_finding's binding ONCE so
@@ -787,7 +787,7 @@ func (s *Server) seedAutoReportFindingBinding() {
 		return
 	}
 	if err := s.m.pg.AddAgentToToolBinding("auto", []string{"report_finding"}); err != nil {
-		log.Printf("[auto] report_finding 默认绑定失败: %v", err)
+		log.Printf("[auto] report_finding 기본 바인딩 실패: %v", err)
 		return
 	}
 	_ = s.m.pg.SetSetting(flag, "true")
@@ -803,7 +803,7 @@ func (s *Server) seedPlannerDefaultBindings() {
 		return
 	}
 	if err := s.m.pg.AddAgentToToolBinding("planner", []string{"report_finding"}); err != nil {
-		log.Printf("[planner] report_finding 默认绑定失败: %v", err)
+		log.Printf("[planner] report_finding 기본 바인딩 실패: %v", err)
 		return
 	}
 	_ = s.m.pg.SetSetting(flag, "true")
@@ -820,7 +820,7 @@ func (s *Server) seedPlannerListAssetsBinding() {
 		return
 	}
 	if err := s.m.pg.AddAgentToToolBinding("planner", []string{"list_assets"}); err != nil {
-		log.Printf("[planner] list_assets 默认绑定失败: %v", err)
+		log.Printf("[planner] list_assets 기본 바인딩 실패: %v", err)
 		return
 	}
 	_ = s.m.pg.SetSetting(flag, "true")
@@ -838,11 +838,11 @@ func (s *Server) seedCompanyScopeRebind() {
 		return
 	}
 	if err := s.m.pg.AddAgentToToolBinding("planner", []string{"add_company_scope"}); err != nil {
-		log.Printf("[planner] add_company_scope 默认绑定失败: %v", err)
+		log.Printf("[planner] add_company_scope 기본 바인딩 실패: %v", err)
 		return
 	}
 	if err := s.m.pg.RemoveAgentFromTool("worker", "add_company_scope"); err != nil {
-		log.Printf("[worker] add_company_scope 解绑失败: %v", err)
+		log.Printf("[worker] add_company_scope 바인딩 해제 실패: %v", err)
 		return
 	}
 	_ = s.m.pg.SetSetting(flag, "true")
@@ -869,7 +869,7 @@ func (s *Server) seedWorkerReadToolsUnbind() {
 		"list_facts", "list_companies", "list_worker_traces",
 	} {
 		if err := s.m.pg.RemoveAgentFromTool("worker", k); err != nil {
-			log.Printf("[worker] %s 从 worker 解绑失败: %v", k, err)
+			log.Printf("[worker] %s 를 worker 에서 바인딩 해제 실패: %v", k, err)
 			return // 出错则不落 flag，下次启动重试
 		}
 	}
@@ -890,7 +890,7 @@ func (s *Server) seedWorkerReadbackRebind() {
 	if err := s.m.pg.AddAgentToToolBinding("worker", []string{
 		"search_all_worker_traces", "get_worker_trace", "node_detail",
 	}); err != nil {
-		log.Printf("[worker] 回看/详情工具补绑失败: %v", err)
+		log.Printf("[worker] 되돌아보기/상세 도구 추가 바인딩 실패: %v", err)
 		return // 出错则不落 flag，下次启动重试
 	}
 	_ = s.m.pg.SetSetting(flag, "true")
@@ -913,7 +913,7 @@ func (s *Server) seedAutoDefaultBindings() {
 	// 资产工具：Auto 操作平台常要看/登记资产、管理公司范围。
 	keys = append(keys, "insert_assets", "add_company_scope", "list_assets")
 	if err := s.m.pg.AddAgentToToolBinding("auto", keys); err != nil {
-		log.Printf("[auto] 默认绑定失败: %v", err)
+		log.Printf("[auto] 기본 바인딩 실패: %v", err)
 		return
 	}
 	_ = s.m.pg.SetSetting(flag, "true")

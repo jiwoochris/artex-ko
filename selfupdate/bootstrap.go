@@ -53,7 +53,7 @@ func Bootstrap() (Action, State) {
 	}
 	p, err := ResolvePaths()
 	if err != nil {
-		log.Printf("[update] 跳过自举：%v", err)
+		log.Printf("[update] 부트스트랩 건너뜀: %v", err)
 		return Continue, State{}
 	}
 
@@ -77,14 +77,14 @@ func applyStaged(p Paths) (Action, State) {
 	m, _ := readMarker(p.Marker)
 
 	if err := verifyStaged(p); err != nil {
-		log.Printf("[update] 暂存的新版本未通过校验，已丢弃，继续运行当前版本：%v", err)
+		log.Printf("[update] 스테이징된 새 버전이 검증을 통과하지 못해 폐기하고 현재 버전으로 계속 실행합니다: %v", err)
 		cleanStaged(p)
 		_ = os.Remove(p.Marker)
 		return Continue, State{FailedStage: true, Detail: "새 버전 검증에 실패해 폐기했습니다: " + err.Error()}
 	}
 
 	if err := swap(p); err != nil {
-		log.Printf("[update] 换装失败，继续运行当前版本：%v", err)
+		log.Printf("[update] 교체 실패, 현재 버전으로 계속 실행합니다: %v", err)
 		cleanStaged(p)
 		_ = os.Remove(p.Marker)
 		return Continue, State{FailedStage: true, Detail: "버전 교체에 실패했습니다: " + err.Error()}
@@ -96,9 +96,9 @@ func applyStaged(p Paths) (Action, State) {
 		m.StagedAt = time.Now().Unix()
 	}
 	if err := writeMarker(p.Marker, m); err != nil {
-		log.Printf("[update] 写升级标记失败（失去自动回滚能力）：%v", err)
+		log.Printf("[update] 업그레이드 마커 쓰기 실패(자동 롤백 기능 상실): %v", err)
 	}
-	log.Printf("[update] 已换装到 %s，退出以重启（exit %d）", orUnknown(m.To), ExitRestart)
+	log.Printf("[update] %s 로 교체 완료, 재시작을 위해 종료합니다(exit %d)", orUnknown(m.To), ExitRestart)
 	return Restart, State{Pending: true}
 }
 
@@ -113,19 +113,19 @@ func confirmOrRollback(p Paths, m marker) (Action, State) {
 		if err := rollback(p); err != nil {
 			// 回滚都失败了就别再重启了，否则会陷入无限重启。清掉标记，
 			// 让进程按当前状态起——起不来的话用户至少能在日志里看到原因。
-			log.Printf("[update] 新版本连续 %d 次启动失败，且回滚失败：%v", maxAttempts, err)
+			log.Printf("[update] 새 버전이 %d회 연속 시작에 실패했고 롤백도 실패했습니다: %v", maxAttempts, err)
 			_ = os.Remove(p.Marker)
 			return Continue, State{Detail: "새 버전 시작에 실패하고 롤백도 실패했습니다: " + err.Error()}
 		}
-		log.Printf("[update] 新版本连续 %d 次启动失败，已回滚到 %s，退出以重启（exit %d）",
+		log.Printf("[update] 새 버전이 %d회 연속 시작에 실패해 %s 로 롤백했습니다. 재시작을 위해 종료합니다(exit %d)",
 			maxAttempts, orUnknown(m.From), ExitRestart)
 		_ = os.Remove(p.Marker)
 		return Restart, State{RolledBack: true, Detail: fmt.Sprintf("새 버전 시작에 실패해 이전 버전으로 롤백했습니다(%s)", orUnknown(m.From))}
 	}
 	if err := writeMarker(p.Marker, m); err != nil {
-		log.Printf("[update] 更新升级标记失败：%v", err)
+		log.Printf("[update] 업그레이드 마커 갱신 실패: %v", err)
 	}
-	log.Printf("[update] 新版本启动中（第 %d/%d 次尝试），稳定运行后将确认升级",
+	log.Printf("[update] 새 버전 시작 중(%d/%d 시도). 안정적으로 실행되면 업그레이드를 확정합니다",
 		m.Attempts, maxAttempts)
 	return Continue, State{Pending: true}
 }
@@ -147,10 +147,10 @@ func settle(p Paths) {
 		return // 不是升级后的启动，无事可做
 	}
 	if err := os.Remove(p.Marker); err != nil && !errors.Is(err, os.ErrNotExist) {
-		log.Printf("[update] 清除升级标记失败：%v", err)
+		log.Printf("[update] 업그레이드 마커 삭제 실패: %v", err)
 		return
 	}
-	log.Printf("[update] 新版本运行稳定，升级完成（上一版本保留为 %s）", p.Old)
+	log.Printf("[update] 새 버전이 안정적으로 실행되어 업그레이드가 완료되었습니다(이전 버전은 %s 로 보존)", p.Old)
 }
 
 // SettleDelay 是判定"新版本活下来了"所需的运行时长。
@@ -262,7 +262,7 @@ func Rollback() error {
 		return fmt.Errorf("이전 버전 설치 실패: %w", err)
 	}
 	if err := os.Rename(tmp, p.Old); err != nil {
-		log.Printf("[update] 回滚后整理备份失败（不影响运行）：%v", err)
+		log.Printf("[update] 롤백 후 백업 정리 실패(실행에는 영향 없음): %v", err)
 	}
 	_ = os.Remove(p.Marker)
 	return nil

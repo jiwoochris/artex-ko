@@ -164,7 +164,7 @@ func (s *Server) findingRetestTools() []actool.CoreTool {
 					return actool.Errorf(err.Error()), nil
 				}
 				if r == nil {
-					return actool.Errorf("当前会话未关联复测记录，请从漏洞详情发起复测"), nil
+					return actool.Errorf("현재 세션에 연결된 재검증 기록이 없습니다. 취약점 상세에서 재검증을 시작하세요"), nil
 				}
 				var constraints []db.Constraint
 				f, err := s.m.pg.GetFinding(r.FindingID)

@@ -31,7 +31,7 @@ func newLLMHealthRegistry(pg *db.DB) *llmpool.Registry {
 		}
 		go func() {
 			if err := pg.SaveLLMHealth(h); err != nil {
-				log.Printf("[llmpool] 熔断状态落库失败: %v", err)
+				log.Printf("[llmpool] 서킷 브레이크 상태 기록 실패: %v", err)
 			}
 		}()
 	}
@@ -48,7 +48,7 @@ func newLLMHealthRegistry(pg *db.DB) *llmpool.Registry {
 				st.OpenUntil = *h.OpenUntil
 			}
 			reg.Restore(h.ProfileID, st)
-			log.Printf("[llmpool] 恢复熔断状态: 配置 #%d 冷却至 %s", h.ProfileID, st.OpenUntil.Format(time.RFC3339))
+			log.Printf("[llmpool] 서킷 브레이크 상태 복구: 설정 #%d 냉각 %s 까지", h.ProfileID, st.OpenUntil.Format(time.RFC3339))
 		}
 	}
 	return reg
@@ -83,7 +83,7 @@ func (s *Server) poolChain(headID int64, headProv llm.Provider, headCfg agent.Co
 	}
 	profs, err := s.m.pg.PoolProfiles()
 	if err != nil {
-		log.Printf("[llmpool] 读取轮询链失败: %v", err)
+		log.Printf("[llmpool] 폴링 체인 읽기 실패: %v", err)
 		return nil
 	}
 	var head *db.LLMProfile
@@ -136,7 +136,7 @@ func (s *Server) poolForActive(activeID int64, prov llm.Provider, cfg agent.Conf
 	for _, m := range pool.Members() {
 		names = append(names, m.Name+"/"+m.Model)
 	}
-	log.Printf("[llmpool] LLM 轮询已启用，链路(%d): %v", len(names), names)
+	log.Printf("[llmpool] LLM 폴링 활성화, 체인(%d): %v", len(names), names)
 	return pool
 }
 

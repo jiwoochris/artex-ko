@@ -51,18 +51,18 @@ func (s *Server) toolDeleteAssetsByHost() actool.CoreTool {
 		func(_ context.Context, in json.RawMessage) (actool.Result, error) {
 			as := s.assetStore()
 			if as == nil {
-				return actool.Errorf("资产库未初始化"), nil
+				return actool.Errorf("자산 저장소가 초기화되지 않았습니다"), nil
 			}
 			var a struct {
 				Host string `json:"host"`
 			}
 			_ = json.Unmarshal(in, &a)
 			if strings.TrimSpace(a.Host) == "" {
-				return actool.Errorf("host 不能为空"), nil
+				return actool.Errorf("host 는 비워 둘 수 없습니다"), nil
 			}
 			counts, err := as.DeleteByHost(a.Host)
 			if err != nil {
-				return actool.Errorf("删除失败: " + err.Error()), nil
+				return actool.Errorf("삭제 실패: " + err.Error()), nil
 			}
 			var total int64
 			for _, n := range counts {
@@ -90,14 +90,14 @@ func (s *Server) toolCreateSkill() actool.CoreTool {
 			var a struct{ Name, Description, Instructions string }
 			_ = json.Unmarshal(in, &a)
 			if !validSkillName(a.Name) {
-				return actool.Errorf("skill 名不合法(小写字母开头，仅字母/数字/连字符，≤64)"), nil
+				return actool.Errorf("skill 이름이 유효하지 않습니다(소문자로 시작, 영문/숫자/하이픈만, ≤64)"), nil
 			}
 			if strings.TrimSpace(a.Description) == "" {
-				return actool.Errorf("description 必填"), nil
+				return actool.Errorf("description 은 필수입니다"), nil
 			}
 			path := filepath.Join(s.skillDir, a.Name)
 			if _, err := os.Stat(path); err == nil {
-				return actool.Errorf("skill 已存在: " + a.Name), nil
+				return actool.Errorf("skill 이 이미 존재합니다: " + a.Name), nil
 			}
 			if err := os.MkdirAll(path, 0o755); err != nil {
 				return actool.Errorf(err.Error()), nil
@@ -132,11 +132,11 @@ func (s *Server) toolUpdateSkillFile() actool.CoreTool {
 			var a struct{ Name, File, Content string }
 			_ = json.Unmarshal(in, &a)
 			if !validSkillName(a.Name) {
-				return actool.Errorf("skill 名不合法"), nil
+				return actool.Errorf("skill 이름이 유효하지 않습니다"), nil
 			}
 			skillPath := filepath.Join(s.skillDir, a.Name)
 			if _, err := os.Stat(skillPath); os.IsNotExist(err) {
-				return actool.Errorf("skill 不存在: " + a.Name), nil
+				return actool.Errorf("skill 이 존재하지 않습니다: " + a.Name), nil
 			}
 			rel := strings.TrimSpace(a.File)
 			if rel == "" {
@@ -144,7 +144,7 @@ func (s *Server) toolUpdateSkillFile() actool.CoreTool {
 			}
 			clean, msg := skillRelPath(rel)
 			if msg != "" {
-				return actool.Errorf("非法路径: " + msg), nil
+				return actool.Errorf("잘못된 경로: " + msg), nil
 			}
 			full := filepath.Join(skillPath, clean)
 			if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
@@ -202,16 +202,16 @@ func (s *Server) toolCreateCustomTool() actool.CoreTool {
 			_ = json.Unmarshal(in, &a)
 			a.Key = strings.TrimSpace(a.Key)
 			if !reToolKey.MatchString(a.Key) {
-				return actool.Errorf("key 需小写字母开头，仅含小写字母/数字/下划线"), nil
+				return actool.Errorf("key 는 소문자로 시작하고 소문자/숫자/밑줄만 포함해야 합니다"), nil
 			}
 			if a.Kind != "shell" && a.Kind != "command" && a.Kind != "script" && a.Kind != "http" {
-				return actool.Errorf("kind 需为 shell / command / script / http"), nil
+				return actool.Errorf("kind 는 shell / command / script / http 여야 합니다"), nil
 			}
 			if a.Kind == "http" && !hasSchemaProps(a.Schema) {
-				return actool.Errorf("http 工具必须提供参数 JSON Schema(不能留空)"), nil
+				return actool.Errorf("http 도구는 매개변수 JSON Schema 를 반드시 제공해야 합니다(비워 둘 수 없음)"), nil
 			}
 			if exist, _ := s.m.pg.GetTool(a.Key); exist != nil {
-				return actool.Errorf("该 key 已存在: " + a.Key), nil
+				return actool.Errorf("해당 key 가 이미 존재합니다: " + a.Key), nil
 			}
 			if err := s.m.pg.CreateCustomTool(toDBTool(a)); err != nil {
 				return actool.Errorf(err.Error()), nil
@@ -228,13 +228,13 @@ func (s *Server) toolUpdateCustomTool() actool.CoreTool {
 			_ = json.Unmarshal(in, &a)
 			existing, _ := s.m.pg.GetTool(a.Key)
 			if existing == nil || existing.System {
-				return actool.Errorf("只能修改自定义工具: " + a.Key), nil
+				return actool.Errorf("사용자 정의 도구만 수정할 수 있습니다: " + a.Key), nil
 			}
 			if a.Kind != "shell" && a.Kind != "command" && a.Kind != "script" && a.Kind != "http" {
-				return actool.Errorf("kind 需为 shell / command / script / http"), nil
+				return actool.Errorf("kind 는 shell / command / script / http 여야 합니다"), nil
 			}
 			if a.Kind == "http" && !hasSchemaProps(a.Schema) {
-				return actool.Errorf("http 工具必须提供参数 JSON Schema(不能留空)"), nil
+				return actool.Errorf("http 도구는 매개변수 JSON Schema 를 반드시 제공해야 합니다(비워 둘 수 없음)"), nil
 			}
 			if err := s.m.pg.UpdateCustomTool(toDBTool(a)); err != nil {
 				return actool.Errorf(err.Error()), nil
@@ -299,7 +299,7 @@ func (s *Server) toolCreateMCP() actool.CoreTool {
 			_ = json.Unmarshal(in, &a)
 			a.ID = 0
 			if strings.TrimSpace(a.Name) == "" || strings.TrimSpace(a.Transport) == "" {
-				return actool.Errorf("name / transport 必填"), nil
+				return actool.Errorf("name / transport 는 필수입니다"), nil
 			}
 			id, err := s.m.pg.SaveMCP(a.toDB())
 			if err != nil {
@@ -316,7 +316,7 @@ func (s *Server) toolUpdateMCP() actool.CoreTool {
 			var a mcpToolInput
 			_ = json.Unmarshal(in, &a)
 			if a.ID == 0 {
-				return actool.Errorf("id 必填"), nil
+				return actool.Errorf("id 는 필수입니다"), nil
 			}
 			if _, err := s.m.pg.SaveMCP(a.toDB()); err != nil {
 				return actool.Errorf(err.Error()), nil
