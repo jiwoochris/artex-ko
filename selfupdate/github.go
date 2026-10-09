@@ -12,7 +12,7 @@ import (
 
 // Repo 是发布源。写死而不是做成配置项：更新源可配等于给任何能改配置的人一条
 // 远程代码执行通道，对一个渗透测试平台来说这个口子开不得。
-const Repo = "Autumn-27/artex"
+const Repo = "quantum-decrypt-security/artex-ko"
 
 // latestURL 是 GitHub 的"最新正式版"接口。它会自动跳过 prerelease 和 draft。
 const latestURL = "https://api.github.com/repos/" + Repo + "/releases/latest"
