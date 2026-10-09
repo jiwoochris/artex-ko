@@ -157,7 +157,7 @@ func (s *Server) startFindingRetest(w http.ResponseWriter, r *http.Request) {
 // arguments cannot redirect a result into a different finding or conversation.
 func (s *Server) findingRetestTools() []actool.CoreTool {
 	return []actool.CoreTool{
-		roTool("get_finding_retest_context", "读取当前复测会话关联的漏洞证据快照、复测状态、补充说明与当前任务约束。无参数，只能读取本会话。",
+		roTool("get_finding_retest_context", "현재 재검증 세션에 연결된 취약점 증거 스냅샷, 재검증 상태, 보충 설명, 현재 작업 제약을 읽습니다. 매개변수가 없으며 이 세션만 읽을 수 있습니다.",
 			objSchema(map[string]any{}), func(ctx context.Context, _ json.RawMessage) (actool.Result, error) {
 				r, err := s.m.pg.FindingRetestForConversation(ctx, intercept.ConvIDFromContext(ctx))
 				if err != nil {
@@ -181,11 +181,11 @@ func (s *Server) findingRetestTools() []actool.CoreTool {
 				}
 				return jsonResult(map[string]any{"retest": r, "current_constraints": constraints})
 			}),
-		wrTool("record_finding_retest_result", "为当前复测会话保存唯一结论；原漏洞证据与报告保持不变。会话成功结束且结论为 fixed 时，系统自动将漏洞状态改为已修复；其他结论保留原状态。必须提供本次实际检查的证据，无法确认时写明阻塞原因。",
+		wrTool("record_finding_retest_result", "현재 재검증 세션에 유일한 결론을 저장합니다. 원본 취약점 증거와 보고서는 변경되지 않습니다. 세션이 성공적으로 끝나고 결론이 fixed 이면 시스템이 취약점 상태를 자동으로 수정됨으로 바꿉니다. 다른 결론은 원래 상태를 유지합니다. 이번에 실제로 확인한 증거를 반드시 제공하고, 확정할 수 없으면 차단 원인을 적으세요.",
 			objSchema(map[string]any{
 				"verdict":  map[string]any{"type": "string", "enum": []string{"reproduced", "fixed", "inconclusive"}},
-				"summary":  strParam("本次复测结论摘要"),
-				"evidence": strParam("Markdown：本次实际步骤、观察、对照、结论依据；无法确认则列出已检查内容和阻塞原因"),
+				"summary":  strParam("이번 재검증 결론 요약"),
+				"evidence": strParam("Markdown: 이번 실제 단계, 관찰, 대조, 결론 근거; 확정할 수 없으면 확인한 내용과 차단 원인을 나열"),
 			}, "verdict", "summary", "evidence"), func(ctx context.Context, in json.RawMessage) (actool.Result, error) {
 				var a struct {
 					Verdict  string `json:"verdict"`

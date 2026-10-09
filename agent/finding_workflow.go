@@ -104,7 +104,7 @@ func stripTrafficParameters(schema map[string]any) {
 
 // HintTrafficSchema is shared by the task-local and cross-task hint tools.
 func HintTrafficSchema() map[string]any {
-	return map[string]any{"type": "array", "description": "可选：已核实且对应本提示中具体漏洞的流量引用，保留顺序；交接后 report_finding 可传 evidence_hint_id 携带这些引用。", "items": obj(map[string]any{"traffic_id": str("真实流量 ID"), "role": str("baseline / proof / verification / supporting"), "note": str("该流量支持什么结论")}, "traffic_id")}
+	return map[string]any{"type": "array", "description": "선택: 이 힌트의 구체적 취약점에 대응하며 이미 확인된 트래픽 참조로, 순서를 유지합니다. 인계 후 report_finding 이 evidence_hint_id 를 전달해 이 참조들을 함께 가져갈 수 있습니다.", "items": obj(map[string]any{"traffic_id": str("실제 트래픽 ID"), "role": str("baseline / proof / verification / supporting"), "note": str("이 트래픽이 어떤 결론을 뒷받침하는지")}, "traffic_id")}
 }
 
 func (t *ToolSet) findingRefsFromHint(hintID int64, explicit []db.TrafficRef) ([]db.TrafficRef, error) {

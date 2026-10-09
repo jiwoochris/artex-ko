@@ -11,6 +11,7 @@ import (
 
 	"github.com/Autumn-27/artex/agent"
 	"github.com/Autumn-27/artex/db"
+	"github.com/Autumn-27/artex/traffic"
 	"github.com/Autumn-27/norma/permission"
 	actool "github.com/Autumn-27/norma/tool"
 )
@@ -175,7 +176,7 @@ func (s *Server) delegateToTask(ctx context.Context, in json.RawMessage, pick fu
 
 func (s *Server) toolListTasks() actool.CoreTool {
 	return roTool("list_tasks",
-		"列出所有任务(id/描述/目标/状态/运行时长/父任务/LLM 配置)，编排 agent 用它掌握全局、看哪些任务卡太久、各自用哪个 LLM。运行时长：运行中=创建→现在，终态=创建→最后活动(秒)。llm_profile：任务 planner/worker 用的配置名，(激活配置)=跟随全局激活。",
+		"모든 작업(id/설명/목표/상태/실행 시간/부모 작업/LLM 설정)을 나열합니다. 오케스트레이션 agent 가 전역을 파악하고 어떤 작업이 너무 오래 걸리는지, 각자 어떤 LLM 을 쓰는지 보는 데 사용합니다. 실행 시간: 실행 중=생성→현재, 종료 상태=생성→마지막 활동(초). llm_profile: 작업 planner/worker 가 쓰는 설정 이름, (활성 설정)=전역 활성 설정을 따름.",
 		objSchema(map[string]any{}),
 		func(context.Context, json.RawMessage) (actool.Result, error) {
 			lastAct, _ := s.m.PG().LastActivityAll()
@@ -205,11 +206,11 @@ func (s *Server) toolListTasks() actool.CoreTool {
 				}
 				llmState := t.llmStateSnapshot()
 				if llmState.ProfileID == nil {
-					row["llm_profile"] = "(激活配置)"
+					row["llm_profile"] = "(활성 설정)"
 				} else if n, ok := profName[*llmState.ProfileID]; ok {
 					row["llm_profile"] = n
 				} else {
-					row["llm_profile"] = fmt.Sprintf("#%d(已删除)", *llmState.ProfileID)
+					row["llm_profile"] = fmt.Sprintf("#%d(삭제됨)", *llmState.ProfileID)
 				}
 				out = append(out, row)
 			}
@@ -221,7 +222,7 @@ func (s *Server) toolListTasks() actool.CoreTool {
 // orchestration agent can pick one for spawn_task's llm_profile. Never leaks keys.
 func (s *Server) toolListLLMProfiles() actool.CoreTool {
 	return roTool("list_llm_profiles",
-		"列出可用的 LLM 配置(profile)：id、名称、模型、格式、是否为当前激活配置。用 id 给 spawn_task 的 llm_profile_id 参数指定子任务专属 LLM（如侦察用便宜模型、利用用强模型）。不含 API Key。",
+		"사용 가능한 LLM 설정(profile)을 나열합니다: id, 이름, 모델, 형식, 현재 활성 설정 여부. id 를 spawn_task 의 llm_profile_id 매개변수에 지정해 하위 작업 전용 LLM 을 쓸 수 있습니다(예: 정찰은 저렴한 모델, 활용은 강한 모델). API Key 는 포함하지 않습니다.",
 		objSchema(map[string]any{}),
 		func(context.Context, json.RawMessage) (actool.Result, error) {
 			profs, err := s.m.pg.ListProfiles()
@@ -240,16 +241,16 @@ func (s *Server) toolListLLMProfiles() actool.CoreTool {
 
 func (s *Server) toolSpawnTask() actool.CoreTool {
 	return wrTool("spawn_task",
-		"新建一个子任务并启动探索引擎，返回 task_id。用于把一件事(如一道题/一个目标)派成独立任务。parent_ref 可选：填当前编排关联的父任务 id 做父子关联。",
+		"하위 작업을 새로 만들고 탐색 엔진을 시작한 뒤 task_id 를 반환합니다. 하나의 일(예: 문제 하나/목표 하나)을 독립 작업으로 파견하는 데 사용합니다. parent_ref 는 선택입니다: 현재 오케스트레이션에 연관된 부모 작업 id 를 넣어 부모-자식 연관을 만듭니다.",
 		objSchema(map[string]any{
-			"description":            strParam("任务描述(简短标题)"),
-			"goal":                   strParam("任务目标(要达成什么)"),
-			"parent_ref":             strParam("可选：父任务 id(做父子关联)"),
-			"source_task_ids":        map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "description": fmt.Sprintf("可选：只读继承的来源任务 id 列表(最多 %d 个)。子任务可只读引用这些任务已探明的资产/结论作为起点；与 parent_ref 的纯父子指针不同，这是内容继承。", db.MaxTaskSourceCount)},
-			"llm_profile_id":         map[string]any{"type": "integer", "description": "可选：指定本子任务 planner/worker 用的 LLM 配置 id(见 list_llm_profiles)；留空则继承父任务、再回退全局激活配置"},
-			"timeout_seconds":        map[string]any{"type": "integer", "description": "可选：任务级超时(秒)。到点后触发优雅收尾并进入 timeout 终态；留空或 0 = 不限时"},
-			"plan_heartbeat_seconds": map[string]any{"type": "integer", "description": "可选：planner 心跳触发间隔(秒)。距上轮规划结束/任务开始满该值且期间无触发 → 触发一轮规划(兜底死锁 + 唤醒去监督飞行中的 worker)。留空或 0 = 默认 600(10min)；"},
-			"seed_first_intent":      map[string]any{"type": "boolean", "description": "可选：对于简单任务可开启，创建时直接下发一条种子意图(内容=描述+目标)让 worker 免等首轮 planner 直接开跑测试；默认 false(走标准先规划再执行)。"},
+			"description":            strParam("작업 설명(짧은 제목)"),
+			"goal":                   strParam("작업 목표(무엇을 달성할지)"),
+			"parent_ref":             strParam("선택: 부모 작업 id(부모-자식 연관)"),
+			"source_task_ids":        map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "description": fmt.Sprintf("선택: 읽기 전용으로 상속할 출처 작업 id 목록(최대 %d 개). 하위 작업은 이 작업들이 이미 밝혀낸 자산/결론을 읽기 전용으로 참조해 시작점으로 삼을 수 있습니다. parent_ref 의 순수 부모-자식 포인터와 달리 이는 내용 상속입니다.", db.MaxTaskSourceCount)},
+			"llm_profile_id":         map[string]any{"type": "integer", "description": "선택: 이 하위 작업의 planner/worker 가 쓸 LLM 설정 id 지정(list_llm_profiles 참조); 비우면 부모 작업을 상속하고, 그다음 전역 활성 설정으로 폴백합니다"},
+			"timeout_seconds":        map[string]any{"type": "integer", "description": "선택: 작업 수준 타임아웃(초). 도달하면 우아한 마무리를 트리거하고 timeout 종료 상태로 들어갑니다; 비우거나 0 = 무제한"},
+			"plan_heartbeat_seconds": map[string]any{"type": "integer", "description": "선택: planner 하트비트 트리거 간격(초). 지난 계획 라운드 종료/작업 시작 후 이 값에 도달할 때까지 트리거가 없으면 → 계획 라운드를 한 번 트리거합니다(교착 방지 + 비행 중인 worker 감독을 위한 기상). 비우거나 0 = 기본 600(10분);"},
+			"seed_first_intent":      map[string]any{"type": "boolean", "description": "선택: 단순한 작업이면 켤 수 있습니다. 생성 시 시드 의도 하나를 바로 내려(내용=설명+목표) worker 가 첫 planner 라운드를 기다리지 않고 곧바로 테스트를 시작하게 합니다; 기본 false(표준대로 먼저 계획하고 실행)."},
 		}, "description", "goal"),
 		func(_ context.Context, in json.RawMessage) (actool.Result, error) {
 			var a struct {
@@ -264,7 +265,7 @@ func (s *Server) toolSpawnTask() actool.CoreTool {
 			}
 			_ = json.Unmarshal(in, &a)
 			if strings.TrimSpace(a.Description) == "" {
-				a.Description = "未命名任务"
+				a.Description = "이름 없는 작업"
 			}
 			if strings.TrimSpace(a.Goal) == "" {
 				return actool.Errorf("goal 은 필수입니다"), nil
@@ -329,8 +330,8 @@ func (s *Server) toolSpawnTask() actool.CoreTool {
 }
 
 func (s *Server) toolPauseTask() actool.CoreTool {
-	return wrTool("pause_task", "暂停指定任务(停止其 planner/worker 循环)。",
-		objSchema(map[string]any{"task_id": strParam("要暂停的任务 id")}, "task_id"),
+	return wrTool("pause_task", "지정한 작업을 일시정지합니다(planner/worker 루프 중지).",
+		objSchema(map[string]any{"task_id": strParam("일시정지할 작업 id")}, "task_id"),
 		func(_ context.Context, in json.RawMessage) (actool.Result, error) {
 			var a struct {
 				TaskID string `json:"task_id"`
@@ -348,30 +349,30 @@ func (s *Server) toolPauseTask() actool.CoreTool {
 }
 
 func (s *Server) toolGetTaskGraph() actool.CoreTool {
-	return roTool("get_task_graph", "读指定任务的探索图总览(同 graph_overview：资产计数/frontier/发现/覆盖等)，用 task_id 指定任务。",
-		objSchema(map[string]any{"task_id": strParam("任务 id")}, "task_id"),
+	return roTool("get_task_graph", "지정한 작업의 탐색 그래프 개요를 읽습니다(graph_overview 와 동일: 자산 수/frontier/발견/커버리지 등). task_id 로 작업을 지정합니다.",
+		objSchema(map[string]any{"task_id": strParam("작업 id")}, "task_id"),
 		func(ctx context.Context, in json.RawMessage) (actool.Result, error) {
 			return s.delegateToTask(ctx, in, (*agent.ToolSet).GraphOverviewTool)
 		})
 }
 
 func (s *Server) toolListTaskFindings() actool.CoreTool {
-	return roTool("list_task_findings", "读指定任务的确认漏洞(含 flag/PoC；每条带 id/task_id/intent_id/vulnclass/severity/摘要/状态)，用 task_id 指定任务。",
-		objSchema(map[string]any{"task_id": strParam("任务 id")}, "task_id"),
+	return roTool("list_task_findings", "지정한 작업의 확인된 취약점을 읽습니다(flag/PoC 포함; 각 항목은 id/task_id/intent_id/vulnclass/severity/요약/상태를 가짐). task_id 로 작업을 지정합니다.",
+		objSchema(map[string]any{"task_id": strParam("작업 id")}, "task_id"),
 		func(ctx context.Context, in json.RawMessage) (actool.Result, error) {
 			return s.delegateToTask(ctx, in, (*agent.ToolSet).ListFindingsTool)
 		})
 }
 
 func (s *Server) toolAddHint() actool.CoreTool {
-	return wrTool("add_task_hint", "给指定任务注入战略提示(该任务的 planner 下轮生成意图时会读到)。\n"+
-		"★优先批量：多条提示放进 hints 数组一次提交（返回 ids 数组，与 hints 等长同序，失败项 id=0）；单条则省略 hints 直接给顶层 text。",
+	return wrTool("add_task_hint", "지정한 작업에 전략 힌트를 주입합니다(그 작업의 planner 가 다음 의도 생성 시 읽습니다).\n"+
+		"★일괄 처리를 우선하세요: 여러 힌트를 hints 배열에 담아 한 번에 제출합니다(반환 ids 배열은 hints 와 길이가 같고 순서도 같으며 실패 항목 id=0); 단건이면 hints 를 생략하고 최상위 text 만 주면 됩니다.",
 		objSchema(map[string]any{
-			"task_id":      strParam("任务 id"),
-			"hints":        map[string]any{"type": "array", "description": "【优先用这个】提示数组，每个元素字段同顶层（text/asset_ids/traffic_refs）。", "items": objSchema(map[string]any{"text": strParam("提示内容"), "asset_ids": map[string]any{"type": "array", "items": map[string]any{"type": "integer"}}, "traffic_refs": agent.HintTrafficSchema()})},
-			"text":         strParam("[单条] 提示内容"),
+			"task_id":      strParam("작업 id"),
+			"hints":        map[string]any{"type": "array", "description": "【이것을 우선 사용】힌트 배열로, 각 요소 필드는 최상위와 같습니다(text/asset_ids/traffic_refs).", "items": objSchema(map[string]any{"text": strParam("힌트 내용"), "asset_ids": map[string]any{"type": "array", "items": map[string]any{"type": "integer"}}, "traffic_refs": agent.HintTrafficSchema()})},
+			"text":         strParam("[단건] 힌트 내용"),
 			"traffic_refs": agent.HintTrafficSchema(),
-			"asset_ids":    map[string]any{"type": "array", "items": map[string]any{"type": "integer"}, "description": "锚定的资产 id（可选，0/1/多个；该任务内的资产 id）"},
+			"asset_ids":    map[string]any{"type": "array", "items": map[string]any{"type": "integer"}, "description": "앵커된 자산 id(선택, 0/1/여러 개; 그 작업 내의 자산 id)"},
 		}, "task_id"),
 		func(ctx context.Context, in json.RawMessage) (actool.Result, error) {
 			return s.delegateToTask(ctx, in, (*agent.ToolSet).AddHintTool)
@@ -380,11 +381,11 @@ func (s *Server) toolAddHint() actool.CoreTool {
 
 func (s *Server) toolGetWorkerTrace() actool.CoreTool {
 	return roTool("get_task_worker_trace",
-		"看指定任务里某个 work(意图)的执行过程：get_task_worker_trace(task_id, intent_id) 看步骤摘要；再带 step_ids=[...] 取那几步完整内容(一次最多 5 个,多传只返回前 5 个)。",
+		"지정한 작업의 특정 work(의도) 실행 과정을 봅니다: get_task_worker_trace(task_id, intent_id) 로 단계 요약을 보고, step_ids=[...] 를 함께 주면 그 단계들의 전체 내용을 가져옵니다(한 번에 최대 5개, 초과분은 앞 5개만 반환).",
 		objSchema(map[string]any{
-			"task_id":   strParam("任务 id"),
-			"intent_id": map[string]any{"type": "integer", "description": "意图 id(该任务里的 work)"},
-			"step_ids":  map[string]any{"type": "array", "items": map[string]any{"type": "integer"}, "description": "可选：要取完整内容的步骤 id(一次最多 5 个,多传只返回前 5 个,其余在 omitted_step_ids 里列出)"},
+			"task_id":   strParam("작업 id"),
+			"intent_id": map[string]any{"type": "integer", "description": "의도 id(그 작업 내의 work)"},
+			"step_ids":  map[string]any{"type": "array", "items": map[string]any{"type": "integer"}, "description": "선택: 전체 내용을 가져올 단계 id(한 번에 최대 5개, 초과분은 앞 5개만 반환하고 나머지는 omitted_step_ids 에 나열)"},
 		}, "task_id", "intent_id"),
 		func(ctx context.Context, in json.RawMessage) (actool.Result, error) {
 			return s.delegateToTask(ctx, in, (*agent.ToolSet).GetWorkerTraceTool)
@@ -392,16 +393,16 @@ func (s *Server) toolGetWorkerTrace() actool.CoreTool {
 }
 
 func (s *Server) toolListWorkerTraces() actool.CoreTool {
-	return roTool("list_task_worker_traces", "列出指定任务里跑过哪些 work(意图) + 各自步数，用于发现哪些 work 值得翻看(再用 get_task_worker_trace)。",
-		objSchema(map[string]any{"task_id": strParam("任务 id")}, "task_id"),
+	return roTool("list_task_worker_traces", "지정한 작업에서 어떤 work(의도)가 실행되었는지 + 각 단계 수를 나열합니다. 어떤 work 를 살펴볼 가치가 있는지 발견하는 데 사용합니다(그다음 get_task_worker_trace).",
+		objSchema(map[string]any{"task_id": strParam("작업 id")}, "task_id"),
 		func(ctx context.Context, in json.RawMessage) (actool.Result, error) {
 			return s.delegateToTask(ctx, in, (*agent.ToolSet).ListWorkerTracesTool)
 		})
 }
 
 func (s *Server) toolSearchWorkerTraces() actool.CoreTool {
-	return roTool("search_task_worker_traces", "在指定任务里按关键字搜索所有 work 的执行过程(返回命中步骤摘要 + intent_id)。",
-		objSchema(map[string]any{"task_id": strParam("任务 id"), "q": strParam("搜索关键字")}, "task_id", "q"),
+	return roTool("search_task_worker_traces", "지정한 작업에서 키워드로 모든 work 의 실행 과정을 검색합니다(일치 단계 요약 + intent_id 반환).",
+		objSchema(map[string]any{"task_id": strParam("작업 id"), "q": strParam("검색 키워드")}, "task_id", "q"),
 		func(ctx context.Context, in json.RawMessage) (actool.Result, error) {
 			return s.delegateToTask(ctx, in, (*agent.ToolSet).SearchWorkerTracesTool)
 		})
@@ -409,10 +410,10 @@ func (s *Server) toolSearchWorkerTraces() actool.CoreTool {
 
 func (s *Server) toolGetTaskNodeDetail() actool.CoreTool {
 	return roTool("get_task_node_detail",
-		"读指定任务里某个探索图节点的完整内容(发现/事实/意图/目标：摘要 + 详情/证据/PoC)。id 为探索节点 id(如 report_finding 返回、或 list_task_findings 里的 id)。写漏洞报告前用它取该漏洞的完整证据。",
+		"지정한 작업의 특정 탐색 그래프 노드 전체 내용을 읽습니다(발견/사실/의도/목표: 요약 + 세부/증거/PoC). id 는 탐색 노드 id 입니다(report_finding 이 반환하거나 list_task_findings 에 있는 id). 취약점 보고서를 쓰기 전에 이 도구로 해당 취약점의 전체 증거를 가져오세요.",
 		objSchema(map[string]any{
-			"task_id": strParam("任务 id"),
-			"id":      map[string]any{"type": "integer", "description": "探索图节点 id(非资产 id)"},
+			"task_id": strParam("작업 id"),
+			"id":      map[string]any{"type": "integer", "description": "탐색 그래프 노드 id(자산 id 아님)"},
 		}, "task_id", "id"),
 		func(ctx context.Context, in json.RawMessage) (actool.Result, error) {
 			return s.delegateToTask(ctx, in, (*agent.ToolSet).NodeDetailTool)
@@ -425,11 +426,11 @@ func (s *Server) toolGetTaskNodeDetail() actool.CoreTool {
 // task-agnostic, so this host tool needs no task_id / exploration store.
 func (s *Server) toolUpdateFindingReport() actool.CoreTool {
 	return wrTool("update_finding_report",
-		"为已登记的漏洞写入/更新【详细报告】(Markdown 全文,整段覆盖旧内容)。finding_id 传 report_finding 返回的那个 id(\"finding recorded: <id>\" 里的数字)。报告建议包含:漏洞概述、影响与危害、复现步骤、证据/PoC、修复建议。",
+		"이미 등록된 취약점에【상세 보고서】를 쓰거나 갱신합니다(Markdown 전문, 기존 내용을 통째로 덮어씀). finding_id 에는 report_finding 이 반환한 그 id(\"finding recorded: <id>\" 의 숫자)를 전달하세요. 보고서에는 취약점 개요, 영향과 위험, 재현 단계, 증거/PoC, 수정 권고를 포함하는 것을 권장합니다.",
 		objSchema(map[string]any{
-			"finding_id":       map[string]any{"type": "integer", "description": "目标漏洞 id(report_finding 返回的 id)"},
-			"report":           strParam("详细报告全文,Markdown 格式"),
-			"evidence_version": map[string]any{"type": "integer", "description": "get_finding_traffic 返回的证据 version；用于防止报告覆盖新的证据变更"},
+			"finding_id":       map[string]any{"type": "integer", "description": "대상 취약점 id(report_finding 이 반환한 id)"},
+			"report":           strParam("상세 보고서 전문, Markdown 형식"),
+			"evidence_version": map[string]any{"type": "integer", "description": "get_finding_traffic 이 반환한 증거 version; 보고서가 새로운 증거 변경을 덮어쓰는 것을 방지합니다"},
 		}, "finding_id", "report"),
 		func(ctx context.Context, in json.RawMessage) (actool.Result, error) {
 			var a struct {
@@ -487,6 +488,7 @@ func (s *Server) seedOrchestrationTools() {
 		_ = s.m.PG().SeedTool(t.Name(), t.Description(), schema, autoAgents)
 	}
 	s.refreshBuiltinToolSchemas()
+	s.refreshBuiltinToolDescriptionsKo() // 내장 도구 설명/schema 한국어 백필(별도 플래그, v7 조기반환과 무관)
 	s.seedAutoDefaultBindings()
 	s.seedPlannerDefaultBindings()
 	s.seedPlannerListAssetsBinding()
@@ -499,7 +501,7 @@ func (s *Server) seedOrchestrationTools() {
 	s.reseedMainAgentPrompt()         // mainagent 提示词加入「目标达成后 add_intent 反问是否建目标」(一次性)
 	s.reseedPlannerPrompt()           // planner 提示词:重写「0 意图」正当理由 + 加量化验收核对(一次性)
 	s.reseedWorkerPrompt()            // worker 提示词:加否定结论证据门槛(一次性)
-	s.seedReporterAgent()             // 预置「报告撰写」agent + 工具绑定 + finding 触发器(一次性)
+	s.seedReporterAgent()             // 预置「보고서 작성」agent + 工具绑定 + finding 触发器(一次性)
 	s.upgradeReporterTriggerMessage() // 老库补迁移:让 reporter 回传 evidence_version(一次性)
 	s.seedFindingTrafficTools()       // 增加可选证据参数及只读证据工具，保留用户配置
 	s.seedFindingWorkflowTools()
@@ -544,6 +546,50 @@ func (s *Server) refreshBuiltinToolSchemas() {
 	}
 	_ = s.m.pg.SetSetting(flag, "true")
 	log.Printf("[tools] orchestration/platform 도구 schema 를 코드 기본값으로 갱신했습니다(1회성)")
+}
+
+// refreshBuiltinToolDescriptionsKo rewrites every built-in tool's description and
+// schema from the code defaults ONCE per flag. SeedTool is first-insert-only, so
+// an install that already ran it keeps the old rows — the tool page shows the
+// stale text and the model keeps reading it. This exists specifically to land
+// the Chinese→Korean description translation on existing databases; tool
+// descriptions are also the LLM prompt, so stale rows would keep the agent
+// reading Chinese. Only `system` rows are touched, so user-defined tools and
+// each tool's agent binding / enabled flag are preserved.
+func (s *Server) refreshBuiltinToolDescriptionsKo() {
+	const flag = "tool_desc_ko_backfill_v6"
+	if v, _, _ := s.m.pg.GetSetting(flag); v == "true" {
+		return
+	}
+	// Tool rows are seeded from three separate sources, so all three must be
+	// refreshed: the agent-domain catalog, the orchestration/platform handlers,
+	// and the traffic host tools.
+	for _, sd := range agent.BuiltinToolSeeds() {
+		schema, _ := json.Marshal(sd.Schema)
+		if err := s.m.pg.RefreshToolDefaults(sd.Key, sd.Desc, schema); err != nil {
+			log.Printf("[tools] %s 설명 한국어 갱신 실패: %v", sd.Key, err)
+		}
+	}
+	for _, t := range append(s.orchestrationTools(), s.platformTools()...) {
+		schema, _ := json.Marshal(t.InputSchema())
+		if err := s.m.pg.RefreshToolDefaults(t.Name(), t.Description(), schema); err != nil {
+			log.Printf("[tools] %s 설명 한국어 갱신 실패: %v", t.Name(), err)
+		}
+	}
+	for _, t := range append(s.findingRetestTools(), s.toolGetFindingTraffic(), s.toolBindFindingTraffic(), s.toolUpdateFindingReport()) {
+		schema, _ := json.Marshal(t.InputSchema())
+		if err := s.m.pg.RefreshToolDefaults(t.Name(), t.Description(), schema); err != nil {
+			log.Printf("[tools] %s 설명 한국어 갱신 실패: %v", t.Name(), err)
+		}
+	}
+	for _, t := range traffic.SeedToolMetas() {
+		schema, _ := json.Marshal(t.InputSchema())
+		if err := s.m.pg.RefreshToolDefaults(t.Name(), t.Description(), schema); err != nil {
+			log.Printf("[tools] %s 설명 한국어 갱신 실패: %v", t.Name(), err)
+		}
+	}
+	_ = s.m.pg.SetSetting(flag, "true")
+	log.Printf("[tools] 내장 도구 설명/schema 를 코드 기본값(한국어)으로 갱신했습니다(1회성)")
 }
 
 // unbindGoalMetDefault removes goal_met's default "planner" binding ONCE (guarded by
@@ -689,16 +735,16 @@ func (s *Server) reseedWorkerPrompt() {
 // 写成「启用自动绑定才读」,默认关闭配置下 reporter 就不会传 evidence_version,
 // SetFindingReportVersionByNodeID 便按 legacy 语义写 -1,漏洞详情与 Markdown 导出
 // 从此常驻「证据已变更，报告待更新」,而 UI 上没有任何入口能把它清掉。
-const reporterToolCallMessage = "上面刚有一个漏洞被 report_finding 登记。请读取返回 JSON 的 finding_id（独立漏洞记录 ID）与 finding_node_id（探索节点 ID），" +
-	"先用 get_finding_traffic(finding_id) 读取当前证据清单及其 version（空清单是正常情况，照常写报告）；" +
-	"若运行指引启用自动绑定，在读取前先核实并关联本次漏洞的流量。节点详情使用 finding_node_id。" +
-	"最后调用 update_finding_report(finding_id=finding_node_id, report, evidence_version=实际读取版本) 保存，" +
-	"evidence_version 必须传，否则报告会被永久标记为待更新。不要混用两种编号。"
+const reporterToolCallMessage = "방금 위에서 report_finding 으로 취약점 하나가 등록되었습니다. 반환 JSON 의 finding_id(독립 취약점 기록 ID)와 finding_node_id(탐색 노드 ID)를 읽으세요," +
+	"먼저 get_finding_traffic(finding_id) 로 현재 증거 목록과 그 version 을 읽으세요(빈 목록은 정상이며, 평소대로 보고서를 쓰면 됩니다);" +
+	"실행 안내에서 자동 연결이 켜져 있으면 읽기 전에 이번 취약점의 트래픽을 먼저 확인하고 연결하세요. 노드 상세에는 finding_node_id 를 사용하세요." +
+	"마지막으로 update_finding_report(finding_id=finding_node_id, report, evidence_version=실제 읽은 버전) 를 호출해 저장하세요," +
+	"evidence_version 은 반드시 전달해야 하며, 그렇지 않으면 보고서가 영구히 갱신 대기로 표시됩니다. 두 가지 번호를 혼용하지 마세요."
 
 // 旧版触发消息(0.3.8 及更早)。只有仍与它逐字相同的记录才会被迁移覆盖，用户改过的保持原样。
-const reporterToolCallMessageV1 = "上面刚有一个漏洞被 report_finding 登记。请从触发上下文里取出 finding_id" +
-	"（工具返回 \"finding recorded: <id>\" 里的数字）与任务 id，按你的职责撰写该漏洞的详细报告，" +
-	"最后调用 update_finding_report(finding_id, report) 保存。"
+const reporterToolCallMessageV1 = "방금 위에서 report_finding 으로 취약점 하나가 등록되었습니다. 트리거 컨텍스트에서 finding_id 를 꺼내세요" +
+	"(도구가 반환한 \"finding recorded: <id>\" 의 숫자)와 작업 id 를 확인하고, 맡은 역할에 따라 해당 취약점의 상세 보고서를 작성한 뒤," +
+	"마지막으로 update_finding_report(finding_id, report) 를 호출해 저장하세요."
 
 // upgradeReporterTriggerMessage 把老库里仍是默认文案的 reporter 触发消息刷成新版本。
 // seedReporterAgent 受 reporter_agent_seed_v1 守卫且只在新建 agent 时写触发器，所以
@@ -728,7 +774,7 @@ func (s *Server) upgradeReporterTriggerMessage() {
 	}
 }
 
-// seedReporterAgent 预置一个「报告撰写」自定义 agent(builtin=false，可在 UI 编辑/删除)：
+// seedReporterAgent 预置一个「보고서 작성」自定义 agent(builtin=false，可在 UI 编辑/删除)：
 // 绑定 update_finding_report + 任务查询工具，并挂一个「report_finding 被调用即触发」的
 // 触发器 —— 每登记一个漏洞就唤起它写详细报告。一次性(settings flag 守卫)：用户删掉后不再重建。
 // 依赖：orchestration 工具已在本函数上方 SeedTool 入库，故绑定得上。
@@ -742,8 +788,8 @@ func (s *Server) seedReporterAgent() {
 	if exist, _ := s.m.pg.GetAgentByKey("reporter"); exist != nil {
 		return // key 已被占用(用户手建过)——不覆盖
 	}
-	a, err := s.m.pg.CreateAgent("reporter", "报告撰写",
-		"漏洞详细报告撰写：发现漏洞时自动触发，查取证据与执行过程后写 Markdown 报告并回写。")
+	a, err := s.m.pg.CreateAgent("reporter", "보고서 작성",
+		"취약점 상세 보고서 작성: 취약점 발견 시 자동 실행되며, 증거와 실행 과정을 조회한 뒤 Markdown 보고서를 작성하고 되돌려 기록합니다.")
 	if err != nil {
 		log.Printf("[reporter] agent 생성 실패: %v", err)
 		return
@@ -766,7 +812,7 @@ func (s *Server) seedReporterAgent() {
 		log.Printf("[reporter] 도구 바인딩 실패: %v", err)
 	}
 	// 触发器：report_finding 被调用即触发（工具返回 "finding recorded: <id>" 带上 finding_id，
-	// 任务 id 也在触发消息里）。
+	// 작업 id 也在触发消息里）。
 	if _, err := s.m.pg.CreateTrigger(&db.AgentTrigger{
 		AgentKey:        "reporter",
 		Enabled:         true,
