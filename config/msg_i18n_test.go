@@ -2,6 +2,8 @@ package config
 
 import (
 	"path/filepath"
+	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -58,4 +60,22 @@ func containsStr(s, sub string) bool {
 		}
 	}
 	return false
+}
+
+// TestCatalogFormatVerbsMatch pins that every translation keeps the Korean
+// template's format verbs in the same order. Callers wrap only the template
+// (log.Printf(T(ko), args...)), so a dropped or reordered verb would print
+// %!s(MISSING) or swap arguments in the operator's console.
+func TestCatalogFormatVerbsMatch(t *testing.T) {
+	verbs := regexp.MustCompile(`%[-+# 0-9.]*[a-zA-Z%]`)
+	for name, cat := range map[string]map[string]map[string]string{"cfgCatalog": cfgCatalog, "logCatalog": logCatalog} {
+		for ko, tr := range cat {
+			want := strings.Join(verbs.FindAllString(ko, -1), " ")
+			for lang, v := range tr {
+				if got := strings.Join(verbs.FindAllString(v, -1), " "); got != want {
+					t.Errorf("%s[%q][%s] verbs = %q, want %q", name, ko, lang, got, want)
+				}
+			}
+		}
+	}
 }

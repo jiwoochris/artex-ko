@@ -3213,7 +3213,7 @@
     },
     "language": {
       "title": "Display language",
-      "desc": "The language of every label shown on screen. It takes effect immediately with no need to save. This setting is stored in this browser only and is not synced to your account, so you will need to set it again if you switch browsers or clear site data.",
+      "desc": "The language of on-screen text and of the reports, summaries and chat replies the agents write. It takes effect immediately with no need to save. The on-screen language is stored in this browser only, so you will need to pick it again if you switch browsers or clear site data. The agent output language is stored on the server and applies from any browser.",
       "label": "Language"
     }
   },

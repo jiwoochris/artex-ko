@@ -3213,7 +3213,7 @@
     },
     "language": {
       "title": "Idioma de la interfaz",
-      "desc": "El idioma de todos los textos que se muestran en pantalla. Se aplica de inmediato, sin necesidad de guardar. Este ajuste se almacena solo en este navegador y no se sincroniza con su cuenta, por lo que deberá configurarlo de nuevo si cambia de navegador o borra los datos del sitio.",
+      "desc": "El idioma del texto en pantalla y de los informes, resúmenes y respuestas de chat que escriben los agentes. Se aplica de inmediato, sin necesidad de guardar. El idioma de la pantalla se guarda solo en este navegador, por lo que deberá elegirlo de nuevo si cambia de navegador o borra los datos del sitio. El idioma de salida de los agentes se guarda en el servidor y se aplica desde cualquier navegador.",
       "label": "Idioma"
     }
   },

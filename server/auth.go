@@ -499,7 +499,7 @@ func (s *Server) authInit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := pg.SetSetting(authPassKey, string(hash)); err != nil {
-		writeErr(w, 500, authErrSaveFailedPrefix+err.Error())
+		writeErr(w, 500, trMsg(authErrSaveFailedPrefix)+err.Error())
 		return
 	}
 	s.setPassHash(string(hash))
@@ -566,7 +566,7 @@ func (s *Server) authChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := pg.SetSetting(authPassKey, string(newHash)); err != nil {
-		writeErr(w, 500, authErrSaveFailedPrefix+err.Error())
+		writeErr(w, 500, trMsg(authErrSaveFailedPrefix)+err.Error())
 		return
 	}
 	s.setPassHash(string(newHash))
