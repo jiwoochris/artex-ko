@@ -38,7 +38,7 @@ user who runs it. This repository is provided "AS IS."
 ## Localization policy
 
 The reason this repository exists is to **preserve the original
-[Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX)'s judgment performance exactly while
+[Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX) (currently unreachable, checked 2026-10) judgment performance exactly while
 changing only the user-facing output to Korean**. Translation contributions that depart from
 this policy can degrade performance, so we do not accept them.
 
@@ -154,6 +154,17 @@ npm run build        # production build
 npm run build:static # static-export build (merge gate; includes TypeScript type checking)
 npm run check        # Biome lint/format check (informational; not a merge gate yet, due to pre-existing debt)
 npm run check:fix    # auto-fix
+```
+
+If you do not have Node (version 20+) locally, or the installed native dependencies do not
+match your platform, you can verify the same way with Docker. Keeping `node_modules` in a named
+volume avoids clashing with your host's platform binaries (for example `@parcel/watcher` and
+Biome) and makes re-runs faster. This repository verifies web the same way as CI.
+
+```bash
+docker run --rm -v "$PWD":/src -w /src/web \
+  -v artexko-web-nm:/src/web/node_modules \
+  node:22 bash -c 'npm ci && npm run build:static'
 ```
 
 Formatting and linting before commit are managed with Biome. `lint-staged` automatically runs

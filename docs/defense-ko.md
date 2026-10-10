@@ -380,7 +380,7 @@ ARTEX 연루가 의심될 때 가장 먼저 확인할 것을 순서로 정리합
 
 ## 참고
 
-- 원본 프로젝트: [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX) (AGPL-3.0). 이 문서는 그 한국어판 저장소의 방어 자료입니다.
+- 원본 프로젝트: [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX) (AGPL-3.0 · 현재 접속 불가, 2026-10 확인). 이 문서는 그 한국어판 저장소의 방어 자료입니다.
 - 상위 [README 의 보안·오남용 경고와 사용 범위·국내법 고지](../README.md).
 - 이 판본은 한국 사용자를 위한 현지화본이며, 개인정보가 결부된 경우에는 「정보통신망 이용촉진 및 정보보호 등에 관한 법률」과 「개인정보 보호법」이 함께 적용됩니다. 그와 무관하게 권한 없는 점검은 대부분의 관할에서 범죄가 되므로, 반드시 서면 허가와 합의된 범위를 먼저 확보한 뒤에 진행하십시오.
 - 일반 웹 보안 하드닝의 표준 참고: [OWASP Top 10](https://owasp.org/www-project-top-ten/), [OWASP ASVS(애플리케이션 보안 검증 표준)](https://owasp.org/www-project-application-security-verification-standard/), [OWASP API Security Top 10](https://api-security.owasp.org/).

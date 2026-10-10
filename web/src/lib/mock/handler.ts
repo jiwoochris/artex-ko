@@ -2503,7 +2503,7 @@ function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Re
   // 必须显式命中：路径以 s 结尾会被下面的读兜底判成集合返回 []，items 就成了 undefined。
   if (seg.at(-1) === "side-questions") {
     if (m === "GET") return { items: [], current: null, next_cursor: 0, snapshot: null };
-    if (m === "POST") throw new Error("데모 모드에서는 사이드 질문을 지원하지 않습니다");
+    if (m === "POST") throw new Error("데모 모드에서는 곁질문을 지원하지 않습니다");
   }
 
   // ── 写操作兜底：成功但不落库 ──

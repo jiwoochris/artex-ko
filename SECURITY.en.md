@@ -32,7 +32,7 @@ Including the following in your report speeds up triage:
 
 ## Supported scope
 
-This repository is a **Korean localization of the original ARTEX**, maintained by volunteers. Security fixes are provided against the **latest default branch**. We do not guarantee backports to earlier releases. If a vulnerability belongs to the upstream code regardless of localization, we recommend also reporting it to [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX).
+This repository is a **Korean localization of the original ARTEX**, maintained by volunteers. Security fixes are provided against the **latest default branch**. We do not guarantee backports to earlier releases. If a vulnerability belongs to the upstream code regardless of localization, we recommend also reporting it to [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX) (currently unreachable, checked 2026-10).
 
 ## Out of scope
 

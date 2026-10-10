@@ -3,7 +3,7 @@
 [한국어](MAINTAINING.md) · English
 
 This document lays out the procedure a **maintainer** follows to keep up with changes in the
-upstream repository [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX) while maintaining the
+upstream repository [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX) (currently unreachable, checked 2026-10) while maintaining the
 Korean localization. Contribution scope, legal responsibility, and the localization policy live in
 [CONTRIBUTING.en.md](CONTRIBUTING.en.md); user-facing guidance lives in [README.en.md](README.en.md).
 This document therefore focuses solely on **how that policy is actually enforced**.

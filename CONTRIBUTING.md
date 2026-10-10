@@ -34,7 +34,7 @@ ARTEX 는 LLM 멀티 에이전트가 **자율적으로** 침투 테스트를 수
 
 ## 현지화 방침
 
-이 저장소의 존재 이유는 원본 [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX)의
+이 저장소의 존재 이유는 원본 [Autumn-27/ARTEX](https://github.com/Autumn-27/ARTEX)(현재 접속 불가, 2026-10 확인)의
 **판단 성능을 그대로 보존하면서 사용자에게 보이는 산출물만 한국어로 바꾸는 것**입니다.
 이 방침을 벗어나는 번역 기여는 성능을 떨어뜨릴 수 있으므로 받지 않습니다.
 
@@ -144,6 +144,17 @@ npm run build        # 프로덕션 빌드
 npm run build:static # 정적 내보내기 빌드(머지 게이트 · TypeScript 타입 검사 포함)
 npm run check        # Biome 린트·포맷 검사(정보용 · 선재 부채로 아직 머지 게이트 아님)
 npm run check:fix    # 자동 수정
+```
+
+로컬에 Node(요구 버전 20+)가 없거나 설치된 네이티브 의존성이 플랫폼과 맞지 않으면 Docker
+로 동일하게 검증할 수 있습니다. `node_modules` 를 named volume 에 두면 호스트의 플랫폼용
+바이너리(예: `@parcel/watcher`·Biome)와 섞이지 않고 재실행도 빨라집니다. 이 저장소의 web
+검증은 CI 와 같은 이 방식으로 합니다.
+
+```bash
+docker run --rm -v "$PWD":/src -w /src/web \
+  -v artexko-web-nm:/src/web/node_modules \
+  node:22 bash -c 'npm ci && npm run build:static'
 ```
 
 커밋 전 포맷·린트는 Biome 으로 관리합니다. `lint-staged` 가 스테이징된 파일에 대해

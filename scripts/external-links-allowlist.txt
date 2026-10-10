@@ -11,3 +11,25 @@
 # 계정이 개명·삭제돼 404. 상류 원문 보존 방침(BRIEF 경계 #1·MAINTAINING 2절)상
 # CHANGELOG.zh.md 는 상류 그대로 두므로 우리가 고치지 않는다. 2026-10-07 확인.
 https://github.com/begininvoke
+
+# 상류(Autumn-27/ARTEX) 저장소·온라인 데모·릴리스/compare 자산이 공개 접근 불가(404), 2026-10 확인.
+# 아래 URL 은 이 포크가 기반·크레딧으로 가리키는 상류 자산이다. 2026-10 현재 전부 404 로
+# 접속되지 않는다. AGPL-3.0 출처 표기를 유지해야 하므로(BRIEF 경계 #1) 링크 자체는 지우지
+# 않고, 큐레이션 문서(README·CONTRIBUTING·MAINTAINING·SECURITY·docs/defense)에서는 각 링크
+# 옆에 "(현재 접속 불가, 2026-10 확인)" 주석을 달아 둔다(G138a 결정 A). 상류 소유 자산이라
+# 우리가 되살릴 수 없어 allowlist 로 둔다. compare·releases 링크는 상류 원문 보존 파일
+# (CHANGELOG.zh.md·README.zh.md)이 물려받은 것이라 원문 그대로 둔다.
+https://artex-demo.vercel.app/
+https://github.com/Autumn-27/ARTEX
+https://github.com/Autumn-27/norma
+https://github.com/Autumn-27/ARTEX/releases
+https://github.com/Autumn-27/ARTEX/compare/v0.3.1...v0.3.2
+https://github.com/Autumn-27/ARTEX/compare/v0.3.2...v0.3.3
+https://github.com/Autumn-27/ARTEX/compare/v0.3.3...v0.3.4
+https://github.com/Autumn-27/ARTEX/compare/v0.3.4...v0.3.5
+https://github.com/Autumn-27/ARTEX/compare/v0.3.5...v0.3.6
+https://github.com/Autumn-27/ARTEX/compare/v0.3.6...v0.3.7
+https://github.com/Autumn-27/ARTEX/compare/v0.3.7...v0.3.8
+https://github.com/Autumn-27/ARTEX/compare/v0.3.8...v0.3.9
+https://github.com/Autumn-27/ARTEX/compare/v0.3.9...v0.3.10
+https://github.com/Autumn-27/ARTEX/compare/v0.3.10...HEAD

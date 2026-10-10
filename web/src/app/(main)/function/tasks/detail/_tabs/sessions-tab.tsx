@@ -659,6 +659,9 @@ export function SessionsTab({ taskId }: { taskId: string }) {
   const snapshotRef = React.useRef(0); // task-level snapshot cursor → SSE since=
   const esRef = React.useRef<EventSource | null>(null);
   const activeKeyRef = React.useRef(mainSessionKey(0)); // current session key (for SSE dispatch/unread)
+  // Highest seq the SSE-down fallback poll has already merged, per session key —
+  // lets it skip setStore when a poll brings nothing new (no re-render churn).
+  const fallbackMaxRef = React.useRef<Record<string, number>>({});
   const atBottomRef = React.useRef(true); // transcript pinned to bottom?
   const llmToastSeqRef = React.useRef<Set<number>>(new Set());
   const chatStatusRequestRef = React.useRef(0);
@@ -1060,6 +1063,42 @@ export function SessionsTab({ taskId }: { taskId: string }) {
       esRef.current = null;
     };
   }, [taskId, patchStore, t]);
+
+  // Fallback transcript poll — runs ONLY while the SSE stream is down. SSE is the
+  // sole live source for the active session's transcript (steps + the human turn),
+  // so when the stream never connects or gets buffered/dropped by an intermediary
+  // (a reverse proxy that holds text/event-stream, a flaky link), newly sent
+  // messages and their replies stay invisible until a manual refresh re-runs the
+  // history fetch. This mirrors the chat console (which stays live via polling):
+  // every 2s it re-fetches the active session's latest page and merges it, so the
+  // transcript advances without a reload. It is inert whenever sseLive is true, so
+  // the healthy SSE path carries no extra load.
+  React.useEffect(() => {
+    if (sseLive) return;
+    let alive = true;
+    let timer: ReturnType<typeof setTimeout>;
+    const poll = async () => {
+      const key = activeKeyRef.current;
+      try {
+        const r = await api.activityHistory(taskId, key, 0, PAGE);
+        if (!alive) return;
+        const maxSeq = r.items.reduce((m, a) => Math.max(m, a.seq), -1);
+        if (maxSeq > (fallbackMaxRef.current[key] ?? -1)) {
+          fallbackMaxRef.current[key] = maxSeq;
+          patchStore(key, (s) => ({ ...s, items: mergeBySeq(s.items, r.items) }));
+        }
+      } catch {
+        // best-effort; the next tick retries, and SSE reconnection compensates.
+      } finally {
+        if (alive) timer = setTimeout(() => void poll(), 2000);
+      }
+    };
+    timer = setTimeout(() => void poll(), 2000);
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+    };
+  }, [sseLive, taskId, patchStore]);
 
   React.useEffect(() => {
     let active = true;
