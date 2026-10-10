@@ -14,6 +14,8 @@
 - **기본 바인딩을 127.0.0.1 로 바꿨습니다.** `artex -addr` 기본값이 `:8787` 에서 `127.0.0.1:8787` 로, `docker-compose.yml` 의 8787 게시가 `${ARTEX_BIND:-127.0.0.1}` 로 바뀝니다. 다른 기기에서 접속하던 배포는 `-addr :8787` 또는 `.env` 의 `ARTEX_BIND=0.0.0.0` 을 지정해야 합니다. 비밀번호 없이 루프백이 아닌 주소에 바인딩하면 기동 로그에 경고가 찍힙니다.
 - **비밀번호를 바꾸면 기존 토큰이 모두 무효화됩니다.** JWT 서명 키를 비밀번호 해시에서 파생해, 화면 변경·`reset-password.sh`·DB 직접 수정 어느 경로든 이전 세션이 끊깁니다. 업그레이드 직후에도 한 번 다시 로그인해야 합니다. 비밀번호 변경 응답에 새 토큰이 실려 현재 브라우저 세션은 이어집니다.
 - **CORS 전면 허용을 허용 목록으로 바꿨습니다.** `Access-Control-Allow-Origin: *` 대신 `ARTEX_CORS_ORIGINS` 에 적힌 출처(기본값은 `next dev` 의 `http://localhost:5173`)에만 헤더를 줍니다. 서버 측 최소 비밀번호 길이(8자) 검사와 초기화·로그인 실패 로그(클라이언트 주소 포함)도 함께 추가했습니다.
+- **비밀번호 관련 읽기 실패를 상태 코드로 구분합니다.** `GET /api/auth/status`·`POST /api/auth/init`·`POST /api/auth/login`·`POST /api/auth/change-password` 는 설정 읽기가 실패하면 `initialized:false`·403 이 아니라 **503** 을 돌려줍니다. 읽기 실패를 "아직 설정하지 않음" 으로 접으면 프런트가 사용자를 `/setup` 으로 보내고 초기화 경로가 통과해 기존 비밀번호를 덮어쓸 수 있었습니다. 권한 없는 읽기 거부(쓰기 허용 역할)로는 재현되지 않고, 일시적 읽기 오류가 설정 토큰 보유와 겹치거나 `ARTEX_ADMIN_PASSWORD` 기동 초기화가 개입하는 경우에 성립하는 경로입니다. 기동 초기화(`bootstrapAuth`)와 최초 설정은 upsert 대신 `INSERT ... ON CONFLICT DO NOTHING`([`db.InsertSettingIfAbsent`](db/settings.go))으로 원자화해, bcrypt 가 수십 밀리초를 쓰는 동안 다른 프로세스가 끼어들어도 기본키 제약이 기존 값을 지킵니다. 비밀번호 상한(bcrypt 하드 리밋인 72바이트)을 서버에서 강제하고, 연결 풀에 상한(32)을 두어 `too many clients` 실패가 같은 "읽기 오류" 모양으로 fail-open 판단을 흔들지 않게 했습니다.
+- **DB 기동 실패가 초록 skip 뒤에 숨지 않습니다.** 이 변경이 추가한 테스트(`db/settings_insert_test`·`server/auth_test`)는 `ARTEX_REQUIRE_DB=1` 이 설정된 환경에서 데이터베이스 기동 실패(스키마 적용·seed 실패 포함)를 skip 하지 않고 실패로 올립니다. CI 의 `go-db` 잡이 이 변수를 켭니다(나머지 통합 테스트의 skip 관례는 그대로 둡니다).
 
 ### 현지화 (i18n)
 
