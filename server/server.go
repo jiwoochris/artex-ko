@@ -110,6 +110,17 @@ type Server struct {
 	skillDir string // root directory for skill subdirectories
 	jwtKey   []byte // HS256 signing key loaded from / generated into dataDir/jwt.key
 
+	// authMu guards the first-run setup token, the cached password hash (tokens
+	// are signed with a key derived from it — see auth.go signingKey) and the
+	// failed-attempt limiter. initMu serialises /api/auth/init check-then-set.
+	authMu         sync.Mutex
+	initMu         sync.Mutex
+	setupToken     string
+	passHash       string
+	passHashLoaded bool
+	passHashAt     time.Time
+	loginLimiter   *authLimiter
+
 	// concMu serializes concurrency-cap decisions (admission + reconcile) so a
 	// scheduler tick and an HTTP settings change / task creation can't both count
 	// free slots off the same snapshot and over-promote past the limit.
@@ -215,6 +226,9 @@ func New(ctx context.Context, m *Manager, skillDir string, dataDir string, keyDi
 		profChatAgents: map[int64]*agent.ChatAgent{},
 		provByProfile:  map[int64]*provEntry{}, llmHealth: newLLMHealthRegistry(m.pg),
 		taskAgents: map[string]*taskAgentBundle{}, archiveWake: make(chan struct{}, 1)}
+	// First-run protection: cache the password hash and, while none is set, issue
+	// the console setup token (or apply ARTEX_ADMIN_PASSWORD) before any request.
+	s.bootstrapAuth()
 	s.initSideQuestions()
 	// 熔断阈值/冷却是失败路径上的热参数，启动时把全局重试策略推给 Registry 一次；
 	// 之后每次保存策略再推一次（saveLLMRetryPolicy）。
@@ -3962,11 +3976,47 @@ func (s *Server) gc(w http.ResponseWriter, r *http.Request) {
 
 // --- utils ---
 
+// corsOriginsEnv lists the browser origins allowed to call /api cross-origin
+// (comma-separated, e.g. "https://ui.example.com"; "*" restores the old
+// allow-everything behaviour). The embedded UI is same-origin and needs none of
+// this; the default only covers `next dev` from dev.sh.
+const corsOriginsEnv = "ARTEX_CORS_ORIGINS"
+
+var defaultCORSOrigins = []string{"http://localhost:5173", "http://127.0.0.1:5173"}
+
+// corsAllowedOrigins builds the origin allowlist (lower-cased) from the env.
+func corsAllowedOrigins() map[string]bool {
+	list := defaultCORSOrigins
+	if v := strings.TrimSpace(os.Getenv(corsOriginsEnv)); v != "" {
+		list = strings.Split(v, ",")
+	}
+	out := map[string]bool{}
+	for _, o := range list {
+		if o = strings.ToLower(strings.TrimSpace(o)); o != "" {
+			out[o] = true
+		}
+	}
+	return out
+}
+
+// cors adds CORS headers only for allowlisted origins. Before this, every origin
+// got "Access-Control-Allow-Origin: *" with a 204 preflight, so any web page the
+// operator happened to visit could POST to /api/auth/init on a not-yet-initialised
+// instance (even one bound to 127.0.0.1) and read the token from the response.
 func cors(next http.Handler) http.Handler {
+	return corsWith(corsAllowedOrigins(), next)
+}
+
+func corsWith(allowed map[string]bool, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		if origin := r.Header.Get("Origin"); origin != "" {
+			w.Header().Add("Vary", "Origin")
+			if allowed["*"] || allowed[strings.ToLower(origin)] {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Set("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
+				w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			}
+		}
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(204)
 			return

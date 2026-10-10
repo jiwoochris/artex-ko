@@ -8,6 +8,13 @@ The upstream ARTEX project's per-version release history (0.3.x and earlier) and
 
 ## [Unreleased] · Korean edition changes
 
+### Security
+
+- **Blocked remote takeover of the first-run admin account.** An instance without a password accepted `POST /api/auth/init` unauthenticated, so whoever reached the port first could set the admin password and obtain a JWT (private report). Initialisation now requires the setup token (`setup_token`) printed only on the server console at startup, and wrong attempts are rate-limited. Added `ARTEX_SETUP_TOKEN` and `ARTEX_ADMIN_PASSWORD` for unattended deployments and a token field on the `/setup` screen.
+- **Default bind address is now 127.0.0.1.** The `artex -addr` default moves from `:8787` to `127.0.0.1:8787`, and `docker-compose.yml` publishes 8787 as `${ARTEX_BIND:-127.0.0.1}`. Deployments reached from other machines must pass `-addr :8787` or set `ARTEX_BIND=0.0.0.0` in `.env`. Starting without a password on a non-loopback address logs a warning.
+- **Changing the password invalidates every existing token.** The JWT signing key is derived from the password hash, so a change through the UI, `reset-password.sh`, or a direct DB edit ends earlier sessions. Users must log in once after upgrading. The change-password response carries a fresh token so the current browser session continues.
+- **Replaced wildcard CORS with an allowlist.** Instead of `Access-Control-Allow-Origin: *`, headers are only sent for origins in `ARTEX_CORS_ORIGINS` (default: `next dev` at `http://localhost:5173`). Also added server-side minimum password length (8) and audit logs for failed initialisation/login attempts (with client address).
+
 ### Localization (i18n)
 
 - **Forced user-facing output into Korean.** The benchmarked agent's behavioral-instruction body (the "brain") is left in its original language to preserve performance, and a code-level fixed segment (`langDirective`) instructs the agent to write only the user-facing output (vulnerability reports, fact summaries, final summaries, chat replies) in Korean. Commands, payloads, code, and raw logs are kept in their original form.

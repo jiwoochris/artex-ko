@@ -26,7 +26,11 @@
       "newPasswordPlaceholder": "8자 이상",
       "submit": "비밀번호 설정 후 로그인",
       "submitting": "저장 중…",
-      "title": "비밀번호 초기화"
+      "title": "비밀번호 초기화",
+      "setupToken": "설정 토큰",
+      "setupTokenPlaceholder": "서버 콘솔 로그의 [auth] 줄에 출력된 32자 토큰",
+      "setupTokenHelp": "외부에서 관리자 계정을 먼저 차지하지 못하도록, 서버를 띄운 터미널(Docker 는 docker compose logs artex)에만 출력되는 설정 토큰을 입력해야 합니다.",
+      "errorTokenEmpty": "설정 토큰을 입력해 주세요"
     },
     "terms": {
       "a1Body": "본 소프트웨어(ARTEX)는 GNU Affero General Public License v3.0(AGPL-3.0)에 따라 배포되는 오픈소스 프로그램입니다. 귀하는 이 라이선스에 따라 본 소프트웨어를 자유롭게 사용·복제·수정·배포할 수 있습니다. 다만 모든 2차적 저작물(네트워크를 통해 제3자에게 제공하는 온라인 서비스를 포함합니다)도 동일하게 AGPL-3.0 으로 공개하고 이용자에게 그에 해당하는 완전한 소스 코드를 공개해야 합니다. AGPL-3.0 의 전체 조항은 함께 배포되는 LICENSE 파일을 따릅니다.",

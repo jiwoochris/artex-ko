@@ -68,6 +68,9 @@ func TestAuthErrorConstantsLocalized(t *testing.T) {
 		"authErrPasswordNotInit":      authErrPasswordNotInit,
 		"authErrCurrentPasswordWrong": authErrCurrentPasswordWrong,
 		"authErrBadCredential":        authErrBadCredential,
+		"authErrPasswordTooShort":     authErrPasswordTooShort,
+		"authErrSetupTokenInvalid":    authErrSetupTokenInvalid,
+		"authErrTooManyAttempts":      authErrTooManyAttempts,
 	}
 	for name, msg := range consts {
 		assertKoreanError(t, name, msg)

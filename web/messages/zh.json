@@ -26,7 +26,11 @@
       "newPasswordPlaceholder": "至少 8 位",
       "submit": "设置密码并登录",
       "submitting": "保存中...",
-      "title": "初始化密码"
+      "title": "初始化密码",
+      "setupToken": "设置令牌",
+      "setupTokenPlaceholder": "服务器控制台日志 [auth] 行中打印的 32 位令牌",
+      "setupTokenHelp": "为防止远程抢占管理员账户，需要输入仅在服务器启动终端（Docker 为 docker compose logs artex）中打印的设置令牌。",
+      "errorTokenEmpty": "请输入设置令牌"
     },
     "terms": {
       "a1Body": "本软件（ARTEX）是一款基于 GNU Affero General Public License v3.0（AGPL-3.0）发布的开源程序。您可依据该协议自由使用、复制、修改和分发本软件；但任何衍生作品（包括通过网络向第三方提供的在线服务）均须同样以 AGPL-3.0 协议开源并向使用者公开对应的完整源代码。AGPL-3.0 完整条款以随附的 LICENSE 文件为准。",
