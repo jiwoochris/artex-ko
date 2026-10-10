@@ -20,9 +20,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { api } from "@/lib/api";
-import { type Locale, LOCALE_LABELS, LOCALES } from "@/i18n/config";
+import { LOCALE_LABELS, LOCALES, type Locale } from "@/i18n/config";
 import { setActiveLocale, useActiveLocale } from "@/i18n/locale-store";
+import { api } from "@/lib/api";
 import { type ChatSendMode, setChatSendMode, useChatSendMode, useChatSendModeOptions } from "@/lib/chat-send-mode";
 import type { Settings } from "@/lib/types";
 

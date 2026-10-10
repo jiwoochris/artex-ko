@@ -22,6 +22,9 @@ const MESSAGES: Record<Locale, Record<string, unknown>> = {
   es: esMessages as Record<string, unknown>,
 };
 
+// 실행 환경(브라우저·프리렌더 서버)의 시간대.
+const TIME_ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
 // 실행 중 언어 전환을 담당하는 프로바이더. 루트 레이아웃의 NextIntlClientProvider 를
 // 대신해, 사용자가 고른 활성 locale(쿠키·localStorage)로 messages 를 골라 공급한다.
 export function IntlRuntimeProvider({ children }: Readonly<{ children: ReactNode }>) {
@@ -33,8 +36,10 @@ export function IntlRuntimeProvider({ children }: Readonly<{ children: ReactNode
     document.documentElement.lang = locale;
   }, [locale]);
 
+  // 루트 레이아웃의 프로바이더와 달리 서버 요청 설정을 물려받지 않으므로 timeZone 을
+  // 직접 넘긴다. 빠지면 next-intl 이 프리렌더 중 ENVIRONMENT_FALLBACK 오류를 남긴다.
   return (
-    <NextIntlClientProvider locale={locale} messages={MESSAGES[locale]}>
+    <NextIntlClientProvider locale={locale} messages={MESSAGES[locale]} timeZone={TIME_ZONE}>
       {children}
     </NextIntlClientProvider>
   );

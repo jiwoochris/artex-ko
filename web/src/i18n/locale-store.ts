@@ -5,7 +5,7 @@ import * as React from "react";
 import { setClientCookie } from "@/lib/cookie.client";
 import { getLocalStorageValue, setLocalStorageValue } from "@/lib/local-storage.client";
 
-import { DEFAULT_LOCALE, isLocale, type Locale, LOCALE_COOKIE, LOCALE_STORAGE_KEY, resolveLocale } from "./config";
+import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE, LOCALE_STORAGE_KEY, type Locale, resolveLocale } from "./config";
 
 // 사용자가 고른 표시 언어는 순수 프런트엔드 환경설정이라 서버에 저장하지 않고 쿠키와
 // localStorage 에만 둔다. 쿠키는 정적 내보내기 중에도 <html lang> 부트 스크립트가 읽을
