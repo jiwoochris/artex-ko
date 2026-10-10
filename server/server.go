@@ -17,6 +17,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/Autumn-27/artex/agent"
@@ -199,6 +200,10 @@ type Server struct {
 	archiveWake chan struct{}
 	archiveWG   sync.WaitGroup
 	side        *sideQuestionState
+	// outputLang caches the resolved user-facing output language (string). Every
+	// writeErr, label and agent turn reads it, so it must not hit the settings
+	// table or config.json per call; putSettings refreshes it on change.
+	outputLang atomic.Value
 }
 
 // provEntry is a cached provider + its config for one LLM profile id.
@@ -302,20 +307,15 @@ func New(ctx context.Context, m *Manager, skillDir string, dataDir string, keyDi
 		}
 		// Wire the user-facing output language. Precedence: the runtime setting a
 		// user picked in the UI (settings table) over the bootstrap default
-		// (config.Language() = ARTEX_LANG > config file > "ko"). Read live each
-		// turn so a language change in the UI applies to the next agent turn
-		// without a restart. Both agent.OutputLanguage (langDirective + wrap-up
+		// (config.Language() = ARTEX_LANG > config file > "ko"). Resolved once
+		// here and cached in s.outputLang; putSettings refreshes the cache, so a
+		// language change in the UI applies to the next agent turn without a
+		// restart. Both agent.OutputLanguage (langDirective + wrap-up
 		// language tail for LLM-generated text) and config.CurrentLanguage (backend
 		// enum labels such as severity/status) resolve through the same closure, so
 		// generated text and fixed backend strings share one chosen language.
-		resolveLang := func() string {
-			if v, ok, _ := m.pg.GetSetting(settingOutputLanguage); ok {
-				if nv := config.NormalizeLanguage(v); nv != "" {
-					return nv
-				}
-			}
-			return config.Language()
-		}
+		s.outputLang.Store(s.loadOutputLanguage())
+		resolveLang := s.outputLanguage
 		agent.OutputLanguage = resolveLang
 		config.CurrentLanguage = resolveLang
 		notify.Lang = resolveLang                       // 푸시·이메일의 심각도·상태 라벨도 같은 언어를 따른다
@@ -3399,12 +3399,7 @@ func (s *Server) settingsPayload() map[string]any {
 		concLimit = defaultConcurrencyLimit // 关闭时也回显一个合理默认值给 UI
 	}
 	// 사용자 대면 출력 언어: 런타임 설정값 > config.Language() 기본값(ARTEX_LANG·설정 파일·한국어).
-	outputLang := config.Language()
-	if v, ok, _ := s.m.pg.GetSetting(settingOutputLanguage); ok {
-		if nv := config.NormalizeLanguage(v); nv != "" {
-			outputLang = nv
-		}
-	}
+	outputLang := s.outputLanguage()
 	return map[string]any{
 		"output_language":          outputLang, // 사용자 대면 출력 언어(en/ko/zh/es)
 		"traffic_capture":          s.m.TrafficEnabled(),
@@ -3546,6 +3541,7 @@ func (s *Server) putSettings(w http.ResponseWriter, r *http.Request) {
 			writeErr(w, 500, err.Error())
 			return
 		}
+		s.outputLang.Store(lang)
 	}
 	// 推送全局项:投递引擎每轮重新读取,所以即时生效、无需重启。
 	if req.NotifyEnabled != nil {

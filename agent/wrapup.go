@@ -104,11 +104,17 @@ func wrapupSettlement(agentKey string, disabledTools []string) *harness.Settleme
 // 이렇게 직접 붙여야 사용자에게 보이는 마지막 한 문장 요약이 선택한 표시 언어를 따른다.
 // 마무리 산문 자체는 모델이 읽는 운영 지시문(한국어 유지)이고, 이 꼬리가 최고 우선순위로
 // 사용자 노출 텍스트의 언어만 강제한다. 요약을 내지 않는 planner 계열에는 무해하다.
+// 기본 언어 ko 에서는 꼬리를 붙이지 않는다. 시스템 프롬프트의 langDirective 가 이미
+// 한국어 출력을 강제하고 있어, 기본 경로의 모델 입력을 이전 버전과 같게 둔다(벤치마크 드리프트 방지).
 func withWrapupLang(prompt string) string {
 	if strings.TrimSpace(prompt) == "" {
 		return prompt
 	}
-	return prompt + langDirective(resolveOutputLang())
+	lang := resolveOutputLang()
+	if lang == "ko" {
+		return prompt
+	}
+	return prompt + langDirective(lang)
 }
 
 // ---------- 任务级超时收尾词（见 docs/任务级超时与收尾设计.md）----------

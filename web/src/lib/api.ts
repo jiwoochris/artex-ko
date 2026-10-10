@@ -105,6 +105,18 @@ import type {
   WorkspaceListing,
 } from "@/lib/types";
 
+// ApiError 는 HTTP 상태 코드를 함께 싣는 API 오류다. 서버 오류 문구는 표시 언어에 따라
+// 번역되므로, 화면 로직은 문구가 아니라 status 로 분기해야 한다.
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
   return localStorage.getItem("artex_token");
@@ -140,7 +152,7 @@ export async function http<T>(path: string, init?: RequestInit): Promise<T> {
     } catch {
       // Keep the status-based fallback for empty or non-JSON error responses.
     }
-    throw new Error(message);
+    throw new ApiError(message, r.status);
   }
   if (r.status === 204) return undefined as T;
   return r.json();
@@ -1164,7 +1176,7 @@ export const api = {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     const body = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(body?.error || `업로드 실패(${r.status})`);
+    if (!r.ok) throw new ApiError(body?.error || `업로드 실패(${r.status})`, r.status);
     return body;
   },
   deleteSkill: (name: string) => del<{ deleted: string }>(`/skills/${name}`),

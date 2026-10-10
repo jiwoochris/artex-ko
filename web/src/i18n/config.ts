@@ -16,8 +16,8 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   es: "Español",
 };
 
-// 사용자가 고른 표시 언어를 저장하는 키. 쿠키는 정적 내보내기 중에도 부트 스크립트가
-// <html lang> 을 맞추는 데 쓰고, localStorage 는 같은 탭 즉시 반영에 쓴다.
+// 사용자가 고른 표시 언어를 저장하는 키. 화면은 localStorage 값을 읽는다. 쿠키에도 같은
+// 값을 써 두지만 지금은 읽는 곳이 없다(서버가 언어를 판별해야 할 때를 위해 남겨 둔다).
 export const LOCALE_COOKIE = "artex_locale";
 export const LOCALE_STORAGE_KEY = "artex_locale";
 

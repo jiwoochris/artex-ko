@@ -5,12 +5,11 @@ import * as React from "react";
 import { setClientCookie } from "@/lib/cookie.client";
 import { getLocalStorageValue, setLocalStorageValue } from "@/lib/local-storage.client";
 
-import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE, LOCALE_STORAGE_KEY, type Locale, resolveLocale } from "./config";
+import { isLocale, LOCALE_COOKIE, LOCALE_STORAGE_KEY, type Locale, resolveLocale } from "./config";
 
-// 사용자가 고른 표시 언어는 순수 프런트엔드 환경설정이라 서버에 저장하지 않고 쿠키와
-// localStorage 에만 둔다. 쿠키는 정적 내보내기 중에도 <html lang> 부트 스크립트가 읽을
-// 수 있고, localStorage 는 같은 탭 즉시 반영에 쓴다. 계정과 동기화되지 않으므로 브라우저를
-// 바꾸거나 사이트 데이터를 지우면 기본 언어로 돌아간다.
+// 사용자가 고른 화면 표시 언어는 순수 프런트엔드 환경설정이라 서버에 저장하지 않고
+// localStorage(와 쿠키)에만 둔다. 계정과 동기화되지 않으므로 브라우저를 바꾸거나 사이트
+// 데이터를 지우면 기본 언어로 돌아간다. 에이전트 출력 언어는 별도로 서버 설정에 저장된다.
 
 function parseLocale(raw: string | null): Locale {
   return isLocale(raw) ? raw : resolveLocale();
@@ -40,7 +39,7 @@ function getSnapshot(): Locale {
 // 서버에는 localStorage 가 없으므로 먼저 빌드 기본 locale 을 렌더하고, hydrate 후
 // getSnapshot 이 사용자가 고른 값으로 바로잡는다.
 function getServerSnapshot(): Locale {
-  return DEFAULT_LOCALE;
+  return resolveLocale();
 }
 
 // 활성 표시 언어를 구독하는 훅. 언어가 바뀌면 이 훅을 쓰는 컴포넌트가 다시 렌더링된다.
