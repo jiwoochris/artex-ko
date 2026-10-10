@@ -1995,28 +1995,62 @@ func normalizeSearchHost(raw string) (host, port string, err error) {
 	return strings.ToLower(host), port, nil
 }
 
+// ToolMetadataSpecs returns fresh metadata-only specs without a runtime receiver.
+func ToolMetadataSpecs() []actool.Spec {
+	return []actool.Spec{
+		{
+			Name:        "traffic_search",
+			Description: TrafficSearchDescription,
+			Schema: map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"host":          map[string]any{"type": "string", "description": "按主机过滤（必填；如 '107.172.96.177'、'107.172.96.177:8082' 或 'http://107.172.96.177:8082/path'）"},
+					"contains":      map[string]any{"type": "string", "description": "URL 子串过滤（可选，如 'api' / 'login'）"},
+					"body_contains": map[string]any{"type": "string", "description": "正文全文搜索（可选，至少 3 个字符），匹配请求/响应的头与正文，如 'password' / 'root:x:0' / '内网测试'"},
+					"limit":         map[string]any{"type": "integer", "description": "每页条数，默认 3，最大 10"},
+					"page":          map[string]any{"type": "integer", "description": "页码，从 0 开始，默认 0（按 ts 倒序分页）"},
+				},
+				"required": []any{"host"},
+			},
+		},
+		{
+			Name:        "traffic_get",
+			Description: "按 id 取一条已抓流量的请求/响应原文（过大会截断）。配合 traffic_search 用，避免重复 curl。",
+			Schema: map[string]any{
+				"type":       "object",
+				"properties": map[string]any{"id": map[string]any{"type": "string", "description": "traffic_search 返回的 id"}},
+				"required":   []any{"id"},
+			},
+		},
+		{
+			Name:        "traffic_blob",
+			Description: "分段读取超大请求/响应体的原文。traffic_get 里显示为 '…[truncated] @blob sha256:<hash>' 的部分即存放于此，把该 hash 传进来即可取完整内容。单次最多返回 8KB，用 offset 继续往后读（返回结果会给出总长度）。适合翻阅备份文件、源码泄露、大 JSON 导出等超过内联阈值的响应。",
+			Schema: map[string]any{
+				"type": "object",
+				"properties": map[string]any{
+					"hash":   map[string]any{"type": "string", "description": "traffic_get 中 @blob sha256: 后面的 64 位十六进制值"},
+					"offset": map[string]any{"type": "integer", "description": "起始字节偏移，默认 0"},
+					"length": map[string]any{"type": "integer", "description": "本次读取字节数，默认且最大 8192"},
+				},
+				"required": []any{"hash"},
+			},
+		},
+	}
+}
+
 // Tools exposes traffic lookup to work agents so they query already-captured
 // traffic instead of re-curling the same resource (token + dedup win).
 func (t *Traffic) Tools() []actool.CoreTool {
+	specs := ToolMetadataSpecs()
 	allow := func(context.Context, json.RawMessage, permission.Context) permission.Decision {
 		return permission.Allowed()
 	}
 	ro := func(json.RawMessage) bool { return true }
 
 	search := actool.Build(actool.Spec{
-		Name:        "traffic_search",
-		Description: TrafficSearchDescription,
-		Schema: map[string]any{
-			"type": "object",
-			"properties": map[string]any{
-				"host":          map[string]any{"type": "string", "description": "按主机过滤（必填；如 '107.172.96.177'、'107.172.96.177:8082' 或 'http://107.172.96.177:8082/path'）"},
-				"contains":      map[string]any{"type": "string", "description": "URL 子串过滤（可选，如 'api' / 'login'）"},
-				"body_contains": map[string]any{"type": "string", "description": "正文全文搜索（可选，至少 3 个字符），匹配请求/响应的头与正文，如 'password' / 'root:x:0' / '内网测试'"},
-				"limit":         map[string]any{"type": "integer", "description": "每页条数，默认 3，最大 10"},
-				"page":          map[string]any{"type": "integer", "description": "页码，从 0 开始，默认 0（按 ts 倒序分页）"},
-			},
-			"required": []any{"host"},
-		},
+		Name:        specs[0].Name,
+		Description: specs[0].Description,
+		Schema:      specs[0].Schema,
 		ReadOnly:    ro,
 		Permissions: allow,
 		Run: func(_ context.Context, in json.RawMessage, _ *actool.ToolContext) (actool.Result, error) {
@@ -2055,13 +2089,9 @@ func (t *Traffic) Tools() []actool.CoreTool {
 	})
 
 	get := actool.Build(actool.Spec{
-		Name:        "traffic_get",
-		Description: "按 id 取一条已抓流量的请求/响应原文（过大会截断）。配合 traffic_search 用，避免重复 curl。",
-		Schema: map[string]any{
-			"type":       "object",
-			"properties": map[string]any{"id": map[string]any{"type": "string", "description": "traffic_search 返回的 id"}},
-			"required":   []any{"id"},
-		},
+		Name:        specs[1].Name,
+		Description: specs[1].Description,
+		Schema:      specs[1].Schema,
 		ReadOnly:    ro,
 		Permissions: allow,
 		Run: func(_ context.Context, in json.RawMessage, _ *actool.ToolContext) (actool.Result, error) {
@@ -2076,17 +2106,9 @@ func (t *Traffic) Tools() []actool.CoreTool {
 	})
 
 	blob := actool.Build(actool.Spec{
-		Name:        "traffic_blob",
-		Description: "分段读取超大请求/响应体的原文。traffic_get 里显示为 '…[truncated] @blob sha256:<hash>' 的部分即存放于此，把该 hash 传进来即可取完整内容。单次最多返回 8KB，用 offset 继续往后读（返回结果会给出总长度）。适合翻阅备份文件、源码泄露、大 JSON 导出等超过内联阈值的响应。",
-		Schema: map[string]any{
-			"type": "object",
-			"properties": map[string]any{
-				"hash":   map[string]any{"type": "string", "description": "traffic_get 中 @blob sha256: 后面的 64 位十六进制值"},
-				"offset": map[string]any{"type": "integer", "description": "起始字节偏移，默认 0"},
-				"length": map[string]any{"type": "integer", "description": "本次读取字节数，默认且最大 8192"},
-			},
-			"required": []any{"hash"},
-		},
+		Name:        specs[2].Name,
+		Description: specs[2].Description,
+		Schema:      specs[2].Schema,
 		ReadOnly:    ro,
 		Permissions: allow,
 		Run: func(_ context.Context, in json.RawMessage, _ *actool.ToolContext) (actool.Result, error) {
@@ -2117,10 +2139,14 @@ func (t *Traffic) Tools() []actool.CoreTool {
 	return []actool.CoreTool{search, get, blob}
 }
 
-// SeedToolMetas returns the traffic tools built on a ZERO receiver, for seeding the
-// tools catalog (metadata only — Name/Description/InputSchema). The handlers close
-// over the nil receiver but are never invoked on this instance, so it is safe.
-func SeedToolMetas() []actool.CoreTool { return (&Traffic{}).Tools() }
+// SeedToolMetas exposes metadata only; no receiver-bound handlers are created.
+func SeedToolMetas() []actool.CoreTool {
+	var out []actool.CoreTool
+	for _, spec := range ToolMetadataSpecs() {
+		out = append(out, actool.Build(spec))
+	}
+	return out
+}
 
 func clip(s string, max int) string {
 	if len(s) <= max {

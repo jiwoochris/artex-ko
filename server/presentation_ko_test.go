@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"github.com/Autumn-27/artex/agent"
 	"github.com/Autumn-27/artex/db"
@@ -12,10 +13,17 @@ import (
 	"unicode"
 )
 
+func newPresentationTestServer() *Server {
+	m := &Manager{tasks: map[string]*Task{}}
+	s := &Server{m: m, engine: NewEngine(m), ctx: context.Background()}
+	s.initToolPresentation()
+	return s
+}
+
 func presentationSeeds() []agent.ToolSeed {
 	seeds := agent.BuiltinToolSeeds()
-	s := &Server{}
-	for _, tool := range append(append(s.orchestrationTools(), s.platformTools()...), append(s.findingRetestTools(), (&traffic.Traffic{}).Tools()...)...) {
+	s := newPresentationTestServer()
+	for _, tool := range append(append(s.orchestrationTools(), s.platformTools()...), append(s.findingRetestTools(), traffic.SeedToolMetas()...)...) {
 		seeds = append(seeds, agent.ToolSeed{Key: tool.Name(), Desc: tool.Description(), Schema: tool.InputSchema()})
 	}
 	return seeds
@@ -27,7 +35,7 @@ func TestToolPresentationKoreanDefaults(t *testing.T) {
 			schema, _ := json.Marshal(seed.Schema)
 			raw := &db.Tool{Key: seed.Key, System: true, Kind: "builtin", Description: seed.Desc, Schema: schema, Agents: []string{"worker"}, Enabled: true, Calls: 7}
 			before, _ := json.Marshal(raw)
-			dto := toolDTOs([]*db.Tool{raw})[0]
+			dto := newPresentationTestServer().toolDTOs([]*db.Tool{raw})[0]
 			hasKorean := false
 			for _, r := range dto.Description {
 				if unicode.Is(unicode.Hangul, r) {
@@ -45,13 +53,13 @@ func TestToolPresentationKoreanDefaults(t *testing.T) {
 				t.Fatal("non-presentation metadata changed")
 			}
 			raw.Description = "用户编辑的自定义说明"
-			if toolDTOs([]*db.Tool{raw})[0].Description != raw.Description {
+			if newPresentationTestServer().toolDTOs([]*db.Tool{raw})[0].Description != raw.Description {
 				t.Fatal("custom description translated")
 			}
 			raw.Description = seed.Desc
 			raw.System = false
 			raw.Kind = "command"
-			if toolDTOs([]*db.Tool{raw})[0].Description != raw.Description {
+			if newPresentationTestServer().toolDTOs([]*db.Tool{raw})[0].Description != raw.Description {
 				t.Fatal("custom tool translated")
 			}
 		})
@@ -59,13 +67,13 @@ func TestToolPresentationKoreanDefaults(t *testing.T) {
 }
 
 func TestPresentationPreservesInternalLLMMetadata(t *testing.T) {
-	s := &Server{}
+	s := newPresentationTestServer()
 	tools := append(append(s.orchestrationTools(), s.platformTools()...), s.findingRetestTools()...)
 	for _, tool := range tools {
 		schema, _ := json.Marshal(tool.InputSchema())
 		name, description, prompt := tool.Name(), tool.Description(), tool.Prompt()
 		row := &db.Tool{Key: name, System: true, Kind: "builtin", Description: description, Schema: schema}
-		_ = toolDTOs([]*db.Tool{row})
+		_ = newPresentationTestServer().toolDTOs([]*db.Tool{row})
 		var schemaMap map[string]any
 		_ = json.Unmarshal(row.Schema, &schemaMap)
 		llmTool := agent.DecorateTool(tool, row.Description, schemaMap)
@@ -90,7 +98,7 @@ func TestPresentationHTTPEnvelopes(t *testing.T) {
 		schema, _ := json.Marshal(seed.Schema)
 		row := &db.Tool{Key: seed.Key, System: true, Kind: "builtin", Description: seed.Desc, Schema: schema}
 		rec := httptest.NewRecorder()
-		writeJSON(rec, 200, map[string]any{"tools": toolDTOs([]*db.Tool{row})})
+		writeJSON(rec, 200, map[string]any{"tools": newPresentationTestServer().toolDTOs([]*db.Tool{row})})
 		var response struct {
 			Tools []db.Tool `json:"tools"`
 		}
@@ -120,7 +128,7 @@ func TestPresentationHTTPEnvelopes(t *testing.T) {
 func TestPresentationSubmissionPreservesRawDefaults(t *testing.T) {
 	for _, seed := range presentationSeeds() {
 		raw := &db.Tool{Key: seed.Key, System: true, Kind: "builtin", Description: seed.Desc}
-		shown := toolDTOs([]*db.Tool{raw})[0]
+		shown := newPresentationTestServer().toolDTOs([]*db.Tool{raw})[0]
 		if got := presentationSubmission(raw.Description, shown.Description, shown.Description); got != seed.Desc {
 			t.Errorf("%s roundtrip changed LLM description: %q", seed.Key, got)
 		}
@@ -137,6 +145,24 @@ func TestPresentationSubmissionPreservesRawDefaults(t *testing.T) {
 		}
 		if got := presentationSubmission(a.Description, shown.Description, shown.Description); got != a.Description {
 			t.Errorf("%s description changed on roundtrip", key)
+		}
+	}
+}
+
+// API error classification must remain status-based regardless of localized text.
+// This checks the wire contract without asserting frontend source strings.
+func TestLocalizedHTTPErrorStatusesRemainStable(t *testing.T) {
+	for _, raw := range []string{"纠偏消息不能为空", "offset / length 不能为负数", "offset 超出正文长度", "任务不存在", "当前任务不可读取该漏洞", "继承漏洞的流量证据只读，请到来源任务修改", "finding_id 必须为独立漏洞记录 ID；不是探索节点 ID"} {
+		for _, status := range []int{400, 401, 403, 404} {
+			w := httptest.NewRecorder()
+			writeErr(w, status, raw)
+			var body map[string]string
+			if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+				t.Fatal(err)
+			}
+			if w.Code != status || body["error"] == raw || body["error"] != httpErrorPresentation(raw) {
+				t.Fatalf("localized error altered wire classification: %d %s", w.Code, w.Body.String())
+			}
 		}
 	}
 }

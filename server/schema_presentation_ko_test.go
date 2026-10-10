@@ -9,28 +9,114 @@ import (
 	"unicode"
 )
 
+// Independent auditor: descend JSON generically (not through the production
+// walker's location allowlist), excluding instance-data/annotation payloads.
+// Property/definition dictionaries are containers, not schema nodes themselves.
 func schemaDescriptions(v any, visit func(string)) {
 	switch x := v.(type) {
 	case map[string]any:
-		for k, v := range x {
-			if k == "description" || k == "help" {
-				if s, ok := v.(string); ok {
+		for key, value := range x {
+			switch key {
+			case "description", "help":
+				if s, ok := value.(string); ok {
 					visit(s)
 				}
-			} else if k == "properties" {
-				if props, ok := v.(map[string]any); ok {
-					for _, p := range props {
-						schemaDescriptions(p, visit)
+			case "examples", "default", "enum", "const", "required", "dependentRequired", "type":
+				// Instance data and scalar annotations are never help locations.
+			case "properties", "patternProperties", "$defs", "definitions", "dependentSchemas", "dependencies":
+				if entries, ok := value.(map[string]any); ok {
+					for _, child := range entries {
+						schemaDescriptions(child, visit)
 					}
 				}
-			} else if k == "items" {
-				schemaDescriptions(v, visit)
+			default:
+				schemaDescriptions(value, visit)
 			}
 		}
 	case []any:
-		for _, v := range x {
-			schemaDescriptions(v, visit)
+		for _, child := range x {
+			schemaDescriptions(child, visit)
 		}
+	}
+}
+
+func TestCoverageAuditorDetectsHiddenChinese(t *testing.T) {
+	for _, key := range []string{"patternProperties", "$defs", "definitions", "dependentSchemas", "dependencies", "additionalProperties", "prefixItems", "oneOf", "anyOf", "allOf", "not", "if", "then", "else", "contains", "propertyNames"} {
+		schema := map[string]any{key: map[string]any{"description": "中文遗漏"}}
+		switch key {
+		case "patternProperties", "$defs", "definitions", "dependentSchemas", "dependencies":
+			schema[key] = map[string]any{"x": schema[key]}
+		case "prefixItems", "oneOf", "anyOf", "allOf":
+			schema[key] = []any{schema[key]}
+		}
+		found := false
+		schemaDescriptions(schema, func(s string) {
+			if s == "中文遗漏" {
+				found = true
+			}
+		})
+		if !found {
+			t.Errorf("coverage auditor missed Chinese at %s", key)
+		}
+	}
+}
+
+// Separate keyword audit fails closed on future schema vocabulary. It does not
+// reuse the production walker's allowlist and skips annotation/instance data.
+func unknownSchemaKeywords(v any) []string {
+	known := strings.Fields(`$schema $id id $ref $anchor $dynamicRef $dynamicAnchor $recursiveRef $recursiveAnchor $vocabulary $comment title description help type enum const default examples readOnly writeOnly deprecated format contentEncoding contentMediaType contentSchema multipleOf maximum exclusiveMaximum minimum exclusiveMinimum maxLength minLength pattern maxItems minItems uniqueItems maxContains minContains maxProperties minProperties required dependentRequired properties patternProperties additionalProperties unevaluatedProperties propertyNames dependencies dependentSchemas items additionalItems prefixItems unevaluatedItems contains oneOf anyOf allOf not if then else $defs definitions`)
+	allowed := map[string]bool{}
+	for _, key := range known {
+		allowed[key] = true
+	}
+	var out []string
+	var scan func(any)
+	scan = func(v any) {
+		switch x := v.(type) {
+		case map[string]any:
+			for key, child := range x {
+				if !allowed[key] {
+					out = append(out, key)
+				}
+				switch key {
+				case "default", "examples", "enum", "const", "required", "dependentRequired", "type":
+				case "properties", "patternProperties", "$defs", "definitions", "dependentSchemas", "dependencies":
+					if entries, ok := child.(map[string]any); ok {
+						for _, schema := range entries {
+							scan(schema)
+						}
+					}
+				default:
+					scan(child)
+				}
+			}
+		case []any:
+			for _, child := range x {
+				scan(child)
+			}
+		}
+	}
+	scan(v)
+	return out
+}
+
+func TestCoverageAuditorUnknownSchemaKeyword(t *testing.T) {
+	v := map[string]any{"properties": map[string]any{"default": map[string]any{"futureSchema": map[string]any{"description": "中文遗漏"}}}, "default": map[string]any{"futureSchema": map[string]any{"description": "用户数据"}}}
+	found := false
+	schemaDescriptions(v, func(s string) {
+		if s == "中文遗漏" {
+			found = true
+		}
+		if s == "用户数据" {
+			t.Fatal("auditor interpreted instance data as schema help")
+		}
+	})
+	if !found {
+		t.Fatal("auditor missed unknown schema location")
+	}
+	keys := unknownSchemaKeywords(v)
+	if len(keys) != 1 || keys[0] != "futureSchema" {
+		t.Fatalf("unknown schema keyword sentinel missed: %v", keys)
 	}
 }
 
@@ -39,7 +125,7 @@ func TestDisplaySchemaDefaultCoverage(t *testing.T) {
 	for _, seed := range presentationSeeds() {
 		raw, _ := json.Marshal(seed.Schema)
 		row := &db.Tool{Key: seed.Key, Kind: "builtin", System: true, Schema: raw}
-		payload, _ := json.Marshal(toolDTOs([]*db.Tool{row})[0])
+		payload, _ := json.Marshal(newPresentationTestServer().toolDTOs([]*db.Tool{row})[0])
 		var dto map[string]json.RawMessage
 		_ = json.Unmarshal(payload, &dto)
 		if len(dto["display_schema"]) == 0 {
@@ -73,6 +159,9 @@ func TestDefaultSchemaDictionaryAudit(t *testing.T) {
 		b, _ := json.Marshal(seed.Schema)
 		var v any
 		_ = json.Unmarshal(b, &v)
+		if keys := unknownSchemaKeywords(v); len(keys) > 0 {
+			t.Errorf("%s unknown schema keys: %v", seed.Key, keys)
+		}
 		schemaDescriptions(v, func(s string) {
 			seen[s] = true
 			if _, ok := koreanSchemaDescriptions[s]; !ok {
@@ -128,7 +217,7 @@ func TestDisplaySchemaCustomPreservation(t *testing.T) {
 		invalid.Schema = json.RawMessage(`{`)
 		for _, row := range []db.Tool{custom, command, unknown, modified, invalid} {
 			before, _ := json.Marshal(row)
-			dto := toolDTOs([]*db.Tool{&row})[0]
+			dto := newPresentationTestServer().toolDTOs([]*db.Tool{&row})[0]
 			if dto.DisplaySchema != nil {
 				t.Fatalf("%s custom/modified schema translated", seed.Key)
 			}
@@ -141,11 +230,11 @@ func TestDisplaySchemaCustomPreservation(t *testing.T) {
 			}
 		}
 		// Mutating the display copy cannot change either the raw or code defaults.
-		first := toolDTOs([]*db.Tool{&base})[0]
+		first := newPresentationTestServer().toolDTOs([]*db.Tool{&base})[0]
 		if len(first.DisplaySchema) > 0 {
 			first.DisplaySchema[0] = '!'
 		}
-		second := toolDTOs([]*db.Tool{&base})[0]
+		second := newPresentationTestServer().toolDTOs([]*db.Tool{&base})[0]
 		if !json.Valid(second.DisplaySchema) || !bytes.Equal(base.Schema, raw) {
 			t.Fatal("presentation aliases default/runtime metadata")
 		}
@@ -173,7 +262,7 @@ func stripSchemaHelp(v any) {
 func TestDisplaySchemaOnlyHelpChanges(t *testing.T) {
 	for _, seed := range presentationSeeds() {
 		raw, _ := json.Marshal(seed.Schema)
-		dto := toolDTOs([]*db.Tool{{Key: seed.Key, Kind: "builtin", System: true, Schema: raw}})[0]
+		dto := newPresentationTestServer().toolDTOs([]*db.Tool{{Key: seed.Key, Kind: "builtin", System: true, Schema: raw}})[0]
 		var original, display any
 		_ = json.Unmarshal(raw, &original)
 		_ = json.Unmarshal(dto.DisplaySchema, &display)

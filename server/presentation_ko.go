@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/Autumn-27/artex/agent"
 	"github.com/Autumn-27/artex/db"
@@ -62,22 +63,41 @@ var koreanToolDescriptions = map[string]string{
 	"record_finding_retest_result": "현재 재검증 대화의 단일 결론을 저장하며 기존 증거와 보고서는 보존합니다. 성공적으로 종료된 대화의 결론이 fixed이면 취약점을 수정됨으로 표시합니다.",
 }
 
-// Metadata-only constructors: none of the tools are called here.
-var toolPresentationSchemas = make(map[string]any)
+// Private snapshots are built once on a configured Server before publication.
+// HTTP presentation never constructs runtime tools or mutates this catalog.
+type toolPresentationCatalog struct {
+	descriptions map[string]string
+	schemas      map[string]any
+	bindings     map[string][]string
+}
 
-var toolPresentationDefaults = func() map[string]string {
-	defaults := make(map[string]string)
-	for _, seed := range agent.BuiltinToolSeeds() {
-		defaults[seed.Key] = seed.Desc
-		toolPresentationSchemas[seed.Key] = normalizedSchema(seed.Schema)
+func newToolPresentationCatalog(seeds []agent.ToolSeed) *toolPresentationCatalog {
+	c := &toolPresentationCatalog{descriptions: map[string]string{}, schemas: map[string]any{}, bindings: map[string][]string{}}
+	for _, seed := range seeds {
+		c.descriptions[seed.Key] = seed.Desc
+		c.schemas[seed.Key] = normalizedSchema(seed.Schema)
+		// BuiltinToolSeeds owns bindings for overlapping orchestration names.
+		if _, exists := c.bindings[seed.Key]; !exists {
+			c.bindings[seed.Key] = append([]string(nil), seed.Agents...)
+		}
 	}
-	s := &Server{}
-	for _, tool := range append(append(s.orchestrationTools(), s.platformTools()...), append(s.findingRetestTools(), (&traffic.Traffic{}).Tools()...)...) {
-		defaults[tool.Name()] = tool.Description()
-		toolPresentationSchemas[tool.Name()] = normalizedSchema(tool.InputSchema())
+	return c
+}
+
+// This boundary runs only after New has initialized the manager and engine.
+func (s *Server) initToolPresentation() {
+	seeds := agent.BuiltinToolSeeds()
+	for _, tool := range append(s.orchestrationTools(), s.platformTools()...) {
+		seeds = append(seeds, agent.ToolSeed{Key: tool.Name(), Desc: tool.Description(), Schema: tool.InputSchema(), Agents: []string{"auto"}})
 	}
-	return defaults
-}()
+	for _, tool := range s.findingRetestTools() {
+		seeds = append(seeds, agent.ToolSeed{Key: tool.Name(), Desc: tool.Description(), Schema: tool.InputSchema(), Agents: []string{db.FindingRetestAgentKey}})
+	}
+	for _, spec := range traffic.ToolMetadataSpecs() {
+		seeds = append(seeds, agent.ToolSeed{Key: spec.Name, Desc: spec.Description, Schema: spec.Schema, Agents: []string{"worker"}})
+	}
+	s.toolPresentation = newToolPresentationCatalog(seeds)
+}
 
 // toolDTOs copies catalog rows at the HTTP boundary; the runtime keeps raw rows.
 type ToolDTO struct {
@@ -88,22 +108,26 @@ type ToolDTO struct {
 func normalizedSchema(schema any) any {
 	b, _ := json.Marshal(schema)
 	var v any
-	_ = json.Unmarshal(b, &v)
+	d := json.NewDecoder(bytes.NewReader(b))
+	d.UseNumber()
+	_ = d.Decode(&v)
 	return v
 }
 
 // Only a complete code-default schema qualifies; any customization is left raw.
 // JSON decoding creates an independent tree, never an alias of runtime metadata.
-func toolDisplaySchema(row *db.Tool) json.RawMessage {
-	if !row.System || row.Kind != "builtin" {
+func (s *Server) toolDisplaySchema(row *db.Tool) json.RawMessage {
+	if s.toolPresentation == nil || !row.System || row.Kind != "builtin" {
 		return nil
 	}
-	expected, ok := toolPresentationSchemas[row.Key]
+	expected, ok := s.toolPresentation.schemas[row.Key]
 	if !ok {
 		return nil
 	}
 	var copy any
-	if json.Unmarshal(row.Schema, &copy) != nil || !reflect.DeepEqual(copy, expected) {
+	d := json.NewDecoder(bytes.NewReader(row.Schema))
+	d.UseNumber()
+	if d.Decode(&copy) != nil || !json.Valid(row.Schema) || !reflect.DeepEqual(copy, expected) {
 		return nil
 	}
 	localizeSchemaHelp(copy)
@@ -111,9 +135,41 @@ func toolDisplaySchema(row *db.Tool) json.RawMessage {
 	return b
 }
 
+// walkSchemaHelp visits schema nodes, never arbitrary JSON data such as defaults
+// or examples. Paths include schema keywords, property names, and tuple indexes.
+func walkSchemaHelp(v any, path []any, visit func(map[string]any, []any)) {
+	x, ok := v.(map[string]any)
+	if !ok {
+		return
+	} // boolean schemas and property-dependency arrays have no help
+	visit(x, path)
+	child := func(v any, parts ...any) {
+		p := append(append([]any(nil), path...), parts...)
+		walkSchemaHelp(v, p, visit)
+	}
+	for _, key := range []string{"properties", "patternProperties", "$defs", "definitions", "dependentSchemas", "dependencies"} {
+		if entries, ok := x[key].(map[string]any); ok {
+			for name, schema := range entries {
+				child(schema, key, name)
+			}
+		}
+	}
+	for _, key := range []string{"additionalProperties", "additionalItems", "unevaluatedProperties", "unevaluatedItems", "not", "if", "then", "else", "contains", "propertyNames", "contentSchema"} {
+		child(x[key], key)
+	}
+	for _, key := range []string{"items", "prefixItems", "oneOf", "anyOf", "allOf"} {
+		if entries, ok := x[key].([]any); ok {
+			for i, schema := range entries {
+				child(schema, key, i)
+			}
+		} else if key == "items" {
+			child(x[key], key)
+		}
+	}
+}
+
 func localizeSchemaHelp(v any) {
-	switch x := v.(type) {
-	case map[string]any:
+	walkSchemaHelp(v, nil, func(x map[string]any, _ []any) {
 		for _, key := range []string{"description", "help"} {
 			if text, ok := x[key].(string); ok {
 				if ko, found := koreanSchemaDescriptions[text]; found {
@@ -121,24 +177,91 @@ func localizeSchemaHelp(v any) {
 				}
 			}
 		}
-		if props, ok := x["properties"].(map[string]any); ok {
-			for _, prop := range props {
-				localizeSchemaHelp(prop)
-			}
-		}
-		localizeSchemaHelp(x["items"])
-	case []any:
-		for _, item := range x {
-			localizeSchemaHelp(item)
-		}
-	}
+	})
 }
 
-func toolDTOs(in []*db.Tool) []ToolDTO {
+// toolSchemaSubmission reverses only generated help at the SAME schema location.
+// Current raw help must still equal the code default; edited descriptions (including
+// Korean text), missing/null fields, defaults and data payloads remain submitted.
+// We use code-default provenance even after parameter defaults were customized and
+// display_schema ceased to be emitted. This does not blanket reverse translations.
+func (s *Server) toolSchemaSubmission(row *db.Tool, submitted json.RawMessage) json.RawMessage {
+	if s.toolPresentation == nil || !row.System || row.Kind != "builtin" {
+		return submitted
+	}
+	expected, ok := s.toolPresentation.schemas[row.Key]
+	if !ok {
+		return submitted
+	}
+	decode := func(b []byte) (any, bool) {
+		if !json.Valid(b) {
+			return nil, false
+		}
+		var v any
+		d := json.NewDecoder(bytes.NewReader(b))
+		d.UseNumber() // Never round large defaults while normalizing help.
+		err := d.Decode(&v)
+		return v, err == nil
+	}
+	raw, ok := decode(row.Schema)
+	if !ok {
+		return submitted
+	}
+	input, ok := decode(submitted)
+	if !ok {
+		return submitted
+	}
+	changed := false
+	walkSchemaHelp(input, nil, func(node map[string]any, path []any) {
+		current, _ := schemaAtPath(raw, path).(map[string]any)
+		defaults, _ := schemaAtPath(expected, path).(map[string]any)
+		for _, key := range []string{"description", "help"} {
+			text, ok := current[key].(string)
+			if !ok || defaults[key] != text {
+				continue
+			}
+			shown, ok := koreanSchemaDescriptions[text]
+			if value, isString := node[key].(string); ok && isString && shown != text && value == shown {
+				node[key] = text
+				changed = true
+			}
+		}
+	})
+	if !changed {
+		return submitted
+	}
+	b, err := json.Marshal(input)
+	if err != nil {
+		return submitted
+	}
+	return b
+}
+
+func schemaAtPath(v any, path []any) any {
+	for _, part := range path {
+		switch p := part.(type) {
+		case string:
+			m, ok := v.(map[string]any)
+			if !ok {
+				return nil
+			}
+			v = m[p]
+		case int:
+			a, ok := v.([]any)
+			if !ok || p < 0 || p >= len(a) {
+				return nil
+			}
+			v = a[p]
+		}
+	}
+	return v
+}
+
+func (s *Server) toolDTOs(in []*db.Tool) []ToolDTO {
 	out := make([]ToolDTO, 0, len(in))
 	for _, row := range in {
-		dto := ToolDTO{Tool: *row, DisplaySchema: toolDisplaySchema(row)}
-		if korean, ok := koreanToolDescriptions[row.Key]; ok && row.System && row.Kind == "builtin" && row.Description == toolPresentationDefaults[row.Key] {
+		dto := ToolDTO{Tool: *row, DisplaySchema: s.toolDisplaySchema(row)}
+		if korean, ok := koreanToolDescriptions[row.Key]; ok && row.System && row.Kind == "builtin" && s.toolPresentation != nil && row.Description == s.toolPresentation.descriptions[row.Key] {
 			dto.Description = korean
 		}
 		out = append(out, dto)
