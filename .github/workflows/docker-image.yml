@@ -1,0 +1,114 @@
+name: docker-image
+# 소스에서 멀티아치(linux/amd64, linux/arm64) 도커 이미지를 빌드해 GHCR 에 푸시한다.
+# 프런트엔드 정적 내보내기 → Go 크로스 컴파일(순수 Go, CGO 없음) → 저장소의 Dockerfile
+# (미리 컴파일한 dist/<arch>/artex 를 COPY)로 멀티아치 이미지를 굽는다. arm64 는 apt/node
+# 계층만 QEMU 로 에뮬레이션하며, Next/Go 컴파일은 호스트에서 네이티브로 끝낸다.
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/artex-ko
+
+jobs:
+  # ① 프런트엔드 정적 내보내기(한 번 수행), 두 아키텍처 컴파일에서 재사용
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+        working-directory: web
+      - run: npm run build:static
+        working-directory: web
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: web/out
+
+  # ② linux/amd64·arm64 바이너리를 dist/<arch>/artex 로 크로스 컴파일(프런트엔드 내장)
+  binaries:
+    needs: frontend
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+          cache: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: server/webui/dist
+      - name: go build (${{ matrix.arch }}, embedui)
+        env:
+          CGO_ENABLED: "0"
+          GOOS: linux
+          GOARCH: ${{ matrix.arch }}
+          ARTEX_BUILD_VERSION: ${{ github.ref_name }}
+        run: |
+          mkdir -p dist/${GOARCH}
+          go build -tags embedui -trimpath \
+            -ldflags "-s -w -buildid= -X main.version=${ARTEX_BUILD_VERSION}" \
+            -o dist/${GOARCH}/artex ./cmd/artex
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bin-${{ matrix.arch }}
+          path: dist/${{ matrix.arch }}/artex
+
+  # ③ 저장소의 Dockerfile 로 멀티아치 이미지를 빌드해 GHCR 에 푸시
+  image:
+    needs: binaries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 바이너리 복원(dist/amd64, dist/arm64)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: bin-*
+          path: dist-artifacts
+      - name: dist/<arch>/artex 로 재배치
+        run: |
+          mkdir -p dist/amd64 dist/arm64
+          cp dist-artifacts/bin-amd64/artex dist/amd64/artex
+          cp dist-artifacts/bin-arm64/artex dist/arm64/artex
+          chmod +x dist/amd64/artex dist/arm64/artex
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: GHCR 로그인
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: 태그 메타데이터
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=tag
+            type=sha,format=short
+      - name: 빌드 & 푸시(멀티아치)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

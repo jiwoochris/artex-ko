@@ -60,6 +60,12 @@ var defaultUnbound = map[string]bool{"goal_met": true}
 
 // BuiltinToolSeeds 把各 agent 的内置工具集去重合并成 seed 列表：同名工具（如 list_assets
 // 多个 agent 都有）合成一条，Agents 取并集；defaultUnbound 里的工具则强制绑定为空。
+// ReporterSeedKey / RetesterSeedKey name the two custom-seeded built-in agents
+// whose prompts live outside BuiltinPromptSeeds (seeded via ReporterDefaultPrompt /
+// RetesterDefaultPrompt). Exported so the KO localization resync can reach them.
+const ReporterSeedKey = "reporter"
+const RetesterSeedKey = "retester"
+
 func BuiltinToolSeeds() []ToolSeed {
 	byAgent := builtinToolsByAgent()
 	order := []string{"mainagent", "goals", "planner", "worker", "auto", "pentest"}

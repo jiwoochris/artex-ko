@@ -161,11 +161,11 @@ func (s *Server) agentFindingTrafficAccess(ctx context.Context, id int64, write 
 }
 
 func (s *Server) toolBindFindingTraffic() actool.CoreTool {
-	return wrTool("bind_finding_traffic", "为已登记漏洞补绑经核实的真实 HTTP 流量。finding_id 使用独立漏洞记录 ID；不要传探索节点 ID。同批引用全部成功或全部失败，重复引用不覆盖已有说明。补绑会使已有报告标记待更新；不要为补包重新探测或重复创建漏洞。",
-		objSchema(map[string]any{"finding_id": strParam("独立漏洞记录 ID，从 list_task_findings / get_task_node_detail 的 finding_id 字段读取"), "traffic_refs": agent.HintTrafficSchema()}, "finding_id", "traffic_refs"),
+	return wrTool("bind_finding_traffic", "이미 등록된 취약점에 확인된 실제 HTTP 트래픽을 추가 연결한다. finding_id 는 독립 취약점 레코드 ID 를 쓴다; 탐색 노드 ID 를 전달하지 마라. 같은 배치의 참조는 전부 성공하거나 전부 실패하며, 중복 참조는 기존 설명을 덮지 않는다. 추가 연결은 기존 보고서를 갱신 대기로 표시한다; 패킷을 채우려 재탐지하거나 취약점을 중복 생성하지 마라.",
+		objSchema(map[string]any{"finding_id": strParam("독립 취약점 레코드 ID, list_task_findings / get_task_node_detail 의 finding_id 필드에서 읽음"), "traffic_refs": agent.HintTrafficSchema()}, "finding_id", "traffic_refs"),
 		func(ctx context.Context, raw json.RawMessage) (actool.Result, error) {
 			if !s.m.pg.GetBool(settingAgentTrafficBinding, false) {
-				return actool.Errorf("Agent 自动绑定流量已关闭；请在系统设置开启，或使用页面人工绑定。"), nil
+				return actool.Errorf("Agent 자동 트래픽 연결이 꺼져 있습니다; 시스템 설정에서 켜거나 페이지에서 수동 연결하세요."), nil
 			}
 			var args struct {
 				FindingID json.RawMessage `json:"finding_id"`
