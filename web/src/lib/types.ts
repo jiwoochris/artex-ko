@@ -947,6 +947,9 @@ export interface Settings {
   notify_enabled?: boolean; // 推送总开关，默认开；用于维护期一键止血
   notify_public_base_url?: string; // 漏洞详情回链的外部访问地址；空=消息不带回链
   notify_digest_interval_min?: number; // 汇总模式周期（分钟），默认 30
+  // 사용자 대면 출력 언어(en/ko/zh/es). 에이전트가 생성하는 리포트·요약·대화 응답이
+  // 이 언어를 따른다. 설정 화면의 "표시 언어" 선택기가 UI 언어와 함께 이 값도 저장한다.
+  output_language?: string;
 }
 
 // ---- 漏洞 IM 推送 ----

@@ -211,7 +211,7 @@ func (s *Server) updateTasksCategoryBatch(w http.ResponseWriter, r *http.Request
 	}
 	taskIDs := normalizeBatchTaskIDs(request.TaskIDs)
 	if len(taskIDs) == 0 || len(taskIDs) > db.MaxTaskCategoryBatchSize {
-		writeErr(w, http.StatusBadRequest, fmt.Sprintf(errTaskCatBatchSizeFmt, db.MaxTaskCategoryBatchSize))
+		writeErr(w, http.StatusBadRequest, fmt.Sprintf(trMsg(errTaskCatBatchSizeFmt), db.MaxTaskCategoryBatchSize))
 		return
 	}
 	items := make([]batchCategoryItem, 0, len(taskIDs))

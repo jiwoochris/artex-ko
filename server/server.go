@@ -17,13 +17,16 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/Autumn-27/artex/agent"
+	"github.com/Autumn-27/artex/config"
 	"github.com/Autumn-27/artex/db"
 	"github.com/Autumn-27/artex/intercept"
 	"github.com/Autumn-27/artex/llmpool"
 	"github.com/Autumn-27/artex/llmrec"
+	"github.com/Autumn-27/artex/notify"
 	"github.com/Autumn-27/artex/report"
 	"github.com/Autumn-27/artex/traffic"
 	"github.com/Autumn-27/norma/llm"
@@ -68,6 +71,9 @@ const (
 	// 알림 전역 설정 (링크 기준 주소·요약 주기 — web notify.global 라벨과 동일 표기)
 	errNotifyBaseURLScheme = "링크 기준 주소는 http:// 또는 https://로 시작해야 합니다"
 	errNotifyDigestRange   = "요약 주기는 1~1440분 사이여야 합니다"
+
+	// 사용자 대면 출력 언어 설정 (putSettings)
+	errOutputLanguageInvalid = "지원하지 않는 언어입니다(en·ko·zh·es 중 하나여야 합니다)"
 
 	// 메인 에이전트 대화·세션 (newMainSession / chat)
 	errTaskDeletingNewSession = "작업을 삭제하는 중이라 새 세션을 만들 수 없습니다"
@@ -194,6 +200,10 @@ type Server struct {
 	archiveWake chan struct{}
 	archiveWG   sync.WaitGroup
 	side        *sideQuestionState
+	// outputLang caches the resolved user-facing output language (string). Every
+	// writeErr, label and agent turn reads it, so it must not hit the settings
+	// table or config.json per call; putSettings refreshes it on change.
+	outputLang atomic.Value
 }
 
 // provEntry is a cached provider + its config for one LLM profile id.
@@ -295,6 +305,20 @@ func New(ctx context.Context, m *Manager, skillDir string, dataDir string, keyDi
 			}
 			return a.TaskTimeoutWrapupMaxTurns, true
 		}
+		// Wire the user-facing output language. Precedence: the runtime setting a
+		// user picked in the UI (settings table) over the bootstrap default
+		// (config.Language() = ARTEX_LANG > config file > "ko"). Resolved once
+		// here and cached in s.outputLang; putSettings refreshes the cache, so a
+		// language change in the UI applies to the next agent turn without a
+		// restart. Both agent.OutputLanguage (langDirective + wrap-up
+		// language tail for LLM-generated text) and config.CurrentLanguage (backend
+		// enum labels such as severity/status) resolve through the same closure, so
+		// generated text and fixed backend strings share one chosen language.
+		s.outputLang.Store(s.loadOutputLanguage())
+		resolveLang := s.outputLanguage
+		agent.OutputLanguage = resolveLang
+		config.CurrentLanguage = resolveLang
+		notify.Lang = resolveLang                       // 푸시·이메일의 심각도·상태 라벨도 같은 언어를 따른다
 		wireAgentAugment(m.pg, s.skillDir, s.hostTools) // 可见 skills/MCP + 流量/编排 host 工具装配进 agent 工具集
 		domainReg := buildDomainReg(m.Assets())
 		wireTools(m.pg, domainReg) // 内置工具表：按 agent 过滤 + 覆盖描述/schema + 注入默认值
@@ -315,7 +339,7 @@ func New(ctx context.Context, m *Manager, skillDir string, dataDir string, keyDi
 		} else {
 			// 핵심 기능(취약점 IM 알림 전송)을 끄는 분기라 시작 로그를 남긴다. 이 변수는
 			// 통합 테스트 전용이므로, 운영에서 켜져 있으면 실수나 환경 상속을 의심할 단서가 된다.
-			log.Printf("[notify] 백그라운드 알림 전송 루프가 %s 로 꺼졌습니다(테스트 전용) — 취약점 IM 알림이 전송되지 않습니다", notifyBackgroundDisabledEnv)
+			log.Printf(logT("[notify] 백그라운드 알림 전송 루프가 %s 로 꺼졌습니다(테스트 전용) — 취약점 IM 알림이 전송되지 않습니다"), notifyBackgroundDisabledEnv)
 		}
 		// Fill the tool cache for any enabled MCP that has none yet (notably the
 		// seeded browser MCP on first run). Async so it never blocks startup.
@@ -633,13 +657,13 @@ func (s *Server) resolveChatAgent(c *db.Conversation) *agent.ChatAgent {
 func (s *Server) chatUnavailableReason() string {
 	if s.m.pg != nil {
 		if profiles, err := s.m.pg.ListProfiles(); err == nil && len(profiles) == 0 {
-			return errChatNoLLMProfile
+			return trMsg(errChatNoLLMProfile)
 		}
 		if active, err := s.m.pg.ActiveProfile(); err == nil && active == nil {
-			return errChatNoActiveLLMProfile
+			return trMsg(errChatNoActiveLLMProfile)
 		}
 	}
-	return errChatLLMNotReady
+	return trMsg(errChatLLMNotReady)
 }
 
 // providerForProfile returns a cached provider+cfg for a profile id, so every agent
@@ -1498,7 +1522,7 @@ func (s *Server) testLLM(w http.ResponseWriter, r *http.Request) {
 		s.cfgMu.Unlock()
 	}
 	if cfg.APIKey == "" {
-		writeJSON(w, 200, map[string]any{"ok": false, "error": errLLMTestNoAPIKey})
+		writeJSON(w, 200, map[string]any{"ok": false, "error": trMsg(errLLMTestNoAPIKey)})
 		return
 	}
 	// 重试参数【不】带进连接测试:测试有 30s 硬超时,把配置的重试次数/长间隔叠上去
@@ -1564,7 +1588,7 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 		req.TimeoutSeconds = 0
 	}
 	if len(req.SourceTaskIDs) > db.MaxTaskSourceCount {
-		writeErr(w, 400, fmt.Sprintf(errCreateTaskSourceLimit, db.MaxTaskSourceCount))
+		writeErr(w, 400, fmt.Sprintf(trMsg(errCreateTaskSourceLimit), db.MaxTaskSourceCount))
 		return
 	}
 	sourceIDs := make([]int64, 0, len(req.SourceTaskIDs))
@@ -1576,7 +1600,7 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if _, ok := s.m.Task(strconv.FormatInt(id, 10)); !ok {
-			writeErr(w, 400, fmt.Sprintf(errCreateTaskSourceNotFound, id))
+			writeErr(w, 400, fmt.Sprintf(trMsg(errCreateTaskSourceNotFound), id))
 			return
 		}
 		seenSources[id] = true
@@ -1584,7 +1608,7 @@ func (s *Server) createTask(w http.ResponseWriter, r *http.Request) {
 	}
 	companyIDs, err := db.NormalizeTaskCompanyIDs(req.CompanyIDs)
 	if err != nil {
-		writeErr(w, 400, fmt.Sprintf(errCreateTaskCompanyLimit, db.MaxTaskCompanyCount))
+		writeErr(w, 400, fmt.Sprintf(trMsg(errCreateTaskCompanyLimit), db.MaxTaskCompanyCount))
 		return
 	}
 	req.CompanyIDs = companyIDs
@@ -1627,7 +1651,7 @@ func (s *Server) validateTaskProfileIDs(ids []int64) error {
 		}
 		seen[id] = true
 		if _, ok := s.loadProfileConfig(id); !ok {
-			return fmt.Errorf(errLLMProfileNotFound, id)
+			return fmt.Errorf(trMsg(errLLMProfileNotFound), id)
 		}
 	}
 	return nil
@@ -3374,7 +3398,10 @@ func (s *Server) settingsPayload() map[string]any {
 	if concLimit == 0 {
 		concLimit = defaultConcurrencyLimit // 关闭时也回显一个合理默认值给 UI
 	}
+	// 사용자 대면 출력 언어: 런타임 설정값 > config.Language() 기본값(ARTEX_LANG·설정 파일·한국어).
+	outputLang := s.outputLanguage()
 	return map[string]any{
+		"output_language":          outputLang, // 사용자 대면 출력 언어(en/ko/zh/es)
 		"traffic_capture":          s.m.TrafficEnabled(),
 		"agent_traffic_binding":    s.m.pg.GetBool(settingAgentTrafficBinding, false),
 		"llm_record":               s.m.LLMRecordEnabled(),
@@ -3475,6 +3502,9 @@ func (s *Server) putSettings(w http.ResponseWriter, r *http.Request) {
 		NotifyEnabled    *bool   `json:"notify_enabled"`
 		NotifyBaseURL    *string `json:"notify_public_base_url"`
 		NotifyDigestMins *int    `json:"notify_digest_interval_min"`
+		// 사용자 대면 출력 언어(en/ko/zh/es). 에이전트 훅이 매 턴 읽으므로 즉시 적용되고
+		// 에이전트를 다시 생성할 필요가 없다. null=변경 안 함.
+		OutputLanguage *string `json:"output_language"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeErr(w, 400, err.Error())
@@ -3498,6 +3528,20 @@ func (s *Server) putSettings(w http.ResponseWriter, r *http.Request) {
 			writeErr(w, 500, err.Error())
 			return
 		}
+	}
+	if req.OutputLanguage != nil {
+		// 지원 언어("en"/"ko"/"zh"/"es")만 받는다. 에이전트 훅이 매 턴 읽으므로 즉시
+		// 적용되고 에이전트를 다시 생성할 필요가 없다.
+		lang := config.NormalizeLanguage(*req.OutputLanguage)
+		if lang == "" {
+			writeErr(w, 400, errOutputLanguageInvalid)
+			return
+		}
+		if err := s.m.pg.SetSetting(settingOutputLanguage, lang); err != nil {
+			writeErr(w, 500, err.Error())
+			return
+		}
+		s.outputLang.Store(lang)
 	}
 	// 推送全局项:投递引擎每轮重新读取,所以即时生效、无需重启。
 	if req.NotifyEnabled != nil {
@@ -3694,7 +3738,7 @@ func (s *Server) testWebSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(results) == 0 {
-		writeJSON(w, 200, map[string]any{"ok": false, "error": errWebSearchProbeNoResults, "backend": backend})
+		writeJSON(w, 200, map[string]any{"ok": false, "error": trMsg(errWebSearchProbeNoResults), "backend": backend})
 		return
 	}
 	writeJSON(w, 200, map[string]any{"ok": true, "count": len(results), "backend": backend})
@@ -3921,10 +3965,10 @@ func (s *Server) fallbackChat(t *Task, msg string) string {
 	switch cmd, text := fallbackCommand(msg); cmd {
 	case "intent":
 		_, _ = t.Store.AddIntent(map[string]any{"summary": text}, 9, nil, "human")
-		return fallbackIntentInjected + text
+		return trMsg(fallbackIntentInjected) + text
 	case "hint":
 		_, _ = t.Store.AddNode(db.KindHint, map[string]any{"text": text}, 0, "active", "human", nil)
-		return fallbackHintRecorded + text
+		return trMsg(fallbackHintRecorded) + text
 	default:
 		assetCounts, _ := s.m.Assets().CountsByType()
 		assets := 0
@@ -3933,7 +3977,7 @@ func (s *Server) fallbackChat(t *Task, msg string) string {
 		}
 		fnd, _ := t.Store.ListByKind(db.KindFinding, 1000)
 		fr, _ := t.Store.Frontier(1000)
-		return fmt.Sprintf(fallbackChatStatus, assets, len(fr), len(fnd))
+		return fmt.Sprintf(trMsg(fallbackChatStatus), assets, len(fr), len(fnd))
 	}
 }
 
@@ -4032,7 +4076,10 @@ func writeJSON(w http.ResponseWriter, code int, v any) {
 }
 
 func writeErr(w http.ResponseWriter, code int, msg string) {
-	writeJSON(w, code, map[string]any{"error": msg})
+	// 한국어 원문 응답 문구를 활성 출력 언어로 치환한다(en/zh/es). 카탈로그에 없거나
+	// 한국어이면 원문 그대로 나간다. 하위 계층에서 전파된 임의 err.Error() 는 보통 키에
+	// 없어 그대로 통과한다.
+	writeJSON(w, code, map[string]any{"error": trMsg(msg)})
 }
 
 func atoiDefault(s string, d int) int {

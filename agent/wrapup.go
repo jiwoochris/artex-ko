@@ -93,10 +93,28 @@ func resolveWrapupTurns(agentKey string) int {
 // (reads DB live), so edits apply on the next run without a restart.
 func wrapupSettlement(agentKey string, disabledTools []string) *harness.Settlement {
 	return &harness.Settlement{
-		Prompt:        resolveWrapup(agentKey),
+		Prompt:        withWrapupLang(resolveWrapup(agentKey)),
 		DisabledTools: disabledTools,
 		MaxTurns:      resolveWrapupTurns(agentKey),
 	}
+}
+
+// withWrapupLang 은 마무리 프롬프트 뒤에 출력 언어 지시(langDirective)를 덧붙인다.
+// 마무리 프롬프트는 시스템 프롬프트와 달리 langDirective 꼬리가 자동으로 붙지 않으므로,
+// 이렇게 직접 붙여야 사용자에게 보이는 마지막 한 문장 요약이 선택한 표시 언어를 따른다.
+// 마무리 산문 자체는 모델이 읽는 운영 지시문(한국어 유지)이고, 이 꼬리가 최고 우선순위로
+// 사용자 노출 텍스트의 언어만 강제한다. 요약을 내지 않는 planner 계열에는 무해하다.
+// 기본 언어 ko 에서는 꼬리를 붙이지 않는다. 시스템 프롬프트의 langDirective 가 이미
+// 한국어 출력을 강제하고 있어, 기본 경로의 모델 입력을 이전 버전과 같게 둔다(벤치마크 드리프트 방지).
+func withWrapupLang(prompt string) string {
+	if strings.TrimSpace(prompt) == "" {
+		return prompt
+	}
+	lang := resolveOutputLang()
+	if lang == "ko" {
+		return prompt
+	}
+	return prompt + langDirective(lang)
 }
 
 // ---------- 任务级超时收尾词（见 docs/任务级超时与收尾设计.md）----------
@@ -154,7 +172,7 @@ func resolveTaskTimeoutTurns(agentKey string) int {
 //
 // 交给 harness 的 PromptByReason 在收尾时按【实际】reason 现场挑，无 build 时错配。
 func wrapupSettlementForTask(agentKey string, disabledTools []string, clamped bool) *harness.Settlement {
-	perRun := resolveWrapup(agentKey)
+	perRun := withWrapupLang(resolveWrapup(agentKey))
 	st := &harness.Settlement{
 		Prompt:        perRun, // 兜底(也是非 clamped 时两种 reason 的取值)
 		DisabledTools: disabledTools,
@@ -163,8 +181,8 @@ func wrapupSettlementForTask(agentKey string, disabledTools []string, clamped bo
 	if clamped {
 		if tt := resolveTaskTimeoutWrapup(agentKey); tt != "" {
 			st.PromptByReason = map[harness.TerminalReason]string{
-				harness.ReasonTimeout:  tt,     // 任务到点
-				harness.ReasonMaxTurns: perRun, // 步数先耗尽、任务还剩时间
+				harness.ReasonTimeout:  withWrapupLang(tt), // 任务到点
+				harness.ReasonMaxTurns: perRun,             // 步数先耗尽、任务还剩时间
 			}
 			st.MaxTurns = resolveTaskTimeoutTurns(agentKey)
 		}

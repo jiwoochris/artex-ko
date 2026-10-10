@@ -102,7 +102,7 @@ const mainAgentDefaultTmpl = `你是一个授权渗透测试系统的"主 agent"
 
 func mainAgentSystem(goal, dataDir, workDir string) string {
 	body := renderSystem("mainagent", mainAgentDefaultTmpl, MainVars{Goal: goal, DataDir: dataDir, Now: nowStr()})
-	return body + artifactSpec(workDir) + langDirective()
+	return body + artifactSpec(workDir) + langDirective(resolveOutputLang())
 }
 
 // Chat handles one human message and returns the assistant reply. emit, if

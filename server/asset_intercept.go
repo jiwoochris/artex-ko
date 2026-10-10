@@ -157,14 +157,14 @@ func validateAssetInterceptRuleReq(req *assetInterceptRuleReq) error {
 		// free-form, no format check
 	case "exact_ip":
 		if net.ParseIP(req.Pattern) == nil {
-			return fmt.Errorf(errAssetInterceptInvalidExactIPFmt, req.Pattern)
+			return fmt.Errorf(trMsg(errAssetInterceptInvalidExactIPFmt), req.Pattern)
 		}
 	case "cidr":
 		if _, _, err := net.ParseCIDR(req.Pattern); err != nil {
-			return fmt.Errorf(errAssetInterceptInvalidCIDRFmt, req.Pattern)
+			return fmt.Errorf(trMsg(errAssetInterceptInvalidCIDRFmt), req.Pattern)
 		}
 	default:
-		return fmt.Errorf(errAssetInterceptInvalidKindFmt, req.Kind)
+		return fmt.Errorf(trMsg(errAssetInterceptInvalidKindFmt), req.Kind)
 	}
 	return nil
 }

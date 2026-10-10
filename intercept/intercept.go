@@ -506,16 +506,13 @@ func (i *Interceptor) Judge(ctx context.Context, tool string, arguments json.Raw
 }
 
 func judgeActionLabel(action string) string {
-	switch action {
-	case "allow":
-		return "허용"
-	case "deny":
-		return "차단"
-	case "ask":
-		return "확인 요청"
-	default:
-		return action
+	if v, ok := judgeActionLabels[judgeActionLang()][action]; ok {
+		return v
 	}
+	if v, ok := judgeActionLabels["ko"][action]; ok {
+		return v
+	}
+	return action
 }
 
 // Match evaluates the rule list (priority DESC) against a tool call.

@@ -119,7 +119,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { api } from "@/lib/api";
+import { ApiError, api } from "@/lib/api";
 import { getLocalStorageValue, setLocalStorageValue } from "@/lib/local-storage.client";
 import { type SortDirection, useStoredSortPreference } from "@/lib/sort-preference";
 import type {
@@ -1689,8 +1689,9 @@ function TaskArchivesPanel({ onChanged }: { onChanged: () => void }) {
         const states = await Promise.allSettled(pending.map((id) => api.taskArchive(id)));
         let restored = false;
         states.forEach((state, index) => {
-          if (state.status !== "rejected" || !(state.reason instanceof Error)) return;
-          if (!state.reason.message.includes("보관을 찾을 수 없습니다")) return;
+          // 복원이 끝나면 보관 항목이 사라져 404 가 된다(문구는 표시 언어에 따라 달라짐).
+          if (state.status !== "rejected" || !(state.reason instanceof ApiError)) return;
+          if (state.reason.status !== 404) return;
           pendingRestoreIDs.current.delete(pending[index]);
           restored = true;
         });

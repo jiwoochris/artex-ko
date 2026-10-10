@@ -163,7 +163,7 @@ func (s *Server) applyTaskControlWithCause(t *Task, action string, pauseCause er
 	default:
 		return out, fmt.Errorf("action must be pause|resume")
 	}
-	log.Printf("[task] #%s %s", t.ID, map[string]string{"pause": "일시정지됨", "resume": "재개됨"}[action])
+	log.Printf("[task] #%s %s", t.ID, logT(map[string]string{"pause": "일시정지됨", "resume": "재개됨"}[action]))
 	return out, nil
 }
 
@@ -278,7 +278,7 @@ func (s *Server) controlTasksBatch(w http.ResponseWriter, r *http.Request) {
 	}
 	taskIDs := normalizeBatchTaskIDs(req.TaskIDs)
 	if len(taskIDs) == 0 || len(taskIDs) > maxBatchControlIDs {
-		writeErr(w, 400, fmt.Sprintf(errTaskCtrlBatchSizeFmt, maxBatchControlIDs))
+		writeErr(w, 400, fmt.Sprintf(trMsg(errTaskCtrlBatchSizeFmt), maxBatchControlIDs))
 		return
 	}
 	items := make([]batchControlItem, 0, len(taskIDs))

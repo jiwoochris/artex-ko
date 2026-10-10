@@ -34,6 +34,9 @@ services:
       ARTEX_ADMIN_PASSWORD: ${ARTEX_ADMIN_PASSWORD:-}
       # 브라우저 교차 출처 허용 목록(쉼표 구분). 내장 UI 는 동일 출처라 보통 비워 둡니다.
       ARTEX_CORS_ORIGINS: ${ARTEX_CORS_ORIGINS:-}
+      # 서버 쪽 기본 출력 언어(ko·en·zh·es). 비우면 한국어입니다. 에이전트 출력·오류 메시지는 설정 화면의
+      # "표시 언어"가 우선하고, 서버 콘솔 로그는 이 값만 따릅니다.
+      ARTEX_LANG: ${ARTEX_LANG:-}
     ports:
       # 기본값은 호스트의 127.0.0.1 에만 게시합니다. 다른 기기에서 직접 접속하려면 .env 에
       # ARTEX_BIND=0.0.0.0 을 두되, 그 전에 반드시 초기 설정(관리자 비밀번호)을 마치고

@@ -81,61 +81,89 @@ func TestRenderSystemOverrideAndFallback(t *testing.T) {
 	}
 }
 
-// TestLangDirectiveAppendedToUserFacingRoles pins the artex-ko localization tail:
-// every user-facing role's system prompt must end with the code-owned Korean
-// output-language directive, and a DB-edited body must NOT be able to drop it.
-func TestLangDirectiveAppendedToUserFacingRoles(t *testing.T) {
-	t.Cleanup(func() { PromptOverride = nil })
+// langMarker is the unambiguous substring that proves langDirective selected a
+// given display language. These are the native-script tokens embedded in the
+// (Chinese) directive, so finding one means the output-language mandate names that
+// language. Used by the directive and role-append tests below.
+var langMarker = map[string]string{
+	"ko": "한국어",
+	"en": "English",
+	"zh": "简体中文",
+	"es": "Español",
+}
 
-	// The directive forces Korean OUTPUT and preserves raw technical strings; both
-	// signals must be present. 한국어 marker + verbatim-preservation clause.
-	dir := langDirective()
-	if !strings.Contains(dir, "한국어") {
-		t.Fatalf("langDirective must force Korean output, got %q", dir)
+// TestLangDirectiveLocalized pins the output-language tail across all
+// four display languages: each language's directive names that language, preserves
+// raw technical strings, forbids mirroring the target/material language, and names
+// the planner situation summary. For every non-Chinese display language the "never
+// emit Chinese to the user" clause is present; for Chinese it is absent (Chinese
+// output is the goal there).
+func TestLangDirectiveLocalized(t *testing.T) {
+	for _, code := range SupportedOutputLangs {
+		dir := langDirective(code)
+		if !strings.Contains(dir, langMarker[code]) {
+			t.Fatalf("%s: langDirective must name the display language (%q), got %q", code, langMarker[code], dir)
+		}
+		if !strings.Contains(dir, "payload") || !strings.Contains(dir, "原样逐字保留") {
+			t.Fatalf("%s: langDirective must keep commands/payloads verbatim, got %q", code, dir)
+		}
+		if !strings.Contains(dir, "不要镜像或照抄目标") {
+			t.Fatalf("%s: langDirective must forbid mirroring the target/material language, got %q", code, dir)
+		}
+		if !strings.Contains(dir, "态势") {
+			t.Fatalf("%s: langDirective must name the planner situation summary as user-facing, got %q", code, dir)
+		}
+		// The anti-Chinese-leak clause applies to every non-Chinese display
+		// language (planner situation-summary drift). When the display language IS
+		// Chinese, Chinese output is correct, so the clause must be absent.
+		hasNoZhClause := strings.Contains(dir, "也绝不能把中文输出给用户")
+		if code == "zh" && hasNoZhClause {
+			t.Fatalf("zh: directive must NOT forbid Chinese output when the display language is Chinese, got %q", dir)
+		}
+		if code != "zh" && !hasNoZhClause {
+			t.Fatalf("%s: langDirective must forbid leaking Chinese to the user, got %q", code, dir)
+		}
 	}
-	if !strings.Contains(dir, "payload") || !strings.Contains(dir, "原样逐字保留") {
-		t.Fatalf("langDirective must keep commands/payloads verbatim, got %q", dir)
-	}
-	// L1 anti-drift hardening: the directive must (1) forbid leaking the Chinese
-	// instruction/brain language into user-facing text (planner situation-summary
-	// drift), and (2) forbid mirroring the target/material language — e.g. an
-	// English target app — in the display fields (report_finding drift). Both
-	// clauses are locked here so a future edit can't silently drop them.
-	if !strings.Contains(dir, "也绝不能把中文输出给用户") {
-		t.Fatalf("langDirective must forbid leaking Chinese to the user, got %q", dir)
-	}
-	if !strings.Contains(dir, "不要镜像或照抄目标") {
-		t.Fatalf("langDirective must forbid mirroring the target/material language, got %q", dir)
-	}
-	if !strings.Contains(dir, "态势") {
-		t.Fatalf("langDirective must name the planner situation summary as user-facing, got %q", dir)
-	}
+}
+
+// TestLangDirectiveAppendedToUserFacingRoles pins the localization tail wiring:
+// every user-facing role's system prompt must end with the code-owned
+// output-language directive in the configured language, and a DB-edited body must
+// NOT be able to drop it. Exercised for each supported display language by driving
+// the OutputLanguage hook the roles resolve through.
+func TestLangDirectiveAppendedToUserFacingRoles(t *testing.T) {
+	t.Cleanup(func() { PromptOverride = nil; OutputLanguage = nil })
 
 	// Even with a DB body that is pure non-directive text, the code-owned tail is
 	// still appended for each user-facing builder — identical guarantee to the
-	// artifact tail. A custom body can never translate away the Korean mandate.
+	// artifact tail. A custom body can never translate away the output-language mandate.
 	PromptOverride = func(string) (string, bool) { return "BODY-ONLY", true }
-	cases := map[string]string{
-		"worker":    workerSystem("", "", "/data", "/data"),
-		"planner":   plannerSystem("g", "/data", "/data"),
-		"mainagent": mainAgentSystem("g", "/data", "/data"),
-		"chat":      chatSystem("chat", "/data", "/data"),
-		// goals is user-facing too: set_goals/set_constraints persist goal and
-		// constraint nodes shown in the UI graph/plan tab. withScope=true exercises
-		// the longer assembly (body + scope tail), so the Korean tail must still land
-		// last — after both the body and the code-owned scope tail.
-		"goals": goalsSystem("/data", true),
-	}
-	for role, sys := range cases {
-		if !strings.HasPrefix(sys, "BODY-ONLY") {
-			t.Fatalf("%s: DB body not honored: %q", role, sys)
+
+	for _, code := range SupportedOutputLangs {
+		OutputLanguage = func() string { return code }
+		marker := langMarker[code]
+		cases := map[string]string{
+			"worker":    workerSystem("", "", "/data", "/data"),
+			"planner":   plannerSystem("g", "/data", "/data"),
+			"mainagent": mainAgentSystem("g", "/data", "/data"),
+			"chat":      chatSystem("chat", "/data", "/data"),
+			// goals is user-facing too: set_goals/set_constraints persist goal and
+			// constraint nodes shown in the UI graph/plan tab. withScope=true exercises
+			// the longer assembly (body + scope tail), so the language tail must still
+			// land last — after both the body and the code-owned scope tail.
+			"goals": goalsSystem("/data", true),
 		}
-		if !strings.Contains(sys, "한국어") {
-			t.Fatalf("%s: missing Korean output-language tail: %q", role, sys)
-		}
-		// The directive is the tail — it must come AFTER the body (recency).
-		if strings.Index(sys, "한국어") <= strings.Index(sys, "BODY-ONLY") {
-			t.Fatalf("%s: langDirective must be appended after the body: %q", role, sys)
+		for role, sys := range cases {
+			if !strings.HasPrefix(sys, "BODY-ONLY") {
+				t.Fatalf("%s/%s: DB body not honored: %q", code, role, sys)
+			}
+			if !strings.Contains(sys, marker) {
+				t.Fatalf("%s/%s: missing output-language tail (%q): %q", code, role, marker, sys)
+			}
+			// The directive is the tail — it must come AFTER the body (recency).
+			if strings.Index(sys, marker) <= strings.Index(sys, "BODY-ONLY") {
+				t.Fatalf("%s/%s: langDirective must be appended after the body: %q", code, role, sys)
+			}
 		}
 	}
 }

@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 
 import type { Metadata } from "next";
-import { NextIntlClientProvider } from "next-intl";
 
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { APP_CONFIG } from "@/config/app-config";
 import { resolveLocale } from "@/i18n/config";
+import { IntlRuntimeProvider } from "@/i18n/intl-runtime-provider";
 import { fontVars } from "@/lib/fonts/registry";
 import { PREFERENCE_DEFAULTS } from "@/lib/preferences/preferences-config";
 import { ThemeBootScript } from "@/scripts/theme-boot";
@@ -40,7 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
         <ThemeBootScript />
       </head>
       <body className={`${fontVars} min-h-screen antialiased`}>
-        <NextIntlClientProvider>
+        <IntlRuntimeProvider>
           <TooltipProvider>
             <PreferencesStoreProvider
               themeMode={theme_mode}
@@ -53,7 +53,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
               <Toaster />
             </PreferencesStoreProvider>
           </TooltipProvider>
-        </NextIntlClientProvider>
+        </IntlRuntimeProvider>
       </body>
     </html>
   );

@@ -72,10 +72,10 @@ func (s *Server) scopeSentryClient(ctx context.Context) (*mcphttp.Client, error)
 		return nil, err
 	}
 	if m == nil {
-		return nil, fmt.Errorf(errSSDataSourceMissingFmt, scopeSentryMCPName)
+		return nil, fmt.Errorf(trMsg(errSSDataSourceMissingFmt), scopeSentryMCPName)
 	}
 	if m.URL == "" {
-		return nil, fmt.Errorf(errSSDataSourceNoURLFmt, scopeSentryMCPName)
+		return nil, fmt.Errorf(trMsg(errSSDataSourceNoURLFmt), scopeSentryMCPName)
 	}
 	return mcphttp.New(ctx, m.Name, m.URL, jsonStrMap(m.Env), m.Insecure)
 }
@@ -356,7 +356,7 @@ func (s *Server) syncSSRun(w http.ResponseWriter, r *http.Request) {
 			}
 			items, truncated, ferr := s.ssPageAll(ctx, cl, ssType, filter, pageSize)
 			if ferr != nil {
-				errs = append(errs, fmt.Sprintf(errSSFetchFmt, at, target, ferr))
+				errs = append(errs, fmt.Sprintf(trMsg(errSSFetchFmt), at, target, ferr))
 				continue
 			}
 			if truncated {

@@ -4,6 +4,8 @@
 
 **An autonomous penetration-testing system driven by LLM multi-agents** (Go backend + Next.js frontend)
 
+The UI and generated output default to Korean, and **can be switched to English, Chinese or Spanish in Settings (System → Settings → Display language).** Changing the language also changes the language of agent-generated reports, summaries and chat replies.
+
 [한국어](README.md) · [中文](README.zh.md) · English
 
 [![ci](https://github.com/jiwoochris/artex-ko/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jiwoochris/artex-ko/actions/workflows/ci.yml) [![detections](https://github.com/jiwoochris/artex-ko/actions/workflows/detections.yml/badge.svg?branch=main)](https://github.com/jiwoochris/artex-ko/actions/workflows/detections.yml) [![web](https://github.com/jiwoochris/artex-ko/actions/workflows/web.yml/badge.svg?branch=main)](https://github.com/jiwoochris/artex-ko/actions/workflows/web.yml) [![license: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
