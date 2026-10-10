@@ -53,6 +53,8 @@ install_docker(){
     die "Docker Compose(전부 Docker) 경로는 현재 상류 이미지를 받을 수 없어 사용할 수 없습니다"
   fi
   ok "기동을 완료했습니다 → http://localhost:8787"
+  info "첫 접속 시 /setup 화면에서 \"설정 토큰\"을 입력해야 관리자 비밀번호를 만들 수 있습니다"
+  info "설정 토큰 확인: docker compose logs artex | grep '설정 토큰'   (기본 게시 주소는 127.0.0.1 이며 .env 의 ARTEX_BIND 로 바꿉니다)"
   info "로그 확인: docker compose logs -f artex"
 }
 
@@ -110,7 +112,7 @@ JSON
   fi
   ok "컴파일을 완료했습니다 → ./artex"
 
-  info "기동합니다… (Ctrl-C 로 종료)"
+  info "기동합니다… (Ctrl-C 로 종료). 기본 바인딩은 127.0.0.1:8787 이며, 첫 접속 시 아래 로그의 [auth] 설정 토큰을 /setup 화면에 입력하십시오"
   ./artex
 }
 
