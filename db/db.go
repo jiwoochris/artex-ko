@@ -22,6 +22,12 @@ var schemaSQL string
 
 const schemaMigrationLockKey int64 = 7337741001
 
+// maxOpenConns 는 연결 풀 상한이다(`Open` 참조). PostgreSQL 기본 max_connections(100)
+// 보다는 충분히 낮고, 애플리케이션 자신의 중첩 커넥션 깊이(기동기의 스키마 advisory
+// lock 이 커넥션 하나를 쥔 채 seedBuiltins 가 다른 커넥션을 잡는다)보다는 충분히 높아
+// 자기 잠금에 빠지지 않는다.
+const maxOpenConns = 32
+
 var schemaDeadlockRetryDelays = [...]time.Duration{
 	100 * time.Millisecond,
 	250 * time.Millisecond,
@@ -133,6 +139,17 @@ func Open(dsn string) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	// database/sql 은 기본적으로 열 수 있는 커넥션 수를 제한하지 않는다. 풀에 유휴
+	// 커넥션이 없으면 무조건 새로 열어 PostgreSQL 의 max_connections(기본 100)까지
+	// 밀어붙이고 나서야 거절당하므로, 부하가 높을 때 쿼리는 "읽을 값이 없음"이 아니라
+	// `FATAL: sorry, too many clients already` 라는 **오류**를 받는다. 상한을 두면
+	// 초과분은 유휴 커넥션을 기다리게 되어, 같은 부하가 오류 대신 느려짐으로 나타난다.
+	// maxOpenConns 는 psql·reset-password.sh·공존하는 다른 인스턴스를 위해 여유를
+	// 남겨야 하며, max_connections 를 낮춰 운영한다면 이 값도 함께 낮춰야 한다.
+	sqlDB.SetMaxOpenConns(maxOpenConns)
+	sqlDB.SetMaxIdleConns(maxOpenConns)
+	sqlDB.SetConnMaxLifetime(30 * time.Minute)
+	sqlDB.SetConnMaxIdleTime(5 * time.Minute)
 	if err := sqlDB.Ping(); err != nil {
 		sqlDB.Close()
 		return nil, fmt.Errorf("ping postgres (%s): %w", config.Redact(dsn), err)

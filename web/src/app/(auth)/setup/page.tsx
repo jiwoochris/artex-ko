@@ -21,6 +21,10 @@ export default function SetupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
+  // 초기화 상태를 확인하지 못했을 때 "미초기화" 로 단정하면 안 된다 — 이미 비밀번호가
+  // 설정된 인스턴스에도 초기화 폼을 내주게 되고, 사용자가 그대로 채우면 원래 비밀번호가
+  // 덮인다. 백엔드도 읽기 실패를 503 으로 돌려주므로, 여기서는 초기화 입구를 닫는다.
+  const [unavailable, setUnavailable] = useState(false);
 
   useEffect(() => {
     api
@@ -28,7 +32,10 @@ export default function SetupPage() {
       .then(({ initialized }) => {
         if (initialized) router.replace("/login");
       })
-      .catch(() => setError(t("setup.errorBackend")))
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : t("setup.errorBackend"));
+        setUnavailable(true);
+      })
       .finally(() => setChecking(false));
   }, [router, t]);
 
@@ -78,51 +85,68 @@ export default function SetupPage() {
       <div className="flex w-full items-center justify-center bg-background p-8 lg:w-2/3">
         <div className="w-full max-w-md space-y-10 py-24 lg:py-32">
           <div className="space-y-4 text-center">
-            <h2 className="text-2xl font-medium tracking-tight">{t("setup.title")}</h2>
-            <p className="mx-auto max-w-xl text-muted-foreground">{t("setup.desc")}</p>
+            <h2 className="text-2xl font-medium tracking-tight">
+              {unavailable ? t("setup.unavailableTitle") : t("setup.title")}
+            </h2>
+            <p className="mx-auto max-w-xl text-muted-foreground">
+              {unavailable ? t("setup.unavailableDesc") : t("setup.desc")}
+            </p>
           </div>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="setup-token">{t("setup.setupToken")}</Label>
-              <Input
-                id="setup-token"
-                type="text"
-                value={setupToken}
-                onChange={(e) => setSetupToken(e.target.value)}
-                placeholder={t("setup.setupTokenPlaceholder")}
-                autoFocus
-                autoComplete="off"
-                spellCheck={false}
-              />
-              <p className="text-xs text-muted-foreground">{t("setup.setupTokenHelp")}</p>
+          {unavailable ? (
+            <div className="flex flex-col gap-4">
+              {error && <p className="text-center text-sm text-destructive">{error}</p>}
+              <Button type="button" className="w-full" onClick={() => window.location.reload()}>
+                {t("setup.retry")}
+              </Button>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="password">{t("setup.newPassword")}</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={t("setup.newPasswordPlaceholder")}
-                autoComplete="new-password"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="confirm">{t("setup.confirmPassword")}</Label>
-              <Input
-                id="confirm"
-                type="password"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                placeholder={t("setup.confirmPlaceholder")}
-                autoComplete="new-password"
-              />
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={loading || !setupToken.trim() || !password || !confirm}>
-              {loading ? t("setup.submitting") : t("setup.submit")}
-            </Button>
-          </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="setup-token">{t("setup.setupToken")}</Label>
+                <Input
+                  id="setup-token"
+                  type="text"
+                  value={setupToken}
+                  onChange={(e) => setSetupToken(e.target.value)}
+                  placeholder={t("setup.setupTokenPlaceholder")}
+                  autoFocus
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+                <p className="text-xs text-muted-foreground">{t("setup.setupTokenHelp")}</p>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="password">{t("setup.newPassword")}</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={t("setup.newPasswordPlaceholder")}
+                  autoComplete="new-password"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="confirm">{t("setup.confirmPassword")}</Label>
+                <Input
+                  id="confirm"
+                  type="password"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  placeholder={t("setup.confirmPlaceholder")}
+                  autoComplete="new-password"
+                />
+              </div>
+              {error && <p className="text-sm text-destructive">{error}</p>}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loading || !setupToken.trim() || !password || !confirm}
+              >
+                {loading ? t("setup.submitting") : t("setup.submit")}
+              </Button>
+            </form>
+          )}
         </div>
       </div>
     </div>

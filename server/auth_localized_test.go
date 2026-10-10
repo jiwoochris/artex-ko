@@ -56,21 +56,23 @@ func TestRequireAuthMessagesLocalized(t *testing.T) {
 // 없는(= pg 를 거치는) 핸들러의 문구까지 DB 없이 회귀를 잡는다.
 func TestAuthErrorConstantsLocalized(t *testing.T) {
 	consts := map[string]string{
-		"authErrUnauthorized":         authErrUnauthorized,
-		"authErrTokenInvalid":         authErrTokenInvalid,
-		"authErrPasswordAlreadySet":   authErrPasswordAlreadySet,
-		"authErrPasswordEmpty":        authErrPasswordEmpty,
-		"authErrNewPasswordEmpty":     authErrNewPasswordEmpty,
-		"authErrPasswordHash":         authErrPasswordHash,
-		"authErrSaveFailedPrefix":     authErrSaveFailedPrefix,
-		"authErrTokenGen":             authErrTokenGen,
-		"authErrBadRequest":           authErrBadRequest,
-		"authErrPasswordNotInit":      authErrPasswordNotInit,
-		"authErrCurrentPasswordWrong": authErrCurrentPasswordWrong,
-		"authErrBadCredential":        authErrBadCredential,
-		"authErrPasswordTooShort":     authErrPasswordTooShort,
-		"authErrSetupTokenInvalid":    authErrSetupTokenInvalid,
-		"authErrTooManyAttempts":      authErrTooManyAttempts,
+		"authErrUnauthorized":          authErrUnauthorized,
+		"authErrTokenInvalid":          authErrTokenInvalid,
+		"authErrPasswordAlreadySet":    authErrPasswordAlreadySet,
+		"authErrPasswordEmpty":         authErrPasswordEmpty,
+		"authErrNewPasswordEmpty":      authErrNewPasswordEmpty,
+		"authErrPasswordHash":          authErrPasswordHash,
+		"authErrSaveFailedPrefix":      authErrSaveFailedPrefix,
+		"authErrTokenGen":              authErrTokenGen,
+		"authErrBadRequest":            authErrBadRequest,
+		"authErrPasswordNotInit":       authErrPasswordNotInit,
+		"authErrCurrentPasswordWrong":  authErrCurrentPasswordWrong,
+		"authErrBadCredential":         authErrBadCredential,
+		"authErrPasswordTooShort":      authErrPasswordTooShort,
+		"authErrSetupTokenInvalid":     authErrSetupTokenInvalid,
+		"authErrTooManyAttempts":       authErrTooManyAttempts,
+		"authErrDataSourceUnavailable": authErrDataSourceUnavailable,
+		"authErrPasswordTooLong":       authErrPasswordTooLong,
 	}
 	for name, msg := range consts {
 		assertKoreanError(t, name, msg)

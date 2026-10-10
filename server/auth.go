@@ -36,7 +36,11 @@ const (
 	adminPasswordEnv = "ARTEX_ADMIN_PASSWORD"
 	// minPasswordLen mirrors the /setup screen's client-side rule, enforced server side.
 	minPasswordLen = 8
-	setupTokenLen  = 32
+	// maxPasswordBytes 는 bcrypt 의 하드 리밋이다: 72바이트를 넘기면
+	// GenerateFromPassword 가 ErrPasswordTooLong 을 돌려주므로, 뜻이 분명한 문구로
+	// 미리 막는 편이 낫다. 하한은 문자(룬) 수로, 상한은 바이트 수로 센다.
+	maxPasswordBytes = 72
+	setupTokenLen    = 32
 )
 
 // 인증 엔드포인트가 HTTP 응답으로 돌려주는 사용자 노출 문구다. 한국어 UI 에서 로그인·
@@ -59,7 +63,27 @@ const (
 	authErrBadCredential        = "사용자 이름 또는 비밀번호가 올바르지 않습니다"
 	authErrSetupTokenInvalid    = "설정 토큰이 올바르지 않습니다. 서버 콘솔 로그의 [auth] 줄에 출력된 설정 토큰을 입력해 주세요"
 	authErrTooManyAttempts      = "실패한 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요"
+
+	// 비밀번호 관련 읽기가 실패했을 때 돌려주는 공통 문구다. 이 핸들러들은 "읽지
+	// 못함" 을 "설정되지 않음" 으로 취급하면 안 된다: 그렇게 취급하면 일시적 읽기
+	// 실패가 곧 "미설정" 이 되어 초기화 입구가 열린다(설정 토큰을 쥔 쪽과 겹치거나,
+	// bootstrapAuth 의 ARTEX_ADMIN_PASSWORD 초기화가 개입할 때 성립한다).
+	authErrDataSourceUnavailable = "데이터 소스를 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해 주세요"
+	authErrPasswordTooLong       = "비밀번호는 72바이트를 넘을 수 없습니다"
 )
+
+// validatePassword 는 서버측 비밀번호 정책을 검사한다. 통과하면 빈 문자열, 그렇지 않으면
+// 사용자에게 그대로 보여줄 수 있는 이유를 돌려준다. 검증을 프런트에만 두는 것은 두지 않은
+// 것과 같아서(API 를 직접 호출하면 그대로 우회된다) 서버에서도 강제한다.
+func validatePassword(pw string) string {
+	if utf8.RuneCountInString(pw) < minPasswordLen {
+		return authErrPasswordTooShort
+	}
+	if len(pw) > maxPasswordBytes {
+		return authErrPasswordTooLong
+	}
+	return ""
+}
 
 // loadOrCreateJWTKey reads the 32-byte signing key from keyDir/jwt.key. keyDir is
 // the project base dir (next to the executable), NOT the browsable workspace root
@@ -144,12 +168,20 @@ func (s *Server) signingKey(hash string) []byte {
 	return m.Sum(nil)
 }
 
-// readPassHash fetches the stored bcrypt hash ("" when unset / no DB).
-func (s *Server) readPassHash() string {
+// readPassHashErr fetches the stored bcrypt hash. 읽기 실패를 error 로 돌려준다 — 빈
+// 문자열로 접어 버리면 "설정되지 않음" 과 구분되지 않는다(`readPassHash` 참조).
+func (s *Server) readPassHashErr() (string, error) {
 	if s.m == nil || s.m.pg == nil {
-		return ""
+		return "", nil
 	}
-	h, _, _ := s.m.pg.GetSetting(authPassKey)
+	h, _, err := s.m.pg.GetSetting(authPassKey)
+	return h, err
+}
+
+// readPassHash 는 오류를 보고할 수 없는 호출자용 얇은 래퍼다("" = 미설정 또는 읽기 실패).
+// 실패가 곧 거부로 이어지는 곳(토큰 검증·기동 점검)에서만 쓴다.
+func (s *Server) readPassHash() string {
+	h, _ := s.readPassHashErr()
 	return h
 }
 
@@ -180,11 +212,23 @@ func (s *Server) setPassHash(h string) {
 	s.authMu.Unlock()
 }
 
-// reloadPassHash re-reads the hash from the DB (the password may have been changed
-// outside this process by reset-password.sh) and refreshes the cache.
-func (s *Server) reloadPassHash() string {
-	h := s.readPassHash()
+// reloadPassHashErr re-reads the hash from the DB (the password may have been changed
+// outside this process by reset-password.sh) and refreshes the cache. 읽기 실패 시에는
+// error 를 돌려주고 **캐시를 건드리지 않는다**: 실패한 읽기의 빈 값을 캐시에 적으면
+// 일시적 장애가 "비밀번호 없음" 으로 굳어, 이미 설정된 인스턴스의 세션을 전부 끊고
+// 초기화 입구를 여는 셈이 된다.
+func (s *Server) reloadPassHashErr() (string, error) {
+	h, err := s.readPassHashErr()
+	if err != nil {
+		return "", err
+	}
 	s.setPassHash(h)
+	return h, nil
+}
+
+// reloadPassHash 는 오류를 보고할 수 없는 호출자용 래퍼다(읽기 실패는 "" 로 접힌다).
+func (s *Server) reloadPassHash() string {
+	h, _ := s.reloadPassHashErr()
 	return h
 }
 
@@ -212,7 +256,13 @@ func (s *Server) bootstrapAuth() {
 	if s.m == nil || s.m.pg == nil {
 		return
 	}
-	hash := s.reloadPassHash()
+	hash, err := s.reloadPassHashErr()
+	if err != nil {
+		// 읽기 실패를 "설정되지 않음" 으로 취급하면 아래 초기화가 이미 설정된 비밀번호를
+		// 덮어쓴다. 초기화도 설정 토큰 발급도 하지 않고 다음 기동으로 미룬다.
+		log.Printf("[auth] 기동 시 비밀번호 해시를 읽지 못했습니다: %v — 초기화를 미룹니다", err)
+		return
+	}
 	if hash != "" {
 		return
 	}
@@ -221,8 +271,14 @@ func (s *Server) bootstrapAuth() {
 			log.Printf("[auth] %s 가 %d자 미만이라 무시합니다. 설정 토큰 방식으로 초기화하세요", adminPasswordEnv, minPasswordLen)
 		} else if h, err := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost); err != nil {
 			log.Printf("[auth] %s 해시 생성 실패: %v", adminPasswordEnv, err)
-		} else if err := s.m.pg.SetSetting(authPassKey, string(h)); err != nil {
+		} else if inserted, err := s.m.pg.InsertSettingIfAbsent(authPassKey, string(h)); err != nil {
 			log.Printf("[auth] %s 저장 실패: %v", adminPasswordEnv, err)
+		} else if !inserted {
+			// 다른 프로세스(또는 이전 기동)가 먼저 설정했다: 기본키 제약이 지킨 기존
+			// 값을 채택하고, 환경 변수 값으로 덮어쓰지 않는다.
+			log.Printf("[auth] %s 를 적용하지 않았습니다: 관리자 비밀번호가 이미 설정되어 있습니다", adminPasswordEnv)
+			s.reloadPassHash()
+			return
 		} else {
 			s.setPassHash(string(h))
 			log.Printf("[auth] 환경 변수 %s 로 관리자 비밀번호를 초기화했습니다(사용자 이름 ARTEX)", adminPasswordEnv)
@@ -442,7 +498,13 @@ func (s *Server) authStatus(w http.ResponseWriter, r *http.Request) {
 	if pg == nil {
 		return
 	}
-	hash := s.reloadPassHash()
+	hash, err := s.reloadPassHashErr()
+	if err != nil {
+		// initialized:false 로 답하면 프런트가 사용자를 /setup 으로 보내 비밀번호를 다시
+		// 설정하게 만든다 — 데이터베이스 장애를 "미설정" 으로 포장하는 셈이다.
+		writeErr(w, 503, authErrDataSourceUnavailable)
+		return
+	}
 	if hash == "" {
 		s.currentSetupToken()
 	}
@@ -475,7 +537,12 @@ func (s *Server) authInit(w http.ResponseWriter, r *http.Request) {
 	// pass the "not yet set" check.
 	s.initMu.Lock()
 	defer s.initMu.Unlock()
-	if existing := s.reloadPassHash(); existing != "" {
+	existing, err := s.reloadPassHashErr()
+	if err != nil {
+		writeErr(w, 503, authErrDataSourceUnavailable)
+		return
+	}
+	if existing != "" {
 		writeErr(w, 403, authErrPasswordAlreadySet)
 		return
 	}
@@ -489,8 +556,8 @@ func (s *Server) authInit(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, authErrPasswordEmpty)
 		return
 	}
-	if utf8.RuneCountInString(req.Password) < minPasswordLen {
-		writeErr(w, 400, authErrPasswordTooShort)
+	if msg := validatePassword(req.Password); msg != "" {
+		writeErr(w, 400, msg)
 		return
 	}
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -498,8 +565,16 @@ func (s *Server) authInit(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 500, authErrPasswordHash)
 		return
 	}
-	if err := pg.SetSetting(authPassKey, string(hash)); err != nil {
+	// upsert 대신 INSERT ... ON CONFLICT DO NOTHING 을 쓴다: 위의 읽기 검사는 빠른 실패
+	// 경로일 뿐이고, "최초 1회만 설정" 의 실제 보장은 기본키 제약에 있다. 같은 프로세스
+	// 안의 경쟁은 initMu 가, 다른 프로세스(재시작·다중 인스턴스)의 경쟁은 이 제약이 막는다.
+	inserted, err := pg.InsertSettingIfAbsent(authPassKey, string(hash))
+	if err != nil {
 		writeErr(w, 500, authErrSaveFailedPrefix+err.Error())
+		return
+	}
+	if !inserted {
+		writeErr(w, 403, authErrPasswordAlreadySet)
 		return
 	}
 	s.setPassHash(string(hash))
@@ -545,11 +620,15 @@ func (s *Server) authChangePassword(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, authErrNewPasswordEmpty)
 		return
 	}
-	if utf8.RuneCountInString(req.NewPassword) < minPasswordLen {
-		writeErr(w, 400, authErrPasswordTooShort)
+	if msg := validatePassword(req.NewPassword); msg != "" {
+		writeErr(w, 400, msg)
 		return
 	}
-	hash, ok, _ := pg.GetSetting(authPassKey)
+	hash, ok, err := pg.GetSetting(authPassKey)
+	if err != nil {
+		writeErr(w, 503, authErrDataSourceUnavailable)
+		return
+	}
 	if !ok || hash == "" {
 		writeErr(w, 403, authErrPasswordNotInit)
 		return
@@ -599,7 +678,11 @@ func (s *Server) authLogin(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, authErrBadRequest)
 		return
 	}
-	hash, ok, _ := pg.GetSetting(authPassKey)
+	hash, ok, err := pg.GetSetting(authPassKey)
+	if err != nil {
+		writeErr(w, 503, authErrDataSourceUnavailable)
+		return
+	}
 	if !ok || hash == "" {
 		writeErr(w, 403, authErrPasswordNotInit)
 		return
