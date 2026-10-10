@@ -32,14 +32,14 @@ const MOCK_LOGS: LogLine[] = [
     ts: "2026-07-26T03:56:10Z",
     level: "info",
     tag: "planner",
-    text: "task t-acme-web: 계획 3라운드, 의도 i-4 생성",
+    text: "task t-acme-web: 3차 계획 수립, 실행 의도 i-4 생성",
   },
   {
     seq: 4,
     ts: "2026-07-26T03:57:00Z",
     level: "warn",
     tag: "guard",
-    text: "block bash: 범위 이탈, out.evil.example 는 scope 밖",
+    text: "block bash: 허용 범위 밖의 대상 out.evil.example이 scope에 포함되지 않음",
   },
   {
     seq: 5,
@@ -53,7 +53,7 @@ const MOCK_LOGS: LogLine[] = [
     ts: "2026-07-26T03:58:20Z",
     level: "error",
     tag: "work#3",
-    text: "intercept: mysqldump 파괴적 규칙 적중, 사람 승인 대기",
+    text: "intercept: mysqldump가 파괴적 작업 규칙에 해당하여 수동 승인 대기 중",
   },
 ];
 
