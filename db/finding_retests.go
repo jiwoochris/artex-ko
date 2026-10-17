@@ -28,22 +28,29 @@ var ErrRetestNotRunning = errors.New("本次复测已结束或尚未开始，请
 // FindingRetest is an immutable historical test once its conversation turn ends.
 // Snapshot is only loaded for the agent, never sent with the history list.
 type FindingRetest struct {
-	ID             int64           `json:"id"`
-	FindingID      int64           `json:"finding_id"`
-	ConversationID *int64          `json:"conversation_id"`
-	Status         string          `json:"status"`
-	Verdict        string          `json:"verdict"`
-	Notes          string          `json:"notes"`
-	Snapshot       json.RawMessage `json:"snapshot,omitempty"`
-	Summary        string          `json:"summary"`
-	Evidence       string          `json:"evidence"`
-	Error          string          `json:"error"`
-	CreatedAt      time.Time       `json:"created_at"`
-	StartedAt      *time.Time      `json:"started_at"`
-	FinishedAt     *time.Time      `json:"finished_at"`
+	ID                    int64           `json:"id"`
+	FindingID             int64           `json:"finding_id"`
+	ConversationID        *int64          `json:"conversation_id"`
+	Status                string          `json:"status"`
+	Verdict               string          `json:"verdict"`
+	Notes                 string          `json:"notes"`
+	Snapshot              json.RawMessage `json:"snapshot,omitempty"`
+	Summary               string          `json:"summary"`
+	Evidence              string          `json:"evidence"`
+	Error                 string          `json:"error"`
+	CreatedAt             time.Time       `json:"created_at"`
+	StartedAt             *time.Time      `json:"started_at"`
+	FinishedAt            *time.Time      `json:"finished_at"`
+	AssuranceTaskID       int64           `json:"assurance_task_id,omitempty,string"`
+	AssurancePlanID       int64           `json:"assurance_plan_id,omitempty,string"`
+	AssuranceConclusionID string          `json:"assurance_conclusion_id,omitempty"`
+	AssuranceGeneration   int64           `json:"assurance_generation,omitempty"`
+	AssuranceFingerprint  string          `json:"-"`
+	AssuranceStale        bool            `json:"assurance_stale"`
 }
 
-const retestCols = `id, finding_id, conversation_id, status, verdict, notes, summary, evidence, error, created_at, started_at, finished_at`
+const retestCols = `id, finding_id, conversation_id, status, verdict, notes, summary, evidence, error, created_at, started_at, finished_at,
+assurance_task_id, assurance_plan_id, assurance_conclusion_id, assurance_generation, assurance_fingerprint, assurance_stale`
 
 // ActiveFindingRetest is the small status payload polled by the findings list.
 // Finding IDs use the same string representation as the findings API.
@@ -75,7 +82,8 @@ func (d *DB) ListActiveFindingRetests(ctx context.Context) ([]ActiveFindingRetes
 func scanRetest(row interface{ Scan(...any) error }) (*FindingRetest, error) {
 	r := &FindingRetest{}
 	err := row.Scan(&r.ID, &r.FindingID, &r.ConversationID, &r.Status, &r.Verdict, &r.Notes,
-		&r.Summary, &r.Evidence, &r.Error, &r.CreatedAt, &r.StartedAt, &r.FinishedAt)
+		&r.Summary, &r.Evidence, &r.Error, &r.CreatedAt, &r.StartedAt, &r.FinishedAt,
+		&r.AssuranceTaskID, &r.AssurancePlanID, &r.AssuranceConclusionID, &r.AssuranceGeneration, &r.AssuranceFingerprint, &r.AssuranceStale)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
@@ -91,9 +99,34 @@ func (d *DB) CreateFindingRetest(ctx context.Context, findingID int64, notes str
 		return nil, nil, false, err
 	}
 	defer tx.Rollback()
+	// Coordinate with archival before locking the finding. Both archive and
+	// assurance writes use task -> finding order, so an active run cannot be
+	// created after an archive has captured the task's terminal history.
+	var taskID sql.NullInt64
+	if err := tx.QueryRowContext(ctx, `SELECT task_id FROM findings WHERE id=$1`, findingID).Scan(&taskID); err != nil {
+		return nil, nil, false, err
+	}
+	if taskID.Valid && taskID.Int64 > 0 {
+		if err := LockTaskEvidenceTx(tx, taskID.Int64); err != nil {
+			return nil, nil, false, err
+		}
+	}
+	r, c, created, err := createFindingRetestTx(ctx, tx, findingID, notes)
+	if err != nil {
+		return nil, nil, false, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, nil, false, err
+	}
+	return r, c, created, nil
+}
+
+// Shared by manual retests and snapshot-bound assurance dispatch. Callers own
+// the transaction, so a plan binding cannot be separated from conversation creation.
+func createFindingRetestTx(ctx context.Context, tx *sql.Tx, findingID int64, notes string) (*FindingRetest, *Conversation, bool, error) {
 	var title string
 	var snapshot []byte
-	err = tx.QueryRowContext(ctx, `SELECT COALESCE(NULLIF(f.name,''), NULLIF(f.vulnclass,''), '未分类'),
+	err := tx.QueryRowContext(ctx, `SELECT COALESCE(NULLIF(f.name,''), NULLIF(f.vulnclass,''), '未分类'),
 	jsonb_build_object('finding', to_jsonb(f),
 	 'assets', COALESCE((SELECT jsonb_agg(to_jsonb(a)) FROM assets a WHERE f.asset_ids @> to_jsonb(ARRAY[a.id])), '[]'::jsonb),
 	 'constraints', COALESCE((SELECT jsonb_agg(to_jsonb(c)) FROM task_constraints c JOIN tasks t ON t.exploration_id=c.exploration_id WHERE t.id=f.task_id), '[]'::jsonb))
@@ -126,9 +159,6 @@ func (d *DB) CreateFindingRetest(ctx context.Context, findingID int64, notes str
 	_, err = tx.ExecContext(ctx, `INSERT INTO conversation_activities(conversation_id,worker,kind,summary,detail) VALUES ($1,$2,'user',$3,$4)`,
 		c.ID, FindingRetestAgentKey, fmt.Sprintf("请复测漏洞 #%d", findingID), msg)
 	if err != nil {
-		return nil, nil, false, err
-	}
-	if err = tx.Commit(); err != nil {
 		return nil, nil, false, err
 	}
 	return r, &c, true, nil
@@ -181,6 +211,39 @@ func (d *DB) FailPendingRetestForConversation(conversationID int64, reason strin
 }
 
 func (d *DB) StartFindingRetest(ctx context.Context, id int64) (bool, error) {
+	r, err := scanRetest(d.QueryRowContext(ctx, `SELECT `+retestCols+` FROM finding_retests WHERE id=$1`, id))
+	if err != nil || r == nil {
+		return false, err
+	}
+	if r.AssuranceTaskID > 0 {
+		tx, err := d.BeginTx(ctx, nil)
+		if err != nil {
+			return false, err
+		}
+		defer tx.Rollback()
+		snapshot, err := AssuranceSnapshotTx(ctx, tx, r.AssuranceTaskID, r.AssuranceGeneration)
+		stale := errors.Is(err, ErrAssuranceConflict) || errors.Is(err, ErrAssuranceNotFound) || errors.Is(err, ErrTaskArchiveState)
+		if err != nil && !stale {
+			return false, err
+		}
+		stale = stale || snapshot == nil || snapshot.Fingerprint != r.AssuranceFingerprint
+		if stale {
+			_, err = tx.ExecContext(ctx, `UPDATE finding_retests SET status='stopped',assurance_stale=true,error='Target or evidence changed before retest started; create a new plan',finished_at=now() WHERE id=$1 AND status='pending'`, id)
+			if err != nil {
+				return false, err
+			}
+			return false, tx.Commit()
+		}
+		res, err := tx.ExecContext(ctx, `UPDATE finding_retests SET status='running',started_at=now() WHERE id=$1 AND status='pending'`, id)
+		if err != nil {
+			return false, err
+		}
+		n, err := res.RowsAffected()
+		if err != nil {
+			return false, err
+		}
+		return n == 1, tx.Commit()
+	}
 	res, err := d.ExecContext(ctx, `UPDATE finding_retests SET status='running', started_at=now() WHERE id=$1 AND status='pending'`, id)
 	if err != nil {
 		return false, err
@@ -227,6 +290,28 @@ func (d *DB) FinishFindingRetest(id int64, status, reason string) error {
 		return err
 	}
 	defer tx.Rollback()
+	// Planned runs lock their task before the finding, matching assurance writes.
+	// Preserve this binding even if the task was deleted so completion cannot fall
+	// back to a manual retest and accidentally change the retained finding's triage.
+	var taskID, generation int64
+	var fingerprint string
+	err = tx.QueryRow(`SELECT assurance_task_id, assurance_generation, assurance_fingerprint FROM finding_retests WHERE id=$1`, id).Scan(&taskID, &generation, &fingerprint)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	stale := false
+	if taskID > 0 {
+		var lockedID int64
+		err := tx.QueryRow(`SELECT id FROM tasks WHERE id=$1 FOR UPDATE`, taskID).Scan(&lockedID)
+		if errors.Is(err, sql.ErrNoRows) {
+			stale = true
+		} else if err != nil {
+			return err
+		}
+	}
 	// Lock the finding before the retest, matching creation and cascading deletion.
 	var findingID int64
 	err = tx.QueryRow(`SELECT f.id FROM findings f WHERE f.id=(SELECT finding_id FROM finding_retests WHERE id=$1) FOR UPDATE OF f`, id).Scan(&findingID)
@@ -236,18 +321,31 @@ func (d *DB) FinishFindingRetest(id int64, status, reason string) error {
 	if err != nil {
 		return err
 	}
+	if taskID > 0 && !stale {
+		snapshot, err := AssuranceSnapshotTx(context.Background(), tx, taskID, generation)
+		if errors.Is(err, ErrAssuranceConflict) || errors.Is(err, ErrAssuranceNotFound) || errors.Is(err, ErrTaskArchiveState) {
+			stale = true
+		} else if err != nil {
+			return err
+		} else {
+			stale = snapshot == nil || snapshot.Fingerprint != fingerprint
+		}
+	}
+	if stale && status == "completed" {
+		reason = "Target or evidence changed during retest; this result is historical and did not update finding status"
+	}
 	var finalStatus, verdict string
 	err = tx.QueryRow(`UPDATE finding_retests SET
 	status=CASE WHEN $2='completed' AND verdict='' THEN 'failed' ELSE $2 END,
 	error=CASE WHEN $2='completed' AND verdict='' THEN '`+retestNoConclusionReason+`' ELSE $3 END,
-	finished_at=now() WHERE id=$1 AND status IN ('pending','running') RETURNING status,verdict`, id, status, reason).Scan(&finalStatus, &verdict)
+	finished_at=now(), assurance_stale=$4 WHERE id=$1 AND status IN ('pending','running') RETURNING status,verdict`, id, status, reason, stale).Scan(&finalStatus, &verdict)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil // A replay must not overwrite a later manual triage decision.
 	}
 	if err != nil {
 		return err
 	}
-	if finalStatus == "completed" && verdict == "fixed" {
+	if finalStatus == "completed" && verdict == "fixed" && !stale {
 		// 走带通知的版本，与人工在详情页改状态共用同一套语义。
 		//
 		// 此前这里是裸的 UPDATE：复测判「已修复」时状态确实变了，但配了
@@ -258,6 +356,15 @@ func (d *DB) FinishFindingRetest(id int64, status, reason string) error {
 		// tx.QueryRow/tx.Exec），没有可传递的取消信号，硬加一个 ctx 参数会
 		// 牵动 server 侧调用点与多处测试，超出本次改动的范围。
 		if _, _, _, _, err := SetFindingStatusTx(context.Background(), tx, findingID, FindingFixed); err != nil {
+			return err
+		}
+	}
+	if taskID > 0 && finalStatus == "completed" && !stale && (verdict == "fixed" || verdict == "reproduced") {
+		var cid string
+		if err := tx.QueryRow(`SELECT assurance_conclusion_id FROM finding_retests WHERE id=$1`, id).Scan(&cid); err != nil {
+			return err
+		}
+		if err := AcceptAssuranceRetestTx(context.Background(), tx, taskID, cid, generation, id, verdict); err != nil {
 			return err
 		}
 	}

@@ -721,6 +721,11 @@ export interface ActiveFindingRetest {
 }
 
 export interface FindingRetest {
+  assurance_task_id?: string;
+  assurance_plan_id?: string;
+  assurance_conclusion_id?: string;
+  assurance_generation?: number;
+  assurance_stale?: boolean;
   id: number;
   finding_id: number;
   conversation_id: number | null;

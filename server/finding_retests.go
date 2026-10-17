@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"slices"
-	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -102,32 +101,7 @@ func (s *Server) startFindingRetest(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 404, "finding not found")
 		return
 	}
-	a, err := pg.GetAgentByKey(db.FindingRetestAgentKey)
-	if err != nil {
-		writeErr(w, 500, err.Error())
-		return
-	}
-	if a == nil || !a.Enabled {
-		writeErr(w, 409, errFindingRetestAgentMissing)
-		return
-	}
-	for _, key := range []string{"get_finding_retest_context", "record_finding_retest_result"} {
-		t, err := pg.GetTool(key)
-		if err != nil {
-			writeErr(w, 500, err.Error())
-			return
-		}
-		if t == nil || !t.Enabled || !slices.Contains(t.Agents, a.Key) {
-			writeErr(w, 409, errFindingRetestToolRequired+key)
-			return
-		}
-	}
-	if s.resolveChatAgent(&db.Conversation{AgentKey: a.Key}) == nil {
-		writeErr(w, 503, s.chatUnavailableReason())
-		return
-	}
-	if s.ctx.Err() != nil {
-		writeErr(w, 503, errFindingRetestServiceStopping)
+	if !s.findingRetestReady(w, r) {
 		return
 	}
 	retest, conv, created, err := pg.CreateFindingRetest(r.Context(), id, req.Notes)
@@ -135,10 +109,51 @@ func (s *Server) startFindingRetest(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 404, "finding not found")
 		return
 	}
+	if errors.Is(err, db.ErrTaskArchiveState) {
+		writeErr(w, 409, "task is archived or being archived")
+		return
+	}
 	if err != nil {
 		writeErr(w, 500, err.Error())
 		return
 	}
+	s.respondFindingRetest(w, retest, conv, created)
+}
+
+func (s *Server) findingRetestReady(w http.ResponseWriter, r *http.Request) bool {
+	pg := s.m.pg
+	a, err := pg.GetAgentByKey(db.FindingRetestAgentKey)
+	if err != nil {
+		writeErr(w, 500, err.Error())
+		return false
+	}
+	if a == nil || !a.Enabled {
+		writeErr(w, 409, errFindingRetestAgentMissing)
+		return false
+	}
+	for _, key := range []string{"get_finding_retest_context", "record_finding_retest_result"} {
+		t, err := pg.GetTool(key)
+		if err != nil {
+			writeErr(w, 500, err.Error())
+			return false
+		}
+		if t == nil || !t.Enabled || !slices.Contains(t.Agents, a.Key) {
+			writeErr(w, 409, errFindingRetestToolRequired+key)
+			return false
+		}
+	}
+	if s.resolveChatAgent(&db.Conversation{AgentKey: a.Key}) == nil {
+		writeErr(w, 503, s.chatUnavailableReason())
+		return false
+	}
+	if s.ctx.Err() != nil {
+		writeErr(w, 503, errFindingRetestServiceStopping)
+		return false
+	}
+	return true
+}
+
+func (s *Server) respondFindingRetest(w http.ResponseWriter, retest *db.FindingRetest, conv *db.Conversation, created bool) {
 	if created {
 		busyKey := s.convBusyKey(conv.ID)
 		s.chatMu.Lock()
@@ -172,8 +187,12 @@ func (s *Server) findingRetestTools() []actool.CoreTool {
 					return actool.Errorf(err.Error()), nil
 				}
 				if f != nil && f.TaskID != nil {
-					if task, ok := s.m.Task(strconv.FormatInt(*f.TaskID, 10)); ok {
-						constraints, err = task.Store.ListConstraints()
+					task, err := s.m.pg.GetTask(*f.TaskID)
+					if err != nil {
+						return actool.Errorf(err.Error()), nil
+					}
+					if task != nil {
+						constraints, err = s.m.pg.Exploration(task.ExplorationID).ListConstraints()
 						if err != nil {
 							return actool.Errorf(err.Error()), nil
 						}

@@ -34,6 +34,7 @@ import type {
   TrafficEvidenceRole,
   TrafficEvidenceSnapshot,
 } from "../types";
+import { mockAssuranceRoute, syncMockAssuranceRetests } from "./assurance";
 import * as D from "./data";
 
 const delay = (ms = 120) => new Promise((r) => setTimeout(r, ms));
@@ -1030,6 +1031,7 @@ function parseBody(body?: BodyInit | null): Record<string, unknown> {
 
 export async function mockHandle<T>(method: string, rawPath: string, body?: BodyInit | null): Promise<T> {
   advanceMockRetests();
+  syncMockAssuranceRetests(mockRetests);
   await delay();
   const [path, qs] = rawPath.split("?");
   const q = new URLSearchParams(qs ?? "");
@@ -1040,6 +1042,21 @@ export async function mockHandle<T>(method: string, rawPath: string, body?: Body
 }
 
 function route(m: string, path: string, seg: string[], q: URLSearchParams, b: Record<string, unknown>): unknown {
+  const assurance = mockAssuranceRoute(
+    m,
+    seg,
+    b,
+    mockFindings,
+    (findingID, notes) => {
+      const retestPath = `/exploration/findings/${encodeURIComponent(findingID)}/retests`;
+      return route("POST", retestPath, retestPath.split("/").filter(Boolean), new URLSearchParams(), { notes }) as {
+        retest: FindingRetest;
+        created: boolean;
+      };
+    },
+    mockTasks.find((item) => item.id === seg[1])?.status ?? "unknown",
+  );
+  if (assurance !== undefined) return assurance;
   const task = q.get("task") ?? undefined;
 
   if (path === "/chat/mentions" && m === "GET") {

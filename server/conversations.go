@@ -577,6 +577,15 @@ func (s *Server) runConversationTurn(ctx context.Context, cancel context.CancelC
 			}
 			return
 		}
+		if r != nil && r.AssuranceTaskID > 0 {
+			task, err := s.m.pg.GetTask(r.AssuranceTaskID)
+			if err != nil || task == nil {
+				_ = s.m.pg.FailPendingRetestForConversation(c.ID, "The source task is no longer available")
+				return
+			}
+			ctx = agent.WithRunInfo(ctx, agent.RunInfo{TaskID: task.ID, ExplorationID: task.ExplorationID})
+			ctx = intercept.WithTaskContext(ctx, strconv.FormatInt(task.ID, 10), db.FindingRetestAgentKey, nil)
+		}
 		if r != nil && r.Status == "pending" {
 			defer func() {
 				if ctx.Err() != nil {

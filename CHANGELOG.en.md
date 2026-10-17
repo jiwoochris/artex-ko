@@ -10,7 +10,7 @@ The upstream ARTEX project's per-version release history (0.3.x and earlier) and
 
 ### Added
 
-- **Offline change-aware retest plans.** `artex -retest-plan FILE` compares explicit dependency snapshots, explains stale or unknown findings and negative coverage, and selects checks within an effort budget while retaining blocked and deferred work. Accepts stdin with `-`, requires no model or database, and does not execute retests. See the [planning guide](docs/change-aware-retesting.md).
+- **Task assurance and change-aware retesting.** A multilingual Assurance tab persists target snapshots, evidence-bound operator reviews, explicit coverage and explained retest plans. Selected findings use the existing retest workflow with atomic snapshot checks, idempotent dispatch and historical handling of stale results; complete records export as JSON. Archive format v4 preserves assurance and terminal retest history with active-run and compaction checks. The offline `artex -retest-plan FILE` mode remains available. See the [workspace guide](docs/task-assurance.md) and [offline planning guide](docs/change-aware-retesting.md).
 
 ### Localization (i18n)
 

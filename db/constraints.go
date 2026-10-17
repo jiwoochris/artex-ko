@@ -1,9 +1,27 @@
 package db
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 )
+
+// Serialize constraint edits with assurance snapshot publication. Explorations
+// without a task remain supported by the standalone graph API.
+func (s *ExplorationStore) constraintTx() (*sql.Tx, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	var taskID int64
+	err = tx.QueryRow(`SELECT id FROM tasks WHERE exploration_id=$1 FOR UPDATE`, s.expID).Scan(&taskID)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		tx.Rollback()
+		return nil, err
+	}
+	return tx, nil
+}
 
 // Constraint is one operator-authored operation constraint for a task: kind=allow
 // (permitted operations) or kind=deny (forbidden operations), free-text. Stored in
@@ -47,10 +65,18 @@ func (s *ExplorationStore) AddConstraint(kind, text, origin string) (int64, erro
 		origin = "system"
 	}
 	var id int64
-	err := s.db.QueryRow(`
+	tx, err := s.constraintTx()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+	err = tx.QueryRow(`
 INSERT INTO task_constraints(exploration_id, kind, text, origin)
 VALUES ($1, $2, $3, $4) RETURNING id`, s.expID, kind, text, origin).Scan(&id)
-	return id, err
+	if err != nil {
+		return 0, err
+	}
+	return id, tx.Commit()
 }
 
 // UpdateConstraint rewrites a constraint's kind + text; scoped to this exploration.
@@ -59,7 +85,12 @@ func (s *ExplorationStore) UpdateConstraint(id int64, kind, text string) error {
 	if kind != "allow" && kind != "deny" {
 		return fmt.Errorf("kind 必须是 allow 或 deny")
 	}
-	res, err := s.db.Exec(`
+	tx, err := s.constraintTx()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	res, err := tx.Exec(`
 UPDATE task_constraints SET kind=$1, text=$2, updated_at=now()
 WHERE id=$3 AND exploration_id=$4`, kind, text, id, s.expID)
 	if err != nil {
@@ -68,18 +99,23 @@ WHERE id=$3 AND exploration_id=$4`, kind, text, id, s.expID)
 	if n, _ := res.RowsAffected(); n == 0 {
 		return fmt.Errorf("约束不存在")
 	}
-	return nil
+	return tx.Commit()
 }
 
 // DeleteConstraint removes a constraint; scoped to this exploration. Returns an
 // error if no such constraint exists.
 func (s *ExplorationStore) DeleteConstraint(id int64) error {
-	res, err := s.db.Exec(`DELETE FROM task_constraints WHERE id=$1 AND exploration_id=$2`, id, s.expID)
+	tx, err := s.constraintTx()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	res, err := tx.Exec(`DELETE FROM task_constraints WHERE id=$1 AND exploration_id=$2`, id, s.expID)
 	if err != nil {
 		return err
 	}
 	if n, _ := res.RowsAffected(); n == 0 {
 		return fmt.Errorf("约束不存在")
 	}
-	return nil
+	return tx.Commit()
 }

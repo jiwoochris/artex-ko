@@ -1,5 +1,9 @@
 # Change-aware retest planning
 
+For the integrated task UI, persistent history and guarded retest execution, see
+[Task assurance and change-aware retesting](task-assurance.md). This guide covers
+the independent offline command and its input contract.
+
 When a component, permission policy or evidence bundle changes, previous security
 conclusions may need to be checked again. The offline planner follows explicitly
 supplied dependency relationships and explains which findings and negative
