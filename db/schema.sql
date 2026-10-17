@@ -1105,6 +1105,60 @@ ALTER TABLE findings ADD COLUMN IF NOT EXISTS report TEXT NOT NULL DEFAULT '';
 CREATE INDEX IF NOT EXISTS idx_findings_task ON findings(task_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_findings_time ON findings(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_findings_status ON findings(status, created_at DESC);
+
+-- Assurance is additive: operator assessments and scoped negative checks never
+-- replace the existing finding remediation status or agent reasoning graph.
+CREATE TABLE IF NOT EXISTS assurance_snapshots (
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    generation BIGINT NOT NULL CHECK (generation > 0),
+    fingerprint TEXT NOT NULL,
+    snapshot JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (task_id, generation)
+);
+CREATE TABLE IF NOT EXISTS assurance_conclusions (
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    conclusion_id TEXT NOT NULL,
+    mapping JSONB NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (task_id, conclusion_id)
+);
+CREATE TABLE IF NOT EXISTS assurance_conclusion_history (
+    id BIGSERIAL PRIMARY KEY,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    conclusion_id TEXT NOT NULL,
+    mapping JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_assurance_conclusion_history ON assurance_conclusion_history(task_id, conclusion_id, id);
+CREATE TABLE IF NOT EXISTS assurance_coverage_checks (
+    id BIGSERIAL PRIMARY KEY,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    check_data JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_assurance_coverage_task ON assurance_coverage_checks(task_id, id);
+CREATE TABLE IF NOT EXISTS assurance_reviews (
+    id BIGSERIAL PRIMARY KEY,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    conclusion_id TEXT NOT NULL,
+    generation BIGINT NOT NULL,
+    review JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    FOREIGN KEY (task_id, generation) REFERENCES assurance_snapshots(task_id, generation)
+);
+CREATE INDEX IF NOT EXISTS idx_assurance_review_conclusion ON assurance_reviews(task_id, conclusion_id, id DESC);
+CREATE TABLE IF NOT EXISTS assurance_plans (
+    id BIGSERIAL PRIMARY KEY,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    generation BIGINT NOT NULL,
+    fingerprint TEXT NOT NULL,
+    input JSONB NOT NULL,
+    result JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    FOREIGN KEY (task_id, generation) REFERENCES assurance_snapshots(task_id, generation)
+);
+CREATE INDEX IF NOT EXISTS idx_assurance_plans_task ON assurance_plans(task_id, id DESC);
 -- 「按资产」视图靠 asset_ids @> '[<id>]' 反查发现,没有这个 GIN 索引就是全表扫。
 CREATE INDEX IF NOT EXISTS idx_findings_asset_ids ON findings USING GIN(asset_ids jsonb_path_ops);
 
@@ -1125,6 +1179,14 @@ CREATE TABLE IF NOT EXISTS finding_retests (
     finished_at TIMESTAMPTZ
 );
 CREATE INDEX IF NOT EXISTS idx_finding_retests_history ON finding_retests(finding_id, id DESC);
+ALTER TABLE finding_retests ADD COLUMN IF NOT EXISTS assurance_task_id BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE finding_retests ADD COLUMN IF NOT EXISTS assurance_plan_id BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE finding_retests ADD COLUMN IF NOT EXISTS assurance_conclusion_id TEXT NOT NULL DEFAULT '';
+ALTER TABLE finding_retests ADD COLUMN IF NOT EXISTS assurance_generation BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE finding_retests ADD COLUMN IF NOT EXISTS assurance_fingerprint TEXT NOT NULL DEFAULT '';
+ALTER TABLE finding_retests ADD COLUMN IF NOT EXISTS assurance_stale BOOLEAN NOT NULL DEFAULT false;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_finding_retests_assurance_item
+    ON finding_retests(assurance_plan_id,assurance_conclusion_id) WHERE assurance_plan_id>0;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_finding_retests_active ON finding_retests(finding_id)
     WHERE status IN ('pending','running');
 

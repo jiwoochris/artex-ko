@@ -123,6 +123,22 @@ Upstream provides several methods: an install script (`./install.sh`), precompil
 
 ---
 
+## Evidence assurance and change-aware retesting
+
+Open a task's **Assurance** tab to track versioned target snapshots, evidence-bound
+finding reviews and explicit coverage checks. Record a change to create an
+explained, budgeted retest plan, then run selected findings through the existing
+retest agent. Stale results remain historical, blocked/deferred work stays visible,
+and the complete recorded history can be exported as JSON. See the
+[workflow, provenance model and current limits](docs/task-assurance.md).
+
+Use `./artex -retest-plan input.json` (or `-retest-plan -` for stdin) to compare
+explicit dependency snapshots and produce a prioritized JSON retest plan. Changed
+dependencies invalidate both findings and negative coverage results; incomplete
+mappings, missing prerequisites and deferred work remain visible. This mode needs
+no database or model and does not execute tests. See the
+[input format, synthetic example and limitations](docs/change-aware-retesting.md).
+
 ## Configuration
 
 **Database** (`config.json`, or override with the `ARTEX_PG_DSN` environment variable):

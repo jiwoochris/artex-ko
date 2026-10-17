@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	TaskArchiveFormatVersion       = 3
+	TaskArchiveFormatVersion       = 4
 	TaskArchiveLegacyFormatVersion = 1
 	TaskArchiveLLMRecordsPath      = "database/llm_records.ndjson"
 )
@@ -46,6 +46,7 @@ var (
 	ErrTaskArchiveState          = errors.New("task archive state does not allow this operation")
 	ErrTaskArchiveDeleteBlocked  = errors.New("task archive is required by another archive")
 	ErrTaskArchiveFormatMismatch = errors.New("task archive format is not supported")
+	ErrTaskArchiveRetestRunning  = errors.New("task has an active finding retest; stop it or wait for completion before archiving")
 )
 
 // TaskArchive is the compact PostgreSQL record retained while a task is cold.
@@ -127,6 +128,19 @@ type TaskArchiveSnapshot struct {
 	StreamedTables    map[string]string          `json:"streamed_tables,omitempty"`
 	DataCounts        map[string]int64           `json:"data_counts"`
 	AggregateStats    map[string]any             `json:"aggregate_stats"`
+}
+
+// Archive only terminal retest history. Creation takes the same task lock as
+// queue/completion, so a conversation cannot be admitted after archival starts.
+func checkTaskArchiveRetests(tx *sql.Tx, taskID int64) error {
+	var active bool
+	if err := tx.QueryRow(`SELECT EXISTS(SELECT 1 FROM finding_retests r JOIN findings f ON f.id=r.finding_id WHERE f.task_id=$1 AND r.status IN ('pending','running'))`, taskID).Scan(&active); err != nil {
+		return err
+	}
+	if active {
+		return ErrTaskArchiveRetestRunning
+	}
+	return nil
 }
 
 func scanTaskArchive(sc interface{ Scan(...any) error }) (*TaskArchive, error) {
@@ -244,6 +258,9 @@ WHERE t.id=$1 AND t.deleted_at IS NULL FOR UPDATE OF t`, taskID).Scan(
 	}
 	if !paused && !IsTerminal(status) {
 		return nil, ErrTaskArchiveIneligible
+	}
+	if err := checkTaskArchiveRetests(tx, taskID); err != nil {
+		return nil, err
 	}
 	var dependent int64
 	err = tx.QueryRow(`SELECT child.id FROM task_relations relation
@@ -569,6 +586,9 @@ func (d *DB) snapshotTaskArchive(taskID int64, llmRecords io.Writer) (*TaskArchi
 		}
 		return nil, err
 	}
+	if err := checkTaskArchiveRetests(tx, taskID); err != nil {
+		return nil, err
+	}
 	tables := make(map[string]json.RawMessage)
 	queries := []struct {
 		name  string
@@ -619,6 +639,9 @@ func (d *DB) snapshotTaskArchive(taskID int64, llmRecords io.Writer) (*TaskArchi
 		counts[query.name] = count
 	}
 
+	if err := snapshotAssuranceArchiveTx(tx, taskID, tables, counts); err != nil {
+		return nil, err
+	}
 	assetIDs, exclusiveAssetIDs, hosts, exclusiveHosts, err := archiveAssetMetadata(tx, taskID, expID, tables["assets"])
 	if err != nil {
 		return nil, err

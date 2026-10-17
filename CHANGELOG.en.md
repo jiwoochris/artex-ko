@@ -8,6 +8,10 @@ The upstream ARTEX project's per-version release history (0.3.x and earlier) and
 
 ## [Unreleased]
 
+### Added
+
+- **Task assurance and change-aware retesting.** A multilingual Assurance tab persists target snapshots, evidence-bound operator reviews, explicit coverage and explained retest plans. Selected findings use the existing retest workflow with atomic snapshot checks, idempotent dispatch and historical handling of stale results; complete records export as JSON. Archive format v4 preserves assurance and terminal retest history with active-run and compaction checks. The offline `artex -retest-plan FILE` mode remains available. See the [workspace guide](docs/task-assurance.md) and [offline planning guide](docs/change-aware-retesting.md).
+
 ### Localization (i18n)
 
 - **Added Spanish documentation.** Translated `README.es.md` from the English README into natural Spanish and added a Spanish link to the language navigation of all five READMEs (English, Korean, Chinese, Spanish, Japanese). Code, commands, payloads, URLs and identifiers are preserved; only descriptive text is translated.

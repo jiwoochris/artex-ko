@@ -50,6 +50,9 @@ WHERE archive.id=$1 FOR UPDATE OF archive,task`, archiveID).Scan(&taskID, &expID
 	if state != Archiving || taskID != snapshot.TaskID || expID != snapshot.ExplorationID {
 		return fmt.Errorf("%w: archive snapshot identity/state mismatch", ErrTaskArchiveState)
 	}
+	if err := checkTaskArchiveRetests(tx, taskID); err != nil {
+		return err
+	}
 	var dependent int64
 	err = tx.QueryRow(`SELECT child.id FROM task_relations relation
 JOIN tasks child ON child.id=relation.task_id AND child.deleted_at IS NULL
@@ -58,6 +61,9 @@ WHERE relation.source_task_id=$1 LIMIT 1`, taskID).Scan(&dependent)
 		return fmt.Errorf("%w: task %d", ErrTaskArchiveDependent, dependent)
 	}
 	if !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
+	if err := checkAssuranceArchiveSnapshotTx(tx, snapshot); err != nil {
 		return err
 	}
 	// Prevent task/asset ownership from changing while exclusivity is rechecked.
@@ -82,6 +88,9 @@ WHERE relation.source_task_id=$1 LIMIT 1`, taskID).Scan(&dependent)
 		return err
 	}
 	if _, err := tx.Exec(`DELETE FROM findings WHERE task_id=$1`, taskID); err != nil {
+		return err
+	}
+	if err := compactAssuranceArchiveTx(tx, taskID); err != nil {
 		return err
 	}
 	for _, statement := range []struct {
@@ -274,6 +283,9 @@ WHERE archive.id=$1 FOR UPDATE OF archive,task`, archiveID).Scan(&taskID, &expID
 	}
 	if err := restoreFindingTrafficTx(tx, snapshot); err != nil {
 		return nil, fmt.Errorf("restore finding traffic: %w", err)
+	}
+	if err := restoreAssuranceArchiveTx(tx, snapshot); err != nil {
+		return nil, err
 	}
 	if streamedLLMRecords != "" {
 		count, err := insertArchiveJSONSequenceRows(tx, "llm_records", llmRecords)

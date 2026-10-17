@@ -41,6 +41,7 @@ import { api } from "@/lib/api";
 import type { LLMProfile, Task } from "@/lib/types";
 
 import { AssetsTab } from "./_tabs/assets-tab";
+import { AssuranceTab } from "./_tabs/assurance-tab";
 import { BroadcastTab } from "./_tabs/broadcast-tab";
 import { CoverageGraphTab } from "./_tabs/coverage-graph-tab";
 import { FindingsTab } from "./_tabs/findings-tab";
@@ -58,6 +59,7 @@ const TAB_VALUES = [
   "broadcast",
   "findings",
   "retests",
+  "assurance",
   "assets",
   "coverage",
   "intercept",
@@ -434,6 +436,9 @@ function TaskDetailInner() {
         </TabsContent>
         <TabsContent value="retests" className="mt-0">
           <RetestsTab key={id} taskId={id} />
+        </TabsContent>
+        <TabsContent value="assurance" className="mt-0">
+          <AssuranceTab key={id} taskId={id} />
         </TabsContent>
         <TabsContent value="assets" className="mt-0">
           <AssetsTab taskId={id} />
