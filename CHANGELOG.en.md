@@ -8,6 +8,10 @@ The upstream ARTEX project's per-version release history (0.3.x and earlier) and
 
 ## [Unreleased]
 
+### Added
+
+- **Offline change-aware retest plans.** `artex -retest-plan FILE` compares explicit dependency snapshots, explains stale or unknown findings and negative coverage, and selects checks within an effort budget while retaining blocked and deferred work. Accepts stdin with `-`, requires no model or database, and does not execute retests. See the [planning guide](docs/change-aware-retesting.md).
+
 ### Localization (i18n)
 
 - **Added Spanish documentation.** Translated `README.es.md` from the English README into natural Spanish and added a Spanish link to the language navigation of all five READMEs (English, Korean, Chinese, Spanish, Japanese). Code, commands, payloads, URLs and identifiers are preserved; only descriptive text is translated.

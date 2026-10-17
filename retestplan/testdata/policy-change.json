@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "baseline": {
+    "project": "sample-shop", "environment": "local-fixture", "revision": "build-a", "generation": 1,
+    "versions": {"orders-route": "r1", "permissions": "p1", "pricing": "v1", "order-evidence": "e1"}
+  },
+  "current": {
+    "project": "sample-shop", "environment": "local-fixture", "revision": "build-b", "generation": 2,
+    "versions": {"orders-route": "r1", "permissions": "p2", "pricing": "v1", "order-evidence": "e1"}
+  },
+  "nodes": [
+    {"id": "orders-route", "depends_on": ["permissions"]},
+    {"id": "permissions"}, {"id": "pricing"}, {"id": "order-evidence"}
+  ],
+  "conclusions": [
+    {"id": "order-access-finding", "kind": "finding", "dependencies": ["orders-route", "order-evidence"], "mapping_complete": true, "impact": 5, "effort_units": 3, "prerequisites": ["test-user"]},
+    {"id": "admin-route-negative", "kind": "negative_coverage", "dependencies": ["permissions"], "mapping_complete": true, "impact": 4, "effort_units": 2, "prerequisites": ["test-admin"]},
+    {"id": "historical-unmapped-check", "kind": "negative_coverage", "dependencies": [], "mapping_complete": false, "impact": 3, "effort_units": 4},
+    {"id": "pricing-negative", "kind": "negative_coverage", "dependencies": ["pricing"], "mapping_complete": true, "impact": 2, "effort_units": 2}
+  ],
+  "available_prerequisites": ["test-user"],
+  "budget_units": 3
+}

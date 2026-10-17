@@ -52,11 +52,26 @@ func main() {
 
 func run() int {
 	var (
-		addr    = flag.String("addr", "127.0.0.1:8787", "HTTP listen address (default accepts local connections only; use :8787 to serve other hosts)")
-		dataDir = flag.String("data", filepath.Join(config.BaseDir(), "data"), "data directory for SQLite stores (default: data/ next to the executable)")
-		proxy   = flag.String("proxy", "127.0.0.1:8788", "traffic recording proxy address (empty to disable)")
+		addr       = flag.String("addr", "127.0.0.1:8787", "HTTP listen address (default accepts local connections only; use :8787 to serve other hosts)")
+		dataDir    = flag.String("data", filepath.Join(config.BaseDir(), "data"), "data directory for SQLite stores (default: data/ next to the executable)")
+		proxy      = flag.String("proxy", "127.0.0.1:8788", "traffic recording proxy address (empty to disable)")
+		retestPlan = flag.String("retest-plan", "", "write an offline change-aware retest plan from a JSON file (- reads stdin), then exit")
 	)
 	flag.Parse()
+	// Check presence as well as value: an empty filename must not start a server.
+	planning := false
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == "retest-plan" {
+			planning = true
+		}
+	})
+	if planning {
+		if flag.NArg() != 0 {
+			fmt.Fprintln(os.Stderr, "retest-plan: unexpected positional arguments")
+			return 2
+		}
+		return runRetestPlan(*retestPlan, os.Stdin, os.Stdout, os.Stderr)
+	}
 
 	// hand the build version to the server package so GET /api/health can report it
 	// to the frontend top bar.
